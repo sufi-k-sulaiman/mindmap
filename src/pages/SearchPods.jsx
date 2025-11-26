@@ -3,19 +3,13 @@ import { base44 } from '@/api/base44Client';
 import { 
     Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
     Sparkles, Radio, Loader2, ChevronRight, Plus, Cpu, BookOpen, 
-    Film, Trophy, Building2, Plane, ChevronLeft
+    Film, Trophy, Building2, Plane, ChevronLeft, X
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PageLayout from '../components/PageLayout';
-
-const VOICE_OPTIONS = [
-    { id: 'default', name: 'Default' },
-    { id: 'female', name: 'Female' },
-    { id: 'male', name: 'Male' },
-];
 
 const CATEGORIES = [
     { name: 'Technology', icon: Cpu, color: '#6B4EE6' },
@@ -41,11 +35,11 @@ export default function SearchPods() {
     const [generatingCategory, setGeneratingCategory] = useState(null);
     const [currentCaption, setCurrentCaption] = useState('');
     const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+    const [expandedCategory, setExpandedCategory] = useState(null);
     const [bass, setBass] = useState(50);
     const [mid, setMid] = useState(50);
     const [treble, setTreble] = useState(50);
     
-    const utteranceRef = useRef(null);
     const sentencesRef = useRef([]);
     const currentIndexRef = useRef(0);
     const isPlayingRef = useRef(false);
@@ -53,9 +47,10 @@ export default function SearchPods() {
 
     useEffect(() => {
         loadCategories();
-        // Load voices
+        // Preload voices
         if ('speechSynthesis' in window) {
             window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
         }
         return () => {
             window.speechSynthesis?.cancel();
@@ -69,7 +64,7 @@ export default function SearchPods() {
             const results = await Promise.all(
                 CATEGORIES.map(async (cat) => {
                     const response = await base44.integrations.Core.InvokeLLM({
-                        prompt: `Generate 4 podcast episode topics for "${cat.name}". Include subtopic filters.`,
+                        prompt: `Generate 4 podcast topics for "${cat.name}".`,
                         add_context_from_internet: true,
                         response_json_schema: {
                             type: "object",
@@ -78,11 +73,7 @@ export default function SearchPods() {
                                     type: "array",
                                     items: {
                                         type: "object",
-                                        properties: {
-                                            title: { type: "string" },
-                                            duration: { type: "string" },
-                                            plays: { type: "number" }
-                                        }
+                                        properties: { title: { type: "string" } }
                                     }
                                 },
                                 subtopics: { type: "array", items: { type: "string" } }
@@ -90,30 +81,26 @@ export default function SearchPods() {
                         }
                     });
 
-                    const episodesWithThumbs = await Promise.all(
-                        (response?.episodes || []).slice(0, 4).map(async (ep) => {
-                            try {
-                                const img = await base44.integrations.Core.GenerateImage({
-                                    prompt: `Podcast thumbnail for "${ep.title}" - ${cat.name} theme, professional style`
-                                });
-                                return { ...ep, thumbnail: img?.url, category: cat.name };
-                            } catch {
-                                return { ...ep, thumbnail: null, category: cat.name };
-                            }
-                        })
-                    );
+                    const episodes = (response?.episodes || []).slice(0, 4).map((ep, i) => ({
+                        ...ep, id: i, category: cat.name, thumbnail: null
+                    }));
 
-                    return {
-                        ...cat,
-                        episodes: episodesWithThumbs,
-                        subtopics: response?.subtopics || [],
-                        episodeCount: episodesWithThumbs.length
-                    };
+                    // Generate thumbnails in parallel
+                    const withThumbs = await Promise.all(episodes.map(async (ep) => {
+                        try {
+                            const img = await base44.integrations.Core.GenerateImage({
+                                prompt: `Podcast cover for "${ep.title}" - ${cat.name}, modern style`
+                            });
+                            return { ...ep, thumbnail: img?.url };
+                        } catch { return ep; }
+                    }));
+
+                    return { ...cat, episodes: withThumbs, subtopics: response?.subtopics || [], episodeCount: withThumbs.length };
                 })
             );
             setCategories(results);
         } catch (error) {
-            console.error('Error loading categories:', error);
+            console.error('Error:', error);
         } finally {
             setIsLoading(false);
         }
@@ -123,36 +110,24 @@ export default function SearchPods() {
         setGeneratingCategory(categoryName);
         try {
             const response = await base44.integrations.Core.InvokeLLM({
-                prompt: `Generate 3 new podcast episode topics for "${categoryName}".`,
+                prompt: `Generate 3 new podcast topics for "${categoryName}".`,
                 add_context_from_internet: true,
                 response_json_schema: {
                     type: "object",
                     properties: {
-                        episodes: {
-                            type: "array",
-                            items: {
-                                type: "object",
-                                properties: {
-                                    title: { type: "string" },
-                                    duration: { type: "string" },
-                                    plays: { type: "number" }
-                                }
-                            }
-                        }
+                        episodes: { type: "array", items: { type: "object", properties: { title: { type: "string" } } } }
                     }
                 }
             });
 
             const newEpisodes = await Promise.all(
-                (response?.episodes || []).map(async (ep) => {
+                (response?.episodes || []).map(async (ep, i) => {
                     try {
                         const img = await base44.integrations.Core.GenerateImage({
-                            prompt: `Podcast thumbnail for "${ep.title}" - ${categoryName} theme`
+                            prompt: `Podcast cover for "${ep.title}" - ${categoryName}`
                         });
-                        return { ...ep, thumbnail: img?.url, category: categoryName };
-                    } catch {
-                        return { ...ep, thumbnail: null, category: categoryName };
-                    }
+                        return { ...ep, id: Date.now() + i, thumbnail: img?.url, category: categoryName };
+                    } catch { return { ...ep, id: Date.now() + i, category: categoryName }; }
                 })
             );
 
@@ -162,14 +137,13 @@ export default function SearchPods() {
                     : cat
             ));
         } catch (error) {
-            console.error('Error generating episodes:', error);
+            console.error('Error:', error);
         } finally {
             setGeneratingCategory(null);
         }
     };
 
     const playEpisode = async (episode) => {
-        // Stop any current playback
         window.speechSynthesis?.cancel();
         if (timerRef.current) clearInterval(timerRef.current);
         
@@ -183,36 +157,36 @@ export default function SearchPods() {
 
         try {
             const scriptResponse = await base44.integrations.Core.InvokeLLM({
-                prompt: `Write a 3-minute podcast script about "${episode.title}". 
-                Make it engaging with an intro, main content with facts, and conclusion.
-                Write naturally as if speaking to listeners.`,
+                prompt: `Write a 2-minute podcast script about "${episode.title}". 
+                Make it engaging, informative, with intro and conclusion.
+                Write in a natural speaking style.`,
                 add_context_from_internet: true
             });
 
-            const script = scriptResponse || `Welcome to this episode about ${episode.title}. Let's explore this topic together.`;
-            const sentences = script.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
+            const script = scriptResponse || `Welcome to this episode about ${episode.title}.`;
+            const sentences = script.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 5);
             
             sentencesRef.current = sentences;
             currentIndexRef.current = 0;
-            setDuration(sentences.length * 3);
+            setDuration(sentences.length * 4);
             setIsGeneratingAudio(false);
+            setCurrentCaption(sentences[0] || 'Ready to play');
             
-            // Start playing
-            startSpeaking();
+            // Auto-start playback
+            setTimeout(() => startSpeaking(), 500);
 
         } catch (error) {
-            console.error('Error generating script:', error);
+            console.error('Error:', error);
             setIsGeneratingAudio(false);
-            sentencesRef.current = [`Welcome to ${episode.title}. This is an exciting topic to explore.`];
-            currentIndexRef.current = 0;
+            sentencesRef.current = [`Welcome to ${episode.title}. This is an exciting topic.`];
+            setCurrentCaption(sentencesRef.current[0]);
             setDuration(10);
-            startSpeaking();
         }
     };
 
     const startSpeaking = () => {
         if (!('speechSynthesis' in window)) {
-            alert('Text-to-speech is not supported in your browser');
+            alert('Text-to-speech is not supported');
             return;
         }
 
@@ -220,117 +194,98 @@ export default function SearchPods() {
         isPlayingRef.current = true;
         setIsPlaying(true);
         
-        speakSentence();
+        speakNextSentence();
         
-        // Timer for progress
         timerRef.current = setInterval(() => {
-            setCurrentTime(prev => {
-                if (prev >= duration) {
-                    clearInterval(timerRef.current);
-                    return duration;
-                }
-                return prev + 1;
-            });
+            setCurrentTime(prev => Math.min(prev + 1, duration));
         }, 1000);
     };
 
-    const speakSentence = () => {
-        if (!isPlayingRef.current || currentIndexRef.current >= sentencesRef.current.length) {
-            setIsPlaying(false);
-            isPlayingRef.current = false;
-            if (timerRef.current) clearInterval(timerRef.current);
+    const speakNextSentence = () => {
+        if (!isPlayingRef.current) return;
+        
+        if (currentIndexRef.current >= sentencesRef.current.length) {
+            stopPlayback();
             return;
         }
 
-        const sentence = sentencesRef.current[currentIndexRef.current];
-        setCurrentCaption(sentence);
+        const text = sentencesRef.current[currentIndexRef.current];
+        setCurrentCaption(text);
 
-        const utterance = new SpeechSynthesisUtterance(sentence);
+        const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = playbackSpeed;
         utterance.volume = isMuted ? 0 : volume / 100;
-        
-        // Get voices and set based on selection
+        utterance.pitch = 1;
+
+        // Get available voices
         const voices = window.speechSynthesis.getVoices();
-        if (selectedVoice === 'female') {
-            const femaleVoice = voices.find(v => 
-                v.name.toLowerCase().includes('female') || 
-                v.name.includes('Samantha') || 
-                v.name.includes('Victoria') ||
-                v.name.includes('Karen')
-            );
-            if (femaleVoice) utterance.voice = femaleVoice;
-        } else if (selectedVoice === 'male') {
-            const maleVoice = voices.find(v => 
-                v.name.toLowerCase().includes('male') || 
-                v.name.includes('Daniel') || 
-                v.name.includes('Alex') ||
-                v.name.includes('David')
-            );
-            if (maleVoice) utterance.voice = maleVoice;
+        if (voices.length > 0) {
+            if (selectedVoice === 'female') {
+                const female = voices.find(v => v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Victoria') || v.name.includes('Karen') || v.name.includes('Moira'));
+                if (female) utterance.voice = female;
+            } else if (selectedVoice === 'male') {
+                const male = voices.find(v => v.name.includes('Male') || v.name.includes('Daniel') || v.name.includes('Alex') || v.name.includes('David') || v.name.includes('Fred'));
+                if (male) utterance.voice = male;
+            }
         }
 
         utterance.onend = () => {
             currentIndexRef.current++;
             if (isPlayingRef.current) {
-                speakSentence();
+                speakNextSentence();
             }
         };
 
-        utterance.onerror = (e) => {
-            console.error('Speech error:', e);
+        utterance.onerror = () => {
             currentIndexRef.current++;
-            if (isPlayingRef.current) {
-                speakSentence();
-            }
+            if (isPlayingRef.current) speakNextSentence();
         };
 
-        utteranceRef.current = utterance;
         window.speechSynthesis.speak(utterance);
+    };
+
+    const stopPlayback = () => {
+        window.speechSynthesis?.cancel();
+        isPlayingRef.current = false;
+        setIsPlaying(false);
+        if (timerRef.current) clearInterval(timerRef.current);
     };
 
     const togglePlayPause = () => {
         if (isPlaying) {
-            window.speechSynthesis.cancel();
-            isPlayingRef.current = false;
-            setIsPlaying(false);
-            if (timerRef.current) clearInterval(timerRef.current);
+            stopPlayback();
         } else {
             isPlayingRef.current = true;
             setIsPlaying(true);
-            speakSentence();
+            speakNextSentence();
             timerRef.current = setInterval(() => {
-                setCurrentTime(prev => prev + 1);
+                setCurrentTime(prev => Math.min(prev + 1, duration));
             }, 1000);
         }
     };
 
     const closePlayer = () => {
-        window.speechSynthesis?.cancel();
-        isPlayingRef.current = false;
-        if (timerRef.current) clearInterval(timerRef.current);
+        stopPlayback();
         setShowPlayer(false);
-        setIsPlaying(false);
     };
 
     const handleSearch = async (query) => {
-        const episode = { title: query, category: 'Search', duration: '5:00', plays: 0 };
+        const episode = { title: query, category: 'Search' };
         try {
-            const img = await base44.integrations.Core.GenerateImage({
-                prompt: `Podcast thumbnail for "${query}" - professional style`
-            });
+            const img = await base44.integrations.Core.GenerateImage({ prompt: `Podcast cover: ${query}` });
             episode.thumbnail = img?.url;
         } catch {}
         playEpisode(episode);
     };
 
-    const formatTime = (seconds) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    const formatTime = (s) => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+
+    const handleMoreClick = (categoryName) => {
+        setExpandedCategory(expandedCategory === categoryName ? null : categoryName);
     };
 
     return (
-        <PageLayout activePage="SearchPods" onSearch={handleSearch} searchPlaceholder="Search for any topic...">
+        <PageLayout activePage="SearchPods" onSearch={handleSearch} searchPlaceholder="Search any topic to create a podcast...">
             <div className="p-6">
                 {isLoading ? (
                     <div className="flex items-center justify-center h-64">
@@ -340,6 +295,7 @@ export default function SearchPods() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {categories.map((category) => {
                             const IconComponent = category.icon;
+                            const isExpanded = expandedCategory === category.name;
                             return (
                                 <div key={category.name} className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
                                     <div className="flex items-center justify-between mb-4">
@@ -352,30 +308,41 @@ export default function SearchPods() {
                                                 <p className="text-xs text-gray-500">{category.episodeCount} episodes</p>
                                             </div>
                                         </div>
-                                        <button className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-700">
-                                            More <ChevronRight className="w-4 h-4" />
+                                        <button 
+                                            onClick={() => handleMoreClick(category.name)}
+                                            className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-700"
+                                        >
+                                            {isExpanded ? 'Less' : 'More'} 
+                                            <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                                         </button>
                                     </div>
 
-                                    <div className="flex flex-wrap gap-2 mb-4">
-                                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-600 text-white">All</span>
-                                        {category.subtopics?.slice(0, 2).map((sub, i) => (
-                                            <span key={i} className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 cursor-pointer">
-                                                {sub}
-                                            </span>
-                                        ))}
-                                    </div>
+                                    {/* Subtopics */}
+                                    {isExpanded && category.subtopics?.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mb-4">
+                                            {category.subtopics.map((sub, i) => (
+                                                <button 
+                                                    key={i} 
+                                                    onClick={() => playEpisode({ title: sub, category: category.name })}
+                                                    className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 hover:bg-purple-100 hover:text-purple-700"
+                                                >
+                                                    {sub}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
 
+                                    {/* Episodes */}
                                     <div className="space-y-3">
-                                        {category.episodes?.map((episode, i) => (
+                                        {category.episodes?.slice(0, isExpanded ? undefined : 3).map((episode) => (
                                             <div 
-                                                key={i} 
+                                                key={episode.id} 
                                                 onClick={() => playEpisode(episode)}
                                                 className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer group"
                                             >
                                                 <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0 relative">
                                                     {episode.thumbnail ? (
-                                                        <img src={episode.thumbnail} alt={episode.title} className="w-full h-full object-cover" />
+                                                        <img src={episode.thumbnail} alt="" className="w-full h-full object-cover" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center">
                                                             <Radio className="w-5 h-5 text-gray-400" />
@@ -387,17 +354,17 @@ export default function SearchPods() {
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <h4 className="text-sm font-medium text-gray-800 truncate">{episode.title}</h4>
-                                                    <p className="text-xs text-gray-500">{episode.duration || '5:00'}</p>
+                                                    <p className="text-xs text-gray-500">Click to play</p>
                                                 </div>
-                                                <Play className="w-5 h-5 text-gray-400 group-hover:text-purple-600 flex-shrink-0" />
                                             </div>
                                         ))}
                                     </div>
 
+                                    {/* Generate More */}
                                     <button 
                                         onClick={() => generateMoreEpisodes(category.name)}
                                         disabled={generatingCategory === category.name}
-                                        className="w-full mt-4 py-3 rounded-xl border border-dashed border-gray-300 text-gray-500 hover:border-purple-500 hover:text-purple-600 flex flex-col items-center gap-1 transition-colors"
+                                        className="w-full mt-4 py-3 rounded-xl border border-dashed border-gray-300 text-gray-500 hover:border-purple-500 hover:text-purple-600 flex flex-col items-center gap-1"
                                     >
                                         {generatingCategory === category.name ? (
                                             <Loader2 className="w-5 h-5 animate-spin" />
@@ -415,22 +382,25 @@ export default function SearchPods() {
 
             {/* Player Modal */}
             <Dialog open={showPlayer} onOpenChange={closePlayer}>
-                <DialogContent className="max-w-2xl p-0 bg-white border-gray-200 overflow-hidden max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-2xl p-0 bg-white overflow-hidden max-h-[90vh] overflow-y-auto">
                     <div className="p-6">
                         <div className="flex items-center justify-between mb-6">
                             <button onClick={closePlayer} className="text-gray-400 hover:text-gray-600">
                                 <ChevronLeft className="w-6 h-6" />
                             </button>
                             <span className="text-sm text-gray-500 uppercase tracking-wider">Now Playing</span>
-                            <div className="w-6" />
+                            <button onClick={closePlayer} className="text-gray-400 hover:text-gray-600">
+                                <X className="w-6 h-6" />
+                            </button>
                         </div>
 
+                        {/* Thumbnail */}
                         <div className="flex justify-center mb-6">
-                            <div className="w-48 h-48 rounded-2xl bg-gray-100 overflow-hidden relative shadow-lg">
+                            <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 overflow-hidden shadow-lg">
                                 {currentEpisode?.thumbnail ? (
-                                    <img src={currentEpisode.thumbnail} alt={currentEpisode?.title} className="w-full h-full object-cover" />
+                                    <img src={currentEpisode.thumbnail} alt="" className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-500 to-blue-500">
+                                    <div className="w-full h-full flex items-center justify-center">
                                         <Radio className="w-16 h-16 text-white" />
                                     </div>
                                 )}
@@ -453,18 +423,9 @@ export default function SearchPods() {
                         <div className="bg-gray-50 rounded-xl p-4 mb-4">
                             <h4 className="text-sm font-medium text-gray-700 mb-3">Equalizer</h4>
                             <div className="grid grid-cols-3 gap-4">
-                                <div>
-                                    <label className="text-xs text-gray-500 block mb-1">Bass</label>
-                                    <Slider value={[bass]} max={100} onValueChange={([v]) => setBass(v)} />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-gray-500 block mb-1">Mid</label>
-                                    <Slider value={[mid]} max={100} onValueChange={([v]) => setMid(v)} />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-gray-500 block mb-1">Treble</label>
-                                    <Slider value={[treble]} max={100} onValueChange={([v]) => setTreble(v)} />
-                                </div>
+                                <div><label className="text-xs text-gray-500">Bass</label><Slider value={[bass]} max={100} onValueChange={([v]) => setBass(v)} /></div>
+                                <div><label className="text-xs text-gray-500">Mid</label><Slider value={[mid]} max={100} onValueChange={([v]) => setMid(v)} /></div>
+                                <div><label className="text-xs text-gray-500">Treble</label><Slider value={[treble]} max={100} onValueChange={([v]) => setTreble(v)} /></div>
                             </div>
                         </div>
 
@@ -476,26 +437,18 @@ export default function SearchPods() {
                         {/* Voice & Volume */}
                         <div className="flex items-center gap-4 mb-6">
                             <Select value={selectedVoice} onValueChange={setSelectedVoice}>
-                                <SelectTrigger className="w-32">
-                                    <SelectValue />
-                                </SelectTrigger>
+                                <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                    {VOICE_OPTIONS.map(voice => (
-                                        <SelectItem key={voice.id} value={voice.id}>{voice.name}</SelectItem>
-                                    ))}
+                                    <SelectItem value="default">Default</SelectItem>
+                                    <SelectItem value="female">Female</SelectItem>
+                                    <SelectItem value="male">Male</SelectItem>
                                 </SelectContent>
                             </Select>
-                            
                             <div className="flex items-center gap-2 flex-1">
                                 <button onClick={() => setIsMuted(!isMuted)}>
                                     {isMuted ? <VolumeX className="w-5 h-5 text-gray-400" /> : <Volume2 className="w-5 h-5 text-gray-600" />}
                                 </button>
-                                <Slider
-                                    value={[isMuted ? 0 : volume]}
-                                    max={100}
-                                    onValueChange={([v]) => { setVolume(v); setIsMuted(false); }}
-                                    className="flex-1"
-                                />
+                                <Slider value={[isMuted ? 0 : volume]} max={100} onValueChange={([v]) => { setVolume(v); setIsMuted(false); }} className="flex-1" />
                             </div>
                         </div>
 
@@ -510,32 +463,17 @@ export default function SearchPods() {
 
                         {/* Controls */}
                         <div className="flex items-center justify-center gap-6 mb-6">
-                            <Button variant="ghost" size="icon" className="text-gray-500">
-                                <SkipBack className="w-6 h-6" />
-                            </Button>
-                            <Button
-                                size="icon"
-                                className="w-16 h-16 rounded-full bg-purple-600 text-white hover:bg-purple-700"
-                                onClick={togglePlayPause}
-                                disabled={isGeneratingAudio}
-                            >
+                            <Button variant="ghost" size="icon" className="text-gray-500"><SkipBack className="w-6 h-6" /></Button>
+                            <Button size="icon" className="w-16 h-16 rounded-full bg-purple-600 text-white hover:bg-purple-700" onClick={togglePlayPause} disabled={isGeneratingAudio}>
                                 {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
                             </Button>
-                            <Button variant="ghost" size="icon" className="text-gray-500">
-                                <SkipForward className="w-6 h-6" />
-                            </Button>
+                            <Button variant="ghost" size="icon" className="text-gray-500"><SkipForward className="w-6 h-6" /></Button>
                         </div>
 
                         {/* Speed */}
                         <div className="flex justify-center gap-2">
                             {[0.5, 0.75, 1, 1.25, 1.5, 2].map((speed) => (
-                                <button
-                                    key={speed}
-                                    onClick={() => setPlaybackSpeed(speed)}
-                                    className={`px-3 py-1 rounded-lg text-sm ${
-                                        playbackSpeed === speed ? 'bg-purple-600 text-white' : 'text-gray-500 hover:bg-gray-100'
-                                    }`}
-                                >
+                                <button key={speed} onClick={() => setPlaybackSpeed(speed)} className={`px-3 py-1 rounded-lg text-sm ${playbackSpeed === speed ? 'bg-purple-600 text-white' : 'text-gray-500 hover:bg-gray-100'}`}>
                                     {speed}x
                                 </button>
                             ))}

@@ -1,20 +1,20 @@
 import TestFunctions from './pages/TestFunctions';
-import Publishing from './pages/Publishing';
 import DashboardComponents from './pages/DashboardComponents';
 import AIHub from './pages/AIHub';
 import Home from './pages/Home';
 import SearchPods from './pages/SearchPods';
 import Settings from './pages/Settings';
+import Template from './pages/Template';
 
 
 export const PAGES = {
     "TestFunctions": TestFunctions,
-    "Publishing": Publishing,
     "DashboardComponents": DashboardComponents,
     "AIHub": AIHub,
     "Home": Home,
     "SearchPods": SearchPods,
     "Settings": Settings,
+    "Template": Template,
 }
 
 export const pagesConfig = {

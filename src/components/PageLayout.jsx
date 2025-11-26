@@ -32,13 +32,13 @@ export default function PageLayout({ children, activePage, onSearch, searchPlace
                         >
                             {sidebarOpen ? <ChevronLeft className="w-5 h-5 text-purple-600" /> : <Menu className="w-5 h-5 text-purple-600" />}
                         </Button>
-                        <div className="flex items-center gap-3">
+                        <Link to={createPageUrl('Home')} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                             <img src={LOGO_URL} alt="1cPublishing" className="h-10 w-10 object-contain" />
                             <div>
                                 <span className="text-xl font-bold text-black">1cPublishing</span>
                                 <p className="text-xs font-medium text-purple-600">AI Powered</p>
                             </div>
-                        </div>
+                        </Link>
                     </div>
 
                     <SmartSearchBar 
