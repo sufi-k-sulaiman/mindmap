@@ -10,8 +10,17 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const accountSid = Deno.env.get("Twilio");
+        const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID") || Deno.env.get("Twilio");
         const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
+        
+        if (!accountSid || !authToken) {
+            return Response.json({ 
+                success: false,
+                error: 'Missing Twilio credentials. Please set TWILIO_ACCOUNT_SID (or Twilio) and TWILIO_AUTH_TOKEN secrets.',
+                hasAccountSid: !!accountSid,
+                hasAuthToken: !!authToken
+            }, { status: 400 });
+        }
 
         const client = twilio(accountSid, authToken);
 

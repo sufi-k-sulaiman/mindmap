@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
+        const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID") || Deno.env.get("Twilio");
         const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
         const twilioNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
 
