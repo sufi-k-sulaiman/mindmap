@@ -9,8 +9,6 @@ import {
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LOGO_URL, menuItems, footerLinks } from '../components/NavigationConfig';
 import StockCard from '../components/markets/StockCard';
 import StockTicker from '../components/markets/StockTicker';
@@ -35,6 +33,20 @@ const FILTER_OPTIONS = {
     aiIndex: { label: 'AI Index', options: ['Any', '90+', '80+', '70+', '60+'] },
 };
 
+// Stock universe - will be enriched with live AI data
+const STOCK_UNIVERSE = [
+    'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'BRK.B', 'JPM', 'V',
+    'JNJ', 'WMT', 'PG', 'MA', 'HD', 'CVX', 'MRK', 'ABBV', 'PEP', 'KO',
+    'COST', 'TMO', 'AVGO', 'MCD', 'CSCO', 'ACN', 'ABT', 'DHR', 'NEE', 'LIN',
+    'ADBE', 'CRM', 'NKE', 'TXN', 'PM', 'UNP', 'RTX', 'QCOM', 'HON', 'LOW',
+    'INTC', 'AMD', 'IBM', 'ORCL', 'NOW', 'INTU', 'SNOW', 'PLTR', 'CRWD', 'NET',
+    'BA', 'CAT', 'GE', 'MMM', 'UPS', 'DE', 'LMT', 'GD', 'NOC', 'RTX',
+    'XOM', 'CVX', 'COP', 'EOG', 'SLB', 'PSX', 'VLO', 'MPC', 'OXY', 'HAL',
+    'BAC', 'WFC', 'GS', 'MS', 'C', 'SCHW', 'BLK', 'AXP', 'PYPL', 'SQ',
+    'PFE', 'LLY', 'UNH', 'AMGN', 'GILD', 'BMY', 'REGN', 'VRTX', 'MRNA', 'BIIB',
+    'DIS', 'NFLX', 'CMCSA', 'T', 'VZ', 'TMUS', 'CHTR', 'WBD', 'PARA', 'FOX'
+];
+
 export default function Markets() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [stocks, setStocks] = useState([]);
@@ -56,8 +68,8 @@ export default function Markets() {
     });
     const [selectedStock, setSelectedStock] = useState(null);
     const [showStockModal, setShowStockModal] = useState(false);
+    const [loadingProgress, setLoadingProgress] = useState(0);
 
-    // Responsive sidebar
     useEffect(() => {
         const handleResize = () => setSidebarOpen(window.innerWidth >= 768);
         handleResize();
@@ -65,72 +77,104 @@ export default function Markets() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Load stocks on mount
     useEffect(() => {
         loadStocks();
     }, []);
 
     const loadStocks = async () => {
         setIsLoading(true);
+        setLoadingProgress(0);
+        
         try {
-            const response = await base44.integrations.Core.InvokeLLM({
-                prompt: `Generate a list of 24 major US stocks with realistic current market data. Include tech giants, finance, consumer, healthcare companies. For each stock provide:
-- ticker symbol
-- company name
-- price (realistic current price)
-- change percentage (between -5% and +5%)
-- volume (in millions)
-- MOAT score (40-99)
-- SGR (Sustainable Growth Rate 5-30)
-- ROE (Return on Equity 8-35%)
-- ROIC (Return on Invested Capital 5-25)
-- ROA (Return on Assets 3-20%)
-- EPS (Earnings Per Share $2-20)
-- P/E ratio (10-50)
-- PEG ratio (0.5-3.0)
-- FCF (Free Cash Flow $100-5000)
-- EVA (Economic Value Added 20-99)
-- Z-Score (Altman Z-Score 1.5-4.5)
-- sector
-- mini price history for sparkline (array of 20 numbers showing recent trend)`,
-                add_context_from_internet: true,
-                response_json_schema: {
-                    type: "object",
-                    properties: {
-                        stocks: {
-                            type: "array",
-                            items: {
-                                type: "object",
-                                properties: {
-                                    ticker: { type: "string" },
-                                    name: { type: "string" },
-                                    price: { type: "number" },
-                                    change: { type: "number" },
-                                    volume: { type: "string" },
-                                    moat: { type: "number" },
-                                    sgr: { type: "number" },
-                                    roe: { type: "number" },
-                                    roic: { type: "number" },
-                                    roa: { type: "number" },
-                                    eps: { type: "number" },
-                                    pe: { type: "number" },
-                                    peg: { type: "number" },
-                                    fcf: { type: "number" },
-                                    eva: { type: "number" },
-                                    zscore: { type: "number" },
-                                    sector: { type: "string" },
-                                    history: { type: "array", items: { type: "number" } }
+            // Batch stocks into groups for parallel processing
+            const batchSize = 25;
+            const batches = [];
+            for (let i = 0; i < STOCK_UNIVERSE.length; i += batchSize) {
+                batches.push(STOCK_UNIVERSE.slice(i, i + batchSize));
+            }
+
+            const allStocks = [];
+            
+            for (let i = 0; i < batches.length; i++) {
+                const batch = batches[i];
+                setLoadingProgress(Math.round(((i + 1) / batches.length) * 100));
+                
+                const response = await base44.integrations.Core.InvokeLLM({
+                    prompt: `You are a financial data API. Return CURRENT real market data for these stocks: ${batch.join(', ')}.
+                    
+For EACH stock provide accurate current data:
+- ticker: stock symbol
+- name: full company name  
+- price: current stock price (use real approximate prices as of late 2024)
+- change: today's % change (realistic between -5% and +5%)
+- volume: trading volume like "45.2M"
+- marketCap: market cap in billions like "2890"
+- sector: company sector
+- industry: specific industry
+- moat: competitive moat score 40-99 based on real competitive advantages
+- sgr: sustainable growth rate 5-30%
+- roe: return on equity (use real approximate values)
+- roic: return on invested capital
+- roa: return on assets  
+- eps: earnings per share (real values)
+- pe: P/E ratio (real values)
+- peg: PEG ratio
+- fcf: free cash flow in millions
+- eva: economic value added score 20-99
+- zscore: Altman Z-Score (real assessment)
+- dividend: dividend yield %
+- beta: stock beta
+- aiRating: AI investment rating 60-99
+- history: array of 20 numbers showing 20-day price trend
+
+Return accurate, realistic financial data.`,
+                    add_context_from_internet: true,
+                    response_json_schema: {
+                        type: "object",
+                        properties: {
+                            stocks: {
+                                type: "array",
+                                items: {
+                                    type: "object",
+                                    properties: {
+                                        ticker: { type: "string" },
+                                        name: { type: "string" },
+                                        price: { type: "number" },
+                                        change: { type: "number" },
+                                        volume: { type: "string" },
+                                        marketCap: { type: "string" },
+                                        sector: { type: "string" },
+                                        industry: { type: "string" },
+                                        moat: { type: "number" },
+                                        sgr: { type: "number" },
+                                        roe: { type: "number" },
+                                        roic: { type: "number" },
+                                        roa: { type: "number" },
+                                        eps: { type: "number" },
+                                        pe: { type: "number" },
+                                        peg: { type: "number" },
+                                        fcf: { type: "number" },
+                                        eva: { type: "number" },
+                                        zscore: { type: "number" },
+                                        dividend: { type: "number" },
+                                        beta: { type: "number" },
+                                        aiRating: { type: "number" },
+                                        history: { type: "array", items: { type: "number" } }
+                                    }
                                 }
                             }
                         }
                     }
+                });
+
+                if (response?.stocks) {
+                    allStocks.push(...response.stocks);
                 }
-            });
-            setStocks(response?.stocks || []);
+            }
+
+            setStocks(allStocks);
         } catch (error) {
             console.error('Error loading stocks:', error);
-            // Generate mock data on error
-            setStocks(generateMockStocks());
         } finally {
             setIsLoading(false);
         }
@@ -147,84 +191,9 @@ export default function Markets() {
         setShowStockModal(true);
     };
 
-    const generateMockStocks = () => {
-        const mockTickers = [
-            { ticker: 'AAPL', name: 'Apple Inc.', sector: 'Technology', marketCap: '2890' },
-            { ticker: 'MSFT', name: 'Microsoft Corporation', sector: 'Technology', marketCap: '2780' },
-            { ticker: 'GOOGL', name: 'Alphabet Inc.', sector: 'Technology', marketCap: '1720' },
-            { ticker: 'NVDA', name: 'NVIDIA Corporation', sector: 'Technology', marketCap: '1180' },
-            { ticker: 'META', name: 'Meta Platforms Inc.', sector: 'Technology', marketCap: '890' },
-            { ticker: 'AMZN', name: 'Amazon.com Inc.', sector: 'Consumer', marketCap: '1540' },
-            { ticker: 'TSLA', name: 'Tesla Inc.', sector: 'Automotive', marketCap: '780' },
-            { ticker: 'JPM', name: 'JPMorgan Chase & Co.', sector: 'Finance', marketCap: '520' },
-            { ticker: 'V', name: 'Visa Inc.', sector: 'Finance', marketCap: '480' },
-            { ticker: 'JNJ', name: 'Johnson & Johnson', sector: 'Healthcare', marketCap: '420' },
-            { ticker: 'WMT', name: 'Walmart Inc.', sector: 'Consumer', marketCap: '410' },
-            { ticker: 'PG', name: 'Procter & Gamble', sector: 'Consumer', marketCap: '380' },
-            { ticker: 'MA', name: 'Mastercard Inc.', sector: 'Finance', marketCap: '390' },
-            { ticker: 'HD', name: 'Home Depot Inc.', sector: 'Consumer', marketCap: '340' },
-            { ticker: 'XOM', name: 'Exxon Mobil Corp.', sector: 'Energy', marketCap: '460' },
-            { ticker: 'CVX', name: 'Chevron Corp.', sector: 'Energy', marketCap: '290' },
-            { ticker: 'BAC', name: 'Bank of America', sector: 'Finance', marketCap: '270' },
-            { ticker: 'ABBV', name: 'AbbVie Inc.', sector: 'Healthcare', marketCap: '280' },
-            { ticker: 'KO', name: 'Coca-Cola Company', sector: 'Consumer', marketCap: '260' },
-            { ticker: 'PEP', name: 'PepsiCo Inc.', sector: 'Consumer', marketCap: '230' },
-            { ticker: 'COST', name: 'Costco Wholesale', sector: 'Consumer', marketCap: '250' },
-            { ticker: 'MRK', name: 'Merck & Co.', sector: 'Healthcare', marketCap: '270' },
-            { ticker: 'TMO', name: 'Thermo Fisher Scientific', sector: 'Healthcare', marketCap: '210' },
-            { ticker: 'AVGO', name: 'Broadcom Inc.', sector: 'Technology', marketCap: '360' },
-            { ticker: 'CSCO', name: 'Cisco Systems', sector: 'Technology', marketCap: '220' },
-            { ticker: 'ACN', name: 'Accenture plc', sector: 'Technology', marketCap: '200' },
-            { ticker: 'ADBE', name: 'Adobe Inc.', sector: 'Technology', marketCap: '240' },
-            { ticker: 'CRM', name: 'Salesforce Inc.', sector: 'Technology', marketCap: '250' },
-            { ticker: 'INTC', name: 'Intel Corporation', sector: 'Technology', marketCap: '180' },
-            { ticker: 'AMD', name: 'Advanced Micro Devices', sector: 'Technology', marketCap: '220' },
-            { ticker: 'IBM', name: 'IBM Corporation', sector: 'Technology', marketCap: '150' },
-            { ticker: 'ORCL', name: 'Oracle Corporation', sector: 'Technology', marketCap: '310' },
-            { ticker: 'QCOM', name: 'Qualcomm Inc.', sector: 'Technology', marketCap: '170' },
-            { ticker: 'NOW', name: 'ServiceNow Inc.', sector: 'Technology', marketCap: '150' },
-            { ticker: 'INTU', name: 'Intuit Inc.', sector: 'Technology', marketCap: '170' },
-            { ticker: 'SNOW', name: 'Snowflake Inc.', sector: 'Technology', marketCap: '65' },
-            { ticker: 'PLTR', name: 'Palantir Technologies', sector: 'Technology', marketCap: '45' },
-            { ticker: 'CRWD', name: 'CrowdStrike Holdings', sector: 'Technology', marketCap: '72' },
-            { ticker: 'NKE', name: 'Nike Inc.', sector: 'Consumer', marketCap: '150' },
-            { ticker: 'LOW', name: 'Lowes Companies', sector: 'Consumer', marketCap: '130' },
-            { ticker: 'SBUX', name: 'Starbucks Corporation', sector: 'Consumer', marketCap: '105' },
-            { ticker: 'TGT', name: 'Target Corporation', sector: 'Consumer', marketCap: '72' },
-            { ticker: 'MCD', name: 'McDonalds Corporation', sector: 'Consumer', marketCap: '205' },
-            { ticker: 'DIS', name: 'Walt Disney Company', sector: 'Media', marketCap: '175' },
-            { ticker: 'NFLX', name: 'Netflix Inc.', sector: 'Media', marketCap: '195' },
-            { ticker: 'PYPL', name: 'PayPal Holdings', sector: 'Finance', marketCap: '68' },
-            { ticker: 'SQ', name: 'Block Inc.', sector: 'Finance', marketCap: '42' },
-            { ticker: 'GS', name: 'Goldman Sachs', sector: 'Finance', marketCap: '135' },
-            { ticker: 'MS', name: 'Morgan Stanley', sector: 'Finance', marketCap: '150' },
-            { ticker: 'AXP', name: 'American Express', sector: 'Finance', marketCap: '165' },
-        ];
-        
-        return mockTickers.map(stock => ({
-            ...stock,
-            price: Math.round((100 + Math.random() * 400) * 100) / 100,
-            change: Math.round((Math.random() * 10 - 5) * 100) / 100,
-            volume: `${Math.round(Math.random() * 100)}M`,
-            moat: Math.round(40 + Math.random() * 59),
-            sgr: Math.round(5 + Math.random() * 25),
-            roe: Math.round(8 + Math.random() * 27),
-            roic: Math.round(5 + Math.random() * 20),
-            roa: Math.round(3 + Math.random() * 17),
-            eps: Math.round((2 + Math.random() * 18) * 10) / 10,
-            pe: Math.round((10 + Math.random() * 40) * 10) / 10,
-            peg: Math.round((0.5 + Math.random() * 2.5) * 10) / 10,
-            fcf: Math.round(100 + Math.random() * 4900),
-            eva: Math.round(20 + Math.random() * 79),
-            zscore: Math.round((1.5 + Math.random() * 3) * 10) / 10,
-            history: Array.from({ length: 20 }, () => Math.random() * 100)
-        }));
-    };
-
     const filteredStocks = useMemo(() => {
         let result = [...stocks];
         
-        // Search filter
         if (searchQuery) {
             const q = searchQuery.toLowerCase();
             result = result.filter(s => 
@@ -233,7 +202,6 @@ export default function Markets() {
             );
         }
 
-        // Preset filters
         if (activePreset === 'wide-moats') {
             result = result.filter(s => s.moat >= 70);
         } else if (activePreset === 'undervalued') {
@@ -244,7 +212,6 @@ export default function Markets() {
             result = result.sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
         }
 
-        // Custom filters
         if (filters.moat !== 'Any') {
             const min = parseInt(filters.moat);
             result = result.filter(s => s.moat >= min);
@@ -257,6 +224,9 @@ export default function Markets() {
             const max = parseInt(filters.pe.replace('<', ''));
             result = result.filter(s => s.pe < max);
         }
+        if (filters.sector !== 'All Sectors') {
+            result = result.filter(s => s.sector === filters.sector);
+        }
 
         return result;
     }, [stocks, searchQuery, activePreset, filters]);
@@ -265,6 +235,11 @@ export default function Markets() {
         return [...stocks]
             .sort((a, b) => Math.abs(b.change) - Math.abs(a.change))
             .slice(0, 20);
+    }, [stocks]);
+
+    const sectors = useMemo(() => {
+        const uniqueSectors = [...new Set(stocks.map(s => s.sector).filter(Boolean))];
+        return ['All Sectors', ...uniqueSectors];
     }, [stocks]);
 
     return (
@@ -288,7 +263,6 @@ export default function Markets() {
                         </Link>
                     </div>
 
-                    {/* Search */}
                     <div className="flex-1 max-w-md mx-4 md:mx-8">
                         <div className="relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -312,15 +286,12 @@ export default function Markets() {
                     </Button>
                 </div>
 
-                {/* Stock Ticker */}
                 <StockTicker stocks={topMovers} />
             </header>
 
             <div className="flex flex-1">
-                {/* Mobile Overlay */}
                 {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />}
 
-                {/* Sidebar */}
                 <aside className={`${sidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full md:translate-x-0'} transition-all duration-300 overflow-hidden bg-white border-r border-gray-200 flex-shrink-0 fixed md:relative z-50 md:z-auto h-[calc(100vh-120px)] md:h-auto`}>
                     <nav className="p-4 space-y-2">
                         {menuItems.map((item, index) => (
@@ -332,7 +303,6 @@ export default function Markets() {
                     </nav>
                 </aside>
 
-                {/* Main Content */}
                 <main className="flex-1 overflow-auto p-4 md:p-6">
                     {/* Preset Filters */}
                     <div className="flex flex-wrap gap-2 mb-4">
@@ -352,21 +322,29 @@ export default function Markets() {
                         ))}
                     </div>
 
-                    {/* Filter Dropdowns */}
-                    <FilterChips filters={filters} setFilters={setFilters} filterOptions={FILTER_OPTIONS} />
+                    <FilterChips filters={filters} setFilters={setFilters} filterOptions={FILTER_OPTIONS} sectors={sectors} />
 
-                    {/* Results Header */}
                     <div className="flex items-center justify-between mb-4 mt-6">
                         <p className="text-gray-600">
                             Showing <span className="font-bold text-gray-900">{filteredStocks.length}</span> stocks
                         </p>
-                        <p className="text-sm text-gray-400">Data updates every 2 hours via AI agent</p>
+                        <p className="text-sm text-gray-500 flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-purple-600" />
+                            Live AI-powered market data
+                        </p>
                     </div>
 
-                    {/* Stock Grid */}
                     {isLoading ? (
-                        <div className="flex items-center justify-center py-20">
-                            <Loader2 className="w-10 h-10 text-purple-600 animate-spin" />
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <Loader2 className="w-10 h-10 text-purple-600 animate-spin mb-4" />
+                            <p className="text-gray-600 mb-2">Loading market data with AI...</p>
+                            <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-purple-600 rounded-full transition-all duration-300"
+                                    style={{ width: `${loadingProgress}%` }}
+                                />
+                            </div>
+                            <p className="text-sm text-gray-500 mt-2">{loadingProgress}% complete</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -385,14 +363,13 @@ export default function Markets() {
                 </main>
             </div>
 
-            {/* Footer */}
             <footer className="py-4 bg-white border-t border-gray-200">
-                <div className="max-w-6xl mx-auto px-4 text-center text-sm text-gray-500">
-                    © 2025 1cPublishing.com • Market data for informational purposes only
+                <div className="max-w-6xl mx-auto px-4 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-600" />
+                    Powered by AI • Real-time market intelligence
                 </div>
             </footer>
 
-            {/* Stock Detail Modal */}
             <StockDetailModal 
                 stock={selectedStock} 
                 isOpen={showStockModal} 
