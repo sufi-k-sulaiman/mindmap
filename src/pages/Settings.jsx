@@ -46,8 +46,8 @@ export default function Settings() {
     };
 
     return (
-        <PageLayout activePage="Settings">
-            <div className="p-8 max-w-2xl mx-auto">
+        <PageLayout activePage="Settings" showSearch={true}>
+            <div className="p-4 md:p-8 max-w-2xl mx-auto">
                 <h1 className="text-3xl font-bold mb-8 text-gray-800">Settings</h1>
 
                 <div className="space-y-6">

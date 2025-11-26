@@ -6,6 +6,7 @@ import SearchPods from './pages/SearchPods';
 import Settings from './pages/Settings';
 import Template from './pages/Template';
 import MindMap from './pages/MindMap';
+import ResumeBuilder from './pages/ResumeBuilder';
 
 
 export const PAGES = {
@@ -17,6 +18,7 @@ export const PAGES = {
     "Settings": Settings,
     "Template": Template,
     "MindMap": MindMap,
+    "ResumeBuilder": ResumeBuilder,
 }
 
 export const pagesConfig = {
