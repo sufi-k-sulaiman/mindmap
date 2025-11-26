@@ -1,365 +1,341 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+import { base44 } from '@/api/base44Client';
 import { 
-    Menu, ChevronLeft, GraduationCap, Award, Trophy, Star,
-    Brain, Shield, Users, BookOpen, Cpu, Leaf, Heart, Building2, 
-    Scale, Zap, Globe, ChevronDown, MapPin, CheckCircle
+    GraduationCap, Trophy, Zap, Star, Flame, Target, Award,
+    Loader2, RefreshCw, Sparkles
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { LOGO_URL, menuItems, footerLinks } from '../components/NavigationConfig';
 import PageLayout from '../components/PageLayout';
-
-// Learning Topics with icons and colors
-const LEARNING_TOPICS = [
-    { id: 1, name: 'AI Integration', icon: Brain, color: '#6B4EE6', priority: 1 },
-    { id: 2, name: 'Cybersecurity', icon: Shield, color: '#EF4444', priority: 2 },
-    { id: 3, name: 'Workforce Readiness', icon: Users, color: '#3B82F6', priority: 3 },
-    { id: 4, name: 'STEM Education', icon: GraduationCap, color: '#10B981', priority: 4 },
-    { id: 5, name: 'Digital Transformation', icon: Cpu, color: '#8B5CF6', priority: 5 },
-    { id: 6, name: 'Biotechnology', icon: Zap, color: '#F59E0B', priority: 6 },
-    { id: 7, name: 'Climate Change', icon: Leaf, color: '#06B6D4', priority: 7 },
-    { id: 8, name: 'Healthcare Access', icon: Heart, color: '#EC4899', priority: 8 },
-    { id: 9, name: 'Infrastructure', icon: Building2, color: '#84CC16', priority: 9 },
-    { id: 10, name: 'Public Policy', icon: Scale, color: '#14B8A6', priority: 10 },
-];
-
-const COUNTRIES = [
-    { code: 'US', name: 'United States', flag: '🇺🇸' },
-    { code: 'CA', name: 'Canada', flag: '🇨🇦' },
-    { code: 'UK', name: 'United Kingdom', flag: '🇬🇧' },
-    { code: 'AU', name: 'Australia', flag: '🇦🇺' },
-    { code: 'DE', name: 'Germany', flag: '🇩🇪' },
-    { code: 'FR', name: 'France', flag: '🇫🇷' },
-    { code: 'JP', name: 'Japan', flag: '🇯🇵' },
-    { code: 'IN', name: 'India', flag: '🇮🇳' },
-];
+import SubjectSelector from '../components/learning/SubjectSelector';
+import LearningIslandCard from '../components/learning/LearningIslandCard';
+import CourseModal from '../components/learning/CourseModal';
+import { SUBJECTS } from '../components/learning/SubjectData';
 
 const RANKS = [
-    { name: 'Novice', minPoints: 0, color: '#9CA3AF' },
-    { name: 'Explorer', minPoints: 1000, color: '#3B82F6' },
-    { name: 'Scholar', minPoints: 5000, color: '#10B981' },
-    { name: 'Expert', minPoints: 10000, color: '#8B5CF6' },
-    { name: 'Master', minPoints: 25000, color: '#F59E0B' },
-    { name: 'Legend', minPoints: 50000, color: '#EF4444' },
+    { name: 'Novice', minXP: 0, color: '#9CA3AF', icon: '🌱' },
+    { name: 'Explorer', minXP: 500, color: '#3B82F6', icon: '🧭' },
+    { name: 'Scholar', minXP: 2000, color: '#10B981', icon: '📚' },
+    { name: 'Expert', minXP: 5000, color: '#8B5CF6', icon: '🎓' },
+    { name: 'Master', minXP: 10000, color: '#F59E0B', icon: '👑' },
+    { name: 'Legend', minXP: 25000, color: '#EF4444', icon: '🌟' },
 ];
 
-// Island SVG Component
-const LearningIsland = ({ topic, index, explored, onExplore }) => {
-    const [hovered, setHovered] = useState(false);
-    const Icon = topic.icon;
-    
-    // Different island shapes
-    const shapes = [
-        'M50,20 Q80,10 100,30 Q120,50 110,80 Q100,110 70,120 Q40,130 20,100 Q0,70 20,40 Q30,20 50,20',
-        'M60,15 Q90,5 110,25 Q130,50 120,85 Q110,115 75,125 Q35,135 15,100 Q-5,65 15,35 Q30,10 60,15',
-        'M55,18 Q85,8 105,28 Q125,55 115,88 Q105,118 70,128 Q32,138 12,102 Q-8,68 12,38 Q28,12 55,18',
-    ];
-    
-    const shape = shapes[index % shapes.length];
-    
-    return (
-        <div 
-            className="relative cursor-pointer group"
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            onClick={() => onExplore(topic)}
-        >
-            {/* Priority number badge */}
-            <div 
-                className="absolute -top-2 left-1/2 -translate-x-1/2 z-20 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg"
-                style={{ backgroundColor: topic.color }}
-            >
-                {topic.priority}
-            </div>
-            
-            {/* Island SVG */}
-            <svg 
-                viewBox="0 0 130 140" 
-                className={`w-32 h-36 transition-transform duration-300 ${hovered ? 'scale-110' : ''}`}
-                style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.15))' }}
-            >
-                {/* Water reflection */}
-                <ellipse cx="65" cy="130" rx="50" ry="8" fill="#93C5FD" opacity="0.3" />
-                
-                {/* Island base (darker edge) */}
-                <path d={shape} fill="#166534" transform="translate(0, 5)" />
-                
-                {/* Island grass (main) */}
-                <path d={shape} fill="#4ADE80" />
-                
-                {/* Inner grass highlight */}
-                <path d={shape} fill="#22C55E" transform="translate(10, 10) scale(0.85)" />
-                
-                {/* Decorative elements */}
-                <circle cx="30" cy="50" r="6" fill="#166534" opacity="0.5" />
-                <circle cx="95" cy="70" r="5" fill="#166534" opacity="0.5" />
-                <circle cx="50" cy="95" r="4" fill="#15803D" opacity="0.5" />
-                
-                {/* Icon platform */}
-                <ellipse cx="65" cy="70" rx="22" ry="10" fill="#D4A574" />
-                <ellipse cx="65" cy="68" rx="22" ry="10" fill="#E5B887" />
-            </svg>
-            
-            {/* Icon */}
-            <div 
-                className="absolute top-12 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform duration-300"
-                style={{ backgroundColor: topic.color, transform: hovered ? 'translate(-50%, -4px)' : 'translate(-50%, 0)' }}
-            >
-                <Icon className="w-5 h-5 text-white" />
-            </div>
-            
-            {/* Status badge */}
-            {explored && (
-                <div className="absolute top-8 right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center border-2 border-white shadow">
-                    <CheckCircle className="w-4 h-4 text-white" />
-                </div>
-            )}
-            
-            {/* Label */}
-            <div className="text-center mt-2">
-                <h3 className="font-semibold text-gray-800 text-sm">{topic.name}</h3>
-                <p className="text-xs text-gray-500">Priority #{topic.priority}</p>
-            </div>
-        </div>
-    );
-};
-
 export default function Learning() {
-    const [country, setCountry] = useState('US');
-    const [points, setPoints] = useState(5500);
-    const [certificates, setCertificates] = useState(3);
-    const [exploredIslands, setExploredIslands] = useState([1, 3, 5]);
+    const [selectedSubjects, setSelectedSubjects] = useState([SUBJECTS[0]]); // Default to first subject
+    const [subTopics, setSubTopics] = useState([]);
+    const [loadingTopics, setLoadingTopics] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    const [showCourseModal, setShowCourseModal] = useState(false);
+    const [userProgress, setUserProgress] = useState({});
+    
+    // Gamification state
+    const [totalXP, setTotalXP] = useState(1250);
+    const [streak, setStreak] = useState(7);
+    const [completedCourses, setCompletedCourses] = useState(3);
+    const [certificates, setCertificates] = useState(1);
 
-    const selectedCountry = COUNTRIES.find(c => c.code === country);
-    const currentRank = RANKS.filter(r => points >= r.minPoints).pop() || RANKS[0];
+    const currentRank = RANKS.filter(r => totalXP >= r.minXP).pop() || RANKS[0];
+    const nextRank = RANKS.find(r => r.minXP > totalXP);
+    const xpToNextRank = nextRank ? nextRank.minXP - totalXP : 0;
+
+    // Generate sub-topics when subjects change
+    useEffect(() => {
+        if (selectedSubjects.length > 0) {
+            generateSubTopics();
+        } else {
+            setSubTopics([]);
+        }
+    }, [selectedSubjects]);
+
+    const generateSubTopics = async () => {
+        setLoadingTopics(true);
+        try {
+            const subjectNames = selectedSubjects.map(s => s.name).join(', ');
+            
+            const response = await base44.integrations.Core.InvokeLLM({
+                prompt: `Generate 10 specific learning sub-topics/courses for these subjects: ${subjectNames}.
+                Each topic should be a focused, learnable concept that could be a standalone course.
+                Make them practical and engaging for learners.
+                Include a mix of beginner and advanced topics.`,
+                add_context_from_internet: true,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        topics: {
+                            type: "array",
+                            items: {
+                                type: "object",
+                                properties: {
+                                    id: { type: "string" },
+                                    name: { type: "string" },
+                                    description: { type: "string" },
+                                    difficulty: { type: "string" },
+                                    estimatedHours: { type: "number" },
+                                    parentSubject: { type: "string" }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Map generated topics to include colors from parent subjects
+            const topicsWithColors = (response?.topics || []).map((topic, i) => {
+                const parentSubject = selectedSubjects.find(s => 
+                    s.name.toLowerCase() === topic.parentSubject?.toLowerCase()
+                ) || selectedSubjects[i % selectedSubjects.length];
+                
+                return {
+                    ...topic,
+                    color: parentSubject?.color || '#6B4EE6',
+                    icon: parentSubject?.icon || 'BookOpen',
+                    id: topic.id || `topic-${i}`
+                };
+            });
+
+            setSubTopics(topicsWithColors);
+            
+            // Initialize progress for new topics
+            const newProgress = {};
+            topicsWithColors.forEach(t => {
+                newProgress[t.id] = userProgress[t.id] || Math.floor(Math.random() * 30);
+            });
+            setUserProgress(newProgress);
+            
+        } catch (error) {
+            console.error('Error generating topics:', error);
+            // Fallback topics based on selected subjects
+            const fallbackTopics = selectedSubjects.flatMap((subject, si) => [
+                { id: `${subject.id}-1`, name: `Introduction to ${subject.name}`, description: 'Core fundamentals', color: subject.color, icon: subject.icon, difficulty: 'Beginner', estimatedHours: 4 },
+                { id: `${subject.id}-2`, name: `Advanced ${subject.name}`, description: 'Deep dive into concepts', color: subject.color, icon: subject.icon, difficulty: 'Advanced', estimatedHours: 8 },
+            ]).slice(0, 10);
+            setSubTopics(fallbackTopics);
+        } finally {
+            setLoadingTopics(false);
+        }
+    };
 
     const handleExplore = (topic) => {
         setSelectedTopic(topic);
-        setShowModal(true);
+        setShowCourseModal(true);
     };
 
-    const markAsExplored = () => {
-        if (selectedTopic && !exploredIslands.includes(selectedTopic.id)) {
-            setExploredIslands([...exploredIslands, selectedTopic.id]);
-            setPoints(points + 500);
+    const handleCourseComplete = () => {
+        if (selectedTopic) {
+            setUserProgress(prev => ({ ...prev, [selectedTopic.id]: 100 }));
+            setTotalXP(prev => prev + 500);
+            setCompletedCourses(prev => prev + 1);
         }
-        setShowModal(false);
+        setShowCourseModal(false);
     };
 
     return (
-        <PageLayout activePage="Learning" showSearch={true} searchPlaceholder="Search learning topics...">
-            <div className="min-h-screen bg-gradient-to-b from-sky-50 to-white">
-                {/* Header Section */}
-                <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-6">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            {/* User Info */}
+        <PageLayout activePage="Learning" showSearch={false}>
+            <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-purple-50">
+                {/* Hero Header */}
+                <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white">
+                    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                            {/* User Profile & Stats */}
                             <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
-                                    <GraduationCap className="w-8 h-8 text-white" />
+                                <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-4xl">
+                                    {currentRank.icon}
                                 </div>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">Learning Explorer</h1>
-                                    <p className="text-gray-500">Citizen • Knowledge Seeker</p>
-                                </div>
-                            </div>
-
-                            {/* Country Selector */}
-                            <div className="flex items-center gap-4">
-                                <Select value={country} onValueChange={setCountry}>
-                                    <SelectTrigger className="w-[200px] bg-white border-gray-200">
-                                        <SelectValue>
-                                            <span className="flex items-center gap-2">
-                                                <span className="text-xl">{selectedCountry?.flag}</span>
-                                                <span>{selectedCountry?.name}</span>
+                                    <h1 className="text-2xl font-bold">Learning Explorer</h1>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span 
+                                            className="px-3 py-1 rounded-full text-sm font-medium"
+                                            style={{ backgroundColor: `${currentRank.color}40` }}
+                                        >
+                                            {currentRank.name}
+                                        </span>
+                                        {nextRank && (
+                                            <span className="text-white/70 text-sm">
+                                                {xpToNextRank} XP to {nextRank.name}
                                             </span>
-                                        </SelectValue>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {COUNTRIES.map(c => (
-                                            <SelectItem key={c.code} value={c.code}>
-                                                <span className="flex items-center gap-2">
-                                                    <span className="text-xl">{c.flag}</span>
-                                                    <span>{c.name}</span>
-                                                </span>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* Stats */}
-                            <div className="flex items-center gap-6">
-                                <div className="text-center">
-                                    <div className="text-3xl font-bold text-purple-600">{points.toLocaleString()}</div>
-                                    <div className="text-sm text-gray-500">Points</div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-3xl font-bold text-amber-500">{certificates}</div>
-                                    <div className="text-sm text-gray-500">Certificates</div>
-                                </div>
-                                <div 
-                                    className="px-4 py-2 rounded-lg flex items-center gap-2"
-                                    style={{ backgroundColor: `${currentRank.color}20`, color: currentRank.color }}
-                                >
-                                    <Trophy className="w-5 h-5" />
+                            {/* Stats Cards */}
+                            <div className="flex flex-wrap gap-3">
+                                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-amber-400 flex items-center justify-center">
+                                        <Zap className="w-5 h-5 text-white" />
+                                    </div>
                                     <div>
-                                        <div className="font-bold">{currentRank.name}</div>
-                                        <div className="text-xs opacity-80">Rank</div>
+                                        <p className="text-2xl font-bold">{totalXP.toLocaleString()}</p>
+                                        <p className="text-xs text-white/70">Total XP</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-orange-400 flex items-center justify-center">
+                                        <Flame className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-bold">{streak}</p>
+                                        <p className="text-xs text-white/70">Day Streak</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-emerald-400 flex items-center justify-center">
+                                        <Trophy className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-bold">{completedCourses}</p>
+                                        <p className="text-xs text-white/70">Completed</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-purple-400 flex items-center justify-center">
+                                        <Award className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-bold">{certificates}</p>
+                                        <p className="text-xs text-white/70">Certificates</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* XP Progress Bar */}
+                        {nextRank && (
+                            <div className="mt-6">
+                                <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                                    <div 
+                                        className="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full transition-all"
+                                        style={{ width: `${((totalXP - currentRank.minXP) / (nextRank.minXP - currentRank.minXP)) * 100}%` }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Subject Selector */}
+                <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div className="flex flex-col md:flex-row md:items-center gap-4">
+                            <div className="flex-1">
+                                <h2 className="text-lg font-semibold text-gray-800 mb-1">
+                                    <Sparkles className="w-5 h-5 inline mr-2 text-purple-500" />
+                                    Select Your Learning Path
+                                </h2>
+                                <p className="text-sm text-gray-500">Choose subjects to generate personalized learning islands</p>
+                            </div>
+                            <SubjectSelector 
+                                selectedSubjects={selectedSubjects}
+                                onSelectionChange={setSelectedSubjects}
+                            />
+                            <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={generateSubTopics}
+                                disabled={loadingTopics || selectedSubjects.length === 0}
+                            >
+                                <RefreshCw className={`w-4 h-4 mr-2 ${loadingTopics ? 'animate-spin' : ''}`} />
+                                Refresh
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Learning Islands Grid */}
+                <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
+                    {loadingTopics ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <Loader2 className="w-12 h-12 text-purple-600 animate-spin mb-4" />
+                            <p className="text-gray-600">Generating learning islands for you...</p>
+                        </div>
+                    ) : subTopics.length === 0 ? (
+                        <div className="text-center py-20">
+                            <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                            <h3 className="text-xl font-semibold text-gray-600 mb-2">Select subjects to explore</h3>
+                            <p className="text-gray-400">Choose one or more subjects above to generate learning islands</p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-xl font-bold text-gray-800">
+                                    Your Learning Archipelago
+                                </h2>
+                                <div className="flex items-center gap-2 text-sm text-gray-500">
+                                    <Target className="w-4 h-4" />
+                                    {subTopics.length} islands to explore
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                                {subTopics.map((topic, index) => (
+                                    <LearningIslandCard
+                                        key={topic.id}
+                                        topic={topic}
+                                        index={index}
+                                        progress={userProgress[topic.id] || 0}
+                                        onExplore={handleExplore}
+                                        locked={false}
+                                    />
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </div>
+
+                {/* Summary Stats */}
+                {subTopics.length > 0 && (
+                    <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                                        <Star className="w-6 h-6 text-purple-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-3xl font-bold text-gray-900">{subTopics.length}</p>
+                                        <p className="text-sm text-gray-500">Learning Islands</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                        <Target className="w-6 h-6 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-3xl font-bold text-gray-900">
+                                            {Object.values(userProgress).filter(p => p === 100).length}
+                                        </p>
+                                        <p className="text-sm text-gray-500">Islands Completed</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                                        <Zap className="w-6 h-6 text-amber-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-3xl font-bold text-gray-900">
+                                            {subTopics.length * 500}
+                                        </p>
+                                        <p className="text-sm text-gray-500">Potential XP</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                {/* Main Content */}
-                <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-                    {/* Title */}
-                    <div className="mb-8">
-                        <div className="flex items-center gap-3 mb-2">
-                            <Globe className="w-8 h-8 text-purple-600" />
-                            <h2 className="text-2xl font-bold text-gray-900">
-                                {selectedCountry?.name} Learning Archipelago
-                            </h2>
-                        </div>
-                        <p className="text-gray-600">
-                            Navigate knowledge islands tailored to {selectedCountry?.name}'s strategic priorities and gaps
-                        </p>
-                    </div>
-
-                    {/* Islands Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-12">
-                        {LEARNING_TOPICS.map((topic, index) => (
-                            <LearningIsland 
-                                key={topic.id}
-                                topic={topic}
-                                index={index}
-                                explored={exploredIslands.includes(topic.id)}
-                                onExplore={handleExplore}
-                            />
-                        ))}
-                    </div>
-
-                    {/* Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
-                                    <MapPin className="w-6 h-6 text-purple-600" />
-                                </div>
-                                <div>
-                                    <div className="text-3xl font-bold text-gray-900">{LEARNING_TOPICS.length}</div>
-                                    <div className="text-sm text-gray-500">Knowledge Islands</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                                    <CheckCircle className="w-6 h-6 text-emerald-600" />
-                                </div>
-                                <div>
-                                    <div className="text-3xl font-bold text-gray-900">{exploredIslands.length}</div>
-                                    <div className="text-sm text-gray-500">Islands Explored</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                                    <Star className="w-6 h-6 text-amber-600" />
-                                </div>
-                                <div>
-                                    <div className="text-3xl font-bold text-gray-900">{LEARNING_TOPICS.length - exploredIslands.length}</div>
-                                    <div className="text-sm text-gray-500">To Discover</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                )}
             </div>
 
-            {/* Topic Detail Modal */}
-            <Dialog open={showModal} onOpenChange={setShowModal}>
-                <DialogContent className="max-w-lg">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-3">
-                            {selectedTopic && (
-                                <>
-                                    <div 
-                                        className="w-10 h-10 rounded-xl flex items-center justify-center"
-                                        style={{ backgroundColor: selectedTopic.color }}
-                                    >
-                                        <selectedTopic.icon className="w-5 h-5 text-white" />
-                                    </div>
-                                    <span>{selectedTopic.name}</span>
-                                </>
-                            )}
-                        </DialogTitle>
-                    </DialogHeader>
-                    {selectedTopic && (
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2">
-                                <span 
-                                    className="px-3 py-1 rounded-full text-sm font-medium text-white"
-                                    style={{ backgroundColor: selectedTopic.color }}
-                                >
-                                    Priority #{selectedTopic.priority}
-                                </span>
-                                {exploredIslands.includes(selectedTopic.id) && (
-                                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-700">
-                                        Explored
-                                    </span>
-                                )}
-                            </div>
-                            
-                            <p className="text-gray-600">
-                                Explore comprehensive learning resources about {selectedTopic.name}. 
-                                This island contains curated content tailored to {selectedCountry?.name}'s strategic priorities.
-                            </p>
-                            
-                            <div className="bg-gray-50 rounded-xl p-4">
-                                <h4 className="font-semibold text-gray-800 mb-2">Learning Objectives</h4>
-                                <ul className="space-y-2 text-sm text-gray-600">
-                                    <li className="flex items-center gap-2">
-                                        <CheckCircle className="w-4 h-4 text-emerald-500" />
-                                        Understand core concepts and principles
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <CheckCircle className="w-4 h-4 text-emerald-500" />
-                                        Apply knowledge to real-world scenarios
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <CheckCircle className="w-4 h-4 text-emerald-500" />
-                                        Complete assessments to earn points
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <div className="flex gap-3">
-                                <Button 
-                                    className="flex-1"
-                                    style={{ backgroundColor: selectedTopic.color }}
-                                    onClick={markAsExplored}
-                                >
-                                    {exploredIslands.includes(selectedTopic.id) ? 'Continue Learning' : 'Start Exploring (+500 pts)'}
-                                </Button>
-                                <Button variant="outline" onClick={() => setShowModal(false)}>
-                                    Close
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                </DialogContent>
-            </Dialog>
+            {/* Course Modal */}
+            <CourseModal 
+                isOpen={showCourseModal}
+                onClose={() => setShowCourseModal(false)}
+                topic={selectedTopic}
+                onComplete={handleCourseComplete}
+            />
         </PageLayout>
     );
 }
