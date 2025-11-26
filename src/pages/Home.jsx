@@ -44,7 +44,7 @@ const pages = [
         name: 'Learning', 
         href: createPageUrl('Learning'), 
         icon: GraduationCap, 
-        description: 'Knowledge islands with country-specific learning priorities',
+        description: 'Navigate knowledge islands with progress tracking',
         color: 'from-emerald-600 to-teal-600'
     },
     { 

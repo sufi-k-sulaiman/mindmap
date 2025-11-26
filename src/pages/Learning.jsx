@@ -1,36 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { 
-    Menu, ChevronLeft, ChevronDown, GraduationCap, Trophy, Award, Star,
-    Brain, Shield, Users, Leaf, Heart, Building, Cpu, Globe, Zap, Target,
-    Lightbulb, BookOpen, Rocket, Settings as SettingsIcon
+    Menu, ChevronLeft, GraduationCap, Award, Trophy, Star,
+    Brain, Shield, Users, BookOpen, Cpu, Leaf, Heart, Building2, 
+    Scale, Zap, Globe, ChevronDown, MapPin, CheckCircle
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LOGO_URL, menuItems, footerLinks } from '../components/NavigationConfig';
+import PageLayout from '../components/PageLayout';
 
-// Learning topic icons mapping
-const TOPIC_ICONS = {
-    'AI Integration': Brain,
-    'Cybersecurity': Shield,
-    'Workforce Readiness': Users,
-    'STEM Education': Lightbulb,
-    'Digital Transformation': Cpu,
-    'Biotechnology': Zap,
-    'Climate Change': Leaf,
-    'Healthcare Access': Heart,
-    'Infrastructure': Building,
-    'Public Policy': Globe,
-};
+// Learning Topics with icons and colors
+const LEARNING_TOPICS = [
+    { id: 1, name: 'AI Integration', icon: Brain, color: '#6B4EE6', priority: 1 },
+    { id: 2, name: 'Cybersecurity', icon: Shield, color: '#EF4444', priority: 2 },
+    { id: 3, name: 'Workforce Readiness', icon: Users, color: '#3B82F6', priority: 3 },
+    { id: 4, name: 'STEM Education', icon: GraduationCap, color: '#10B981', priority: 4 },
+    { id: 5, name: 'Digital Transformation', icon: Cpu, color: '#8B5CF6', priority: 5 },
+    { id: 6, name: 'Biotechnology', icon: Zap, color: '#F59E0B', priority: 6 },
+    { id: 7, name: 'Climate Change', icon: Leaf, color: '#06B6D4', priority: 7 },
+    { id: 8, name: 'Healthcare Access', icon: Heart, color: '#EC4899', priority: 8 },
+    { id: 9, name: 'Infrastructure', icon: Building2, color: '#84CC16', priority: 9 },
+    { id: 10, name: 'Public Policy', icon: Scale, color: '#14B8A6', priority: 10 },
+];
 
-// Countries with their priorities
 const COUNTRIES = [
     { code: 'US', name: 'United States', flag: '🇺🇸' },
-    { code: 'UK', name: 'United Kingdom', flag: '🇬🇧' },
     { code: 'CA', name: 'Canada', flag: '🇨🇦' },
+    { code: 'UK', name: 'United Kingdom', flag: '🇬🇧' },
     { code: 'AU', name: 'Australia', flag: '🇦🇺' },
     { code: 'DE', name: 'Germany', flag: '🇩🇪' },
     { code: 'FR', name: 'France', flag: '🇫🇷' },
@@ -38,376 +37,329 @@ const COUNTRIES = [
     { code: 'IN', name: 'India', flag: '🇮🇳' },
 ];
 
-// Learning topics with priorities
-const LEARNING_TOPICS = [
-    { id: 1, name: 'AI Integration', priority: 1, color: '#3B82F6', progress: 75, lessons: 12, completed: 9 },
-    { id: 2, name: 'Cybersecurity', priority: 2, color: '#EF4444', progress: 60, lessons: 10, completed: 6 },
-    { id: 3, name: 'Workforce Readiness', priority: 3, color: '#22C55E', progress: 45, lessons: 8, completed: 4 },
-    { id: 4, name: 'STEM Education', priority: 4, color: '#EAB308', progress: 90, lessons: 15, completed: 14 },
-    { id: 5, name: 'Digital Transformation', priority: 5, color: '#A855F7', progress: 30, lessons: 10, completed: 3 },
-    { id: 6, name: 'Biotechnology', priority: 6, color: '#F97316', progress: 55, lessons: 8, completed: 4 },
-    { id: 7, name: 'Climate Change', priority: 7, color: '#06B6D4', progress: 40, lessons: 12, completed: 5 },
-    { id: 8, name: 'Healthcare Access', priority: 8, color: '#EC4899', progress: 85, lessons: 10, completed: 9 },
-    { id: 9, name: 'Infrastructure', priority: 9, color: '#84CC16', progress: 20, lessons: 6, completed: 1 },
-    { id: 10, name: 'Public Policy', priority: 10, color: '#6366F1', progress: 65, lessons: 8, completed: 5 },
+const RANKS = [
+    { name: 'Novice', minPoints: 0, color: '#9CA3AF' },
+    { name: 'Explorer', minPoints: 1000, color: '#3B82F6' },
+    { name: 'Scholar', minPoints: 5000, color: '#10B981' },
+    { name: 'Expert', minPoints: 10000, color: '#8B5CF6' },
+    { name: 'Master', minPoints: 25000, color: '#F59E0B' },
+    { name: 'Legend', minPoints: 50000, color: '#EF4444' },
 ];
 
-// Island SVG Component with 3D effect
-const LearningIsland = ({ topic, onClick, index }) => {
-    const Icon = TOPIC_ICONS[topic.name] || BookOpen;
-    const isEven = index % 2 === 0;
+// Island SVG Component
+const LearningIsland = ({ topic, index, explored, onExplore }) => {
+    const [hovered, setHovered] = useState(false);
+    const Icon = topic.icon;
+    
+    // Different island shapes
+    const shapes = [
+        'M50,20 Q80,10 100,30 Q120,50 110,80 Q100,110 70,120 Q40,130 20,100 Q0,70 20,40 Q30,20 50,20',
+        'M60,15 Q90,5 110,25 Q130,50 120,85 Q110,115 75,125 Q35,135 15,100 Q-5,65 15,35 Q30,10 60,15',
+        'M55,18 Q85,8 105,28 Q125,55 115,88 Q105,118 70,128 Q32,138 12,102 Q-8,68 12,38 Q28,12 55,18',
+    ];
+    
+    const shape = shapes[index % shapes.length];
     
     return (
         <div 
-            className="flex flex-col items-center cursor-pointer group"
-            onClick={() => onClick(topic)}
+            className="relative cursor-pointer group"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            onClick={() => onExplore(topic)}
         >
-            {/* Priority badge */}
+            {/* Priority number badge */}
             <div 
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm mb-2 shadow-lg"
+                className="absolute -top-2 left-1/2 -translate-x-1/2 z-20 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg"
                 style={{ backgroundColor: topic.color }}
             >
                 {topic.priority}
             </div>
             
-            {/* Island with 3D effect */}
-            <div className="relative">
-                {/* Island shadow */}
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-300/50 rounded-full blur-sm" />
+            {/* Island SVG */}
+            <svg 
+                viewBox="0 0 130 140" 
+                className={`w-32 h-36 transition-transform duration-300 ${hovered ? 'scale-110' : ''}`}
+                style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.15))' }}
+            >
+                {/* Water reflection */}
+                <ellipse cx="65" cy="130" rx="50" ry="8" fill="#93C5FD" opacity="0.3" />
                 
-                {/* Island base */}
-                <svg width="140" height="100" viewBox="0 0 140 100" className="drop-shadow-lg">
-                    {/* Water ring */}
-                    <ellipse cx="70" cy="75" rx="65" ry="20" fill="#67E8F9" opacity="0.5" />
-                    
-                    {/* Island grass - darker layer */}
-                    <ellipse cx="70" cy="65" rx="55" ry="25" fill="#22C55E" />
-                    
-                    {/* Island grass - lighter layer */}
-                    <ellipse cx="70" cy="60" rx="50" ry="22" fill="#4ADE80" />
-                    
-                    {/* Small details */}
-                    {isEven && (
-                        <>
-                            <circle cx="40" cy="55" r="4" fill="#166534" />
-                            <circle cx="95" cy="60" r="3" fill="#166534" />
-                        </>
-                    )}
-                </svg>
+                {/* Island base (darker edge) */}
+                <path d={shape} fill="#166534" transform="translate(0, 5)" />
                 
-                {/* Icon on top of island */}
-                <div 
-                    className="absolute top-2 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-transform group-hover:scale-110"
-                    style={{ backgroundColor: topic.color }}
-                >
-                    <Icon className="w-7 h-7 text-white" />
-                </div>
+                {/* Island grass (main) */}
+                <path d={shape} fill="#4ADE80" />
+                
+                {/* Inner grass highlight */}
+                <path d={shape} fill="#22C55E" transform="translate(10, 10) scale(0.85)" />
+                
+                {/* Decorative elements */}
+                <circle cx="30" cy="50" r="6" fill="#166534" opacity="0.5" />
+                <circle cx="95" cy="70" r="5" fill="#166534" opacity="0.5" />
+                <circle cx="50" cy="95" r="4" fill="#15803D" opacity="0.5" />
+                
+                {/* Icon platform */}
+                <ellipse cx="65" cy="70" rx="22" ry="10" fill="#D4A574" />
+                <ellipse cx="65" cy="68" rx="22" ry="10" fill="#E5B887" />
+            </svg>
+            
+            {/* Icon */}
+            <div 
+                className="absolute top-12 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform duration-300"
+                style={{ backgroundColor: topic.color, transform: hovered ? 'translate(-50%, -4px)' : 'translate(-50%, 0)' }}
+            >
+                <Icon className="w-5 h-5 text-white" />
             </div>
             
-            {/* Topic name */}
-            <h3 className="mt-3 font-semibold text-gray-800 text-center">{topic.name}</h3>
-            <p className="text-sm text-gray-500">Priority #{topic.priority}</p>
+            {/* Status badge */}
+            {explored && (
+                <div className="absolute top-8 right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center border-2 border-white shadow">
+                    <CheckCircle className="w-4 h-4 text-white" />
+                </div>
+            )}
+            
+            {/* Label */}
+            <div className="text-center mt-2">
+                <h3 className="font-semibold text-gray-800 text-sm">{topic.name}</h3>
+                <p className="text-xs text-gray-500">Priority #{topic.priority}</p>
+            </div>
         </div>
     );
 };
 
-// Stats cards for bottom section
-const StatsCard = ({ icon: Icon, title, value, subtitle, color }) => (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col items-center">
-        <div 
-            className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-            style={{ backgroundColor: `${color}20` }}
-        >
-            <Icon className="w-8 h-8" style={{ color }} />
-        </div>
-        <div className="text-4xl font-bold text-gray-800">{value}</div>
-        <div className="text-gray-500 text-sm">{title}</div>
-        {subtitle && <div className="text-xs text-gray-400 mt-1">{subtitle}</div>}
-    </div>
-);
-
 export default function Learning() {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [selectedCountry, setSelectedCountry] = useState('US');
+    const [country, setCountry] = useState('US');
+    const [points, setPoints] = useState(5500);
+    const [certificates, setCertificates] = useState(3);
+    const [exploredIslands, setExploredIslands] = useState([1, 3, 5]);
     const [selectedTopic, setSelectedTopic] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [userStats, setUserStats] = useState({
-        points: 5500,
-        certificates: 3,
-        rank: 'Explorer',
-        globalPosition: 137
-    });
 
-    const currentCountry = COUNTRIES.find(c => c.code === selectedCountry);
+    const selectedCountry = COUNTRIES.find(c => c.code === country);
+    const currentRank = RANKS.filter(r => points >= r.minPoints).pop() || RANKS[0];
 
-    const handleTopicClick = (topic) => {
+    const handleExplore = (topic) => {
         setSelectedTopic(topic);
         setShowModal(true);
     };
 
-    const getRankBadge = () => {
-        const ranks = ['Novice', 'Explorer', 'Scholar', 'Expert', 'Master'];
-        const colors = ['#94A3B8', '#22C55E', '#3B82F6', '#A855F7', '#F59E0B'];
-        const rankIndex = ranks.indexOf(userStats.rank);
-        return { name: userStats.rank, color: colors[rankIndex] || colors[0] };
+    const markAsExplored = () => {
+        if (selectedTopic && !exploredIslands.includes(selectedTopic.id)) {
+            setExploredIslands([...exploredIslands, selectedTopic.id]);
+            setPoints(points + 500);
+        }
+        setShowModal(false);
     };
 
-    const rankBadge = getRankBadge();
-
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50">
-            {/* Header */}
-            <header className="bg-white sticky top-0 z-50 border-b border-gray-200 shadow-sm">
-                <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="hover:bg-gray-100 md:hidden">
-                            <Menu className="w-5 h-5 text-purple-600" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="hover:bg-gray-100 hidden md:flex">
-                            {sidebarOpen ? <ChevronLeft className="w-5 h-5 text-purple-600" /> : <Menu className="w-5 h-5 text-purple-600" />}
-                        </Button>
-                        
-                        {/* User profile section */}
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
-                                <GraduationCap className="w-7 h-7 text-white" />
-                            </div>
-                            <div>
-                                <h1 className="text-xl font-bold text-gray-800">Learning Explorer</h1>
-                                <p className="text-sm text-gray-500">Citizen • Knowledge Seeker</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        {/* Country selector */}
-                        <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                            <SelectTrigger className="w-48 bg-white border-gray-200">
-                                <SelectValue>
-                                    <span className="flex items-center gap-2">
-                                        <span>{currentCountry?.flag}</span>
-                                        <span>{currentCountry?.name}</span>
-                                    </span>
-                                </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {COUNTRIES.map(country => (
-                                    <SelectItem key={country.code} value={country.code}>
-                                        <span className="flex items-center gap-2">
-                                            <span>{country.flag}</span>
-                                            <span>{country.name}</span>
-                                        </span>
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-
-                        {/* Stats */}
-                        <div className="hidden md:flex items-center gap-6">
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-purple-600">{userStats.points.toLocaleString()}</div>
-                                <div className="text-xs text-gray-500">Points</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-purple-600">{userStats.certificates}</div>
-                                <div className="text-xs text-gray-500">Certificates</div>
-                            </div>
-                            <div 
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg text-white"
-                                style={{ backgroundColor: rankBadge.color }}
-                            >
-                                <Trophy className="w-5 h-5" />
+        <PageLayout activePage="Learning" showSearch={true} searchPlaceholder="Search learning topics...">
+            <div className="min-h-screen bg-gradient-to-b from-sky-50 to-white">
+                {/* Header Section */}
+                <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-6">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            {/* User Info */}
+                            <div className="flex items-center gap-4">
+                                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+                                    <GraduationCap className="w-8 h-8 text-white" />
+                                </div>
                                 <div>
-                                    <div className="font-semibold">{rankBadge.name}</div>
-                                    <div className="text-xs opacity-80">Rank</div>
+                                    <h1 className="text-2xl font-bold text-gray-900">Learning Explorer</h1>
+                                    <p className="text-gray-500">Citizen • Knowledge Seeker</p>
+                                </div>
+                            </div>
+
+                            {/* Country Selector */}
+                            <div className="flex items-center gap-4">
+                                <Select value={country} onValueChange={setCountry}>
+                                    <SelectTrigger className="w-[200px] bg-white border-gray-200">
+                                        <SelectValue>
+                                            <span className="flex items-center gap-2">
+                                                <span className="text-xl">{selectedCountry?.flag}</span>
+                                                <span>{selectedCountry?.name}</span>
+                                            </span>
+                                        </SelectValue>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {COUNTRIES.map(c => (
+                                            <SelectItem key={c.code} value={c.code}>
+                                                <span className="flex items-center gap-2">
+                                                    <span className="text-xl">{c.flag}</span>
+                                                    <span>{c.name}</span>
+                                                </span>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Stats */}
+                            <div className="flex items-center gap-6">
+                                <div className="text-center">
+                                    <div className="text-3xl font-bold text-purple-600">{points.toLocaleString()}</div>
+                                    <div className="text-sm text-gray-500">Points</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-3xl font-bold text-amber-500">{certificates}</div>
+                                    <div className="text-sm text-gray-500">Certificates</div>
+                                </div>
+                                <div 
+                                    className="px-4 py-2 rounded-lg flex items-center gap-2"
+                                    style={{ backgroundColor: `${currentRank.color}20`, color: currentRank.color }}
+                                >
+                                    <Trophy className="w-5 h-5" />
+                                    <div>
+                                        <div className="font-bold">{currentRank.name}</div>
+                                        <div className="text-xs opacity-80">Rank</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </header>
 
-            <div className="flex flex-1">
-                {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />}
-
-                <aside className={`${sidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full md:translate-x-0'} transition-all duration-300 overflow-hidden bg-white border-r border-gray-200 flex-shrink-0 fixed md:relative z-50 md:z-auto h-[calc(100vh-72px)] md:h-auto`}>
-                    <nav className="p-4 space-y-2">
-                        {menuItems.map((item, index) => (
-                            <Link 
-                                key={index} 
-                                to={item.href} 
-                                onClick={() => window.innerWidth < 768 && setSidebarOpen(false)} 
-                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                                    item.label === 'Learning' 
-                                        ? 'bg-purple-100 text-purple-700' 
-                                        : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'
-                                }`}
-                            >
-                                <item.icon className="w-5 h-5 text-purple-600" />
-                                <span className="font-medium">{item.label}</span>
-                            </Link>
-                        ))}
-                    </nav>
-                </aside>
-
-                <main className="flex-1 overflow-auto p-4 md:p-8">
-                    {/* Title section */}
+                {/* Main Content */}
+                <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+                    {/* Title */}
                     <div className="mb-8">
                         <div className="flex items-center gap-3 mb-2">
-                            <GraduationCap className="w-8 h-8 text-purple-600" />
-                            <h2 className="text-2xl md:text-3xl font-bold text-purple-600">
-                                {currentCountry?.name} Learning Archipelago
+                            <Globe className="w-8 h-8 text-purple-600" />
+                            <h2 className="text-2xl font-bold text-gray-900">
+                                {selectedCountry?.name} Learning Archipelago
                             </h2>
                         </div>
                         <p className="text-gray-600">
-                            Navigate knowledge islands tailored to {currentCountry?.name}'s strategic priorities and gaps
+                            Navigate knowledge islands tailored to {selectedCountry?.name}'s strategic priorities and gaps
                         </p>
                     </div>
 
-                    {/* Islands Grid - First Row (5 items) */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-                        {LEARNING_TOPICS.slice(0, 5).map((topic, index) => (
+                    {/* Islands Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-12">
+                        {LEARNING_TOPICS.map((topic, index) => (
                             <LearningIsland 
-                                key={topic.id} 
-                                topic={topic} 
+                                key={topic.id}
+                                topic={topic}
                                 index={index}
-                                onClick={handleTopicClick} 
+                                explored={exploredIslands.includes(topic.id)}
+                                onExplore={handleExplore}
                             />
                         ))}
                     </div>
 
-                    {/* Islands Grid - Second Row (5 items) */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-12">
-                        {LEARNING_TOPICS.slice(5, 10).map((topic, index) => (
-                            <LearningIsland 
-                                key={topic.id} 
-                                topic={topic} 
-                                index={index + 5}
-                                onClick={handleTopicClick} 
-                            />
-                        ))}
-                    </div>
-
-                    {/* Stats Cards */}
+                    {/* Summary Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <StatsCard 
-                            icon={Globe}
-                            title="Global Rank"
-                            value={`#${userStats.globalPosition}`}
-                            subtitle="Out of 10,000+ learners"
-                            color="#3B82F6"
-                        />
-                        <StatsCard 
-                            icon={Rocket}
-                            title="Topics Completed"
-                            value="10"
-                            subtitle="Keep learning!"
-                            color="#22C55E"
-                        />
-                        <StatsCard 
-                            icon={Target}
-                            title="Current Streak"
-                            value="12"
-                            subtitle="Days in a row"
-                            color="#F59E0B"
-                        />
-                    </div>
-                </main>
-            </div>
-
-            {/* Footer */}
-            <footer className="py-6 bg-white border-t border-gray-200">
-                <div className="max-w-6xl mx-auto px-4">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <img src={LOGO_URL} alt="1cPublishing" className="h-8 w-8 object-contain grayscale" />
-                        <nav className="flex flex-wrap justify-center gap-6 text-sm">
-                            {footerLinks.map((link, i) => (
-                                <a key={i} href={link.href} className="text-gray-600 hover:text-purple-600 transition-colors">{link.label}</a>
-                            ))}
-                        </nav>
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-gray-200 text-center text-sm text-gray-500">
-                        © 2025 1cPublishing.com
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                                    <MapPin className="w-6 h-6 text-purple-600" />
+                                </div>
+                                <div>
+                                    <div className="text-3xl font-bold text-gray-900">{LEARNING_TOPICS.length}</div>
+                                    <div className="text-sm text-gray-500">Knowledge Islands</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                    <CheckCircle className="w-6 h-6 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <div className="text-3xl font-bold text-gray-900">{exploredIslands.length}</div>
+                                    <div className="text-sm text-gray-500">Islands Explored</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                                    <Star className="w-6 h-6 text-amber-600" />
+                                </div>
+                                <div>
+                                    <div className="text-3xl font-bold text-gray-900">{LEARNING_TOPICS.length - exploredIslands.length}</div>
+                                    <div className="text-sm text-gray-500">To Discover</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </footer>
+            </div>
 
             {/* Topic Detail Modal */}
             <Dialog open={showModal} onOpenChange={setShowModal}>
-                <DialogContent className="bg-white border-gray-200 max-w-lg">
+                <DialogContent className="max-w-lg">
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-3 text-xl">
+                        <DialogTitle className="flex items-center gap-3">
                             {selectedTopic && (
                                 <>
                                     <div 
-                                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                                        className="w-10 h-10 rounded-xl flex items-center justify-center"
                                         style={{ backgroundColor: selectedTopic.color }}
                                     >
-                                        {(() => {
-                                            const Icon = TOPIC_ICONS[selectedTopic.name] || BookOpen;
-                                            return <Icon className="w-5 h-5 text-white" />;
-                                        })()}
+                                        <selectedTopic.icon className="w-5 h-5 text-white" />
                                     </div>
-                                    {selectedTopic.name}
+                                    <span>{selectedTopic.name}</span>
                                 </>
                             )}
                         </DialogTitle>
                     </DialogHeader>
                     {selectedTopic && (
-                        <div className="space-y-6">
-                            {/* Priority badge */}
+                        <div className="space-y-4">
                             <div className="flex items-center gap-2">
                                 <span 
-                                    className="px-3 py-1 rounded-full text-white text-sm font-medium"
+                                    className="px-3 py-1 rounded-full text-sm font-medium text-white"
                                     style={{ backgroundColor: selectedTopic.color }}
                                 >
                                     Priority #{selectedTopic.priority}
                                 </span>
-                                <span className="text-gray-500 text-sm">
-                                    Strategic focus area for {currentCountry?.name}
-                                </span>
+                                {exploredIslands.includes(selectedTopic.id) && (
+                                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-700">
+                                        Explored
+                                    </span>
+                                )}
                             </div>
-
-                            {/* Progress */}
-                            <div>
-                                <div className="flex justify-between mb-2">
-                                    <span className="text-sm font-medium text-gray-700">Progress</span>
-                                    <span className="text-sm text-gray-500">{selectedTopic.progress}%</span>
-                                </div>
-                                <Progress value={selectedTopic.progress} className="h-3" />
-                            </div>
-
-                            {/* Lessons */}
+                            
+                            <p className="text-gray-600">
+                                Explore comprehensive learning resources about {selectedTopic.name}. 
+                                This island contains curated content tailored to {selectedCountry?.name}'s strategic priorities.
+                            </p>
+                            
                             <div className="bg-gray-50 rounded-xl p-4">
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <p className="font-medium text-gray-800">Lessons Completed</p>
-                                        <p className="text-sm text-gray-500">{selectedTopic.completed} of {selectedTopic.lessons} lessons</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-2xl font-bold" style={{ color: selectedTopic.color }}>
-                                            {selectedTopic.completed}/{selectedTopic.lessons}
-                                        </p>
-                                    </div>
-                                </div>
+                                <h4 className="font-semibold text-gray-800 mb-2">Learning Objectives</h4>
+                                <ul className="space-y-2 text-sm text-gray-600">
+                                    <li className="flex items-center gap-2">
+                                        <CheckCircle className="w-4 h-4 text-emerald-500" />
+                                        Understand core concepts and principles
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <CheckCircle className="w-4 h-4 text-emerald-500" />
+                                        Apply knowledge to real-world scenarios
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <CheckCircle className="w-4 h-4 text-emerald-500" />
+                                        Complete assessments to earn points
+                                    </li>
+                                </ul>
                             </div>
-
-                            {/* Actions */}
+                            
                             <div className="flex gap-3">
                                 <Button 
-                                    className="flex-1 text-white"
+                                    className="flex-1"
                                     style={{ backgroundColor: selectedTopic.color }}
+                                    onClick={markAsExplored}
                                 >
-                                    Continue Learning
+                                    {exploredIslands.includes(selectedTopic.id) ? 'Continue Learning' : 'Start Exploring (+500 pts)'}
                                 </Button>
-                                <Button variant="outline" className="flex-1 border-gray-300">
-                                    View All Lessons
+                                <Button variant="outline" onClick={() => setShowModal(false)}>
+                                    Close
                                 </Button>
                             </div>
                         </div>
                     )}
                 </DialogContent>
             </Dialog>
-        </div>
+        </PageLayout>
     );
 }
