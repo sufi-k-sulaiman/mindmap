@@ -34,13 +34,11 @@ export default function AIHub() {
     const fileInputRef = useRef(null);
 
     const menuItems = [
+        { icon: Home, label: "Home", href: createPageUrl('Home') },
         { icon: Sparkles, label: "AI Hub", href: createPageUrl('AIHub'), active: true },
-        { icon: Home, label: "Dashboard", href: createPageUrl('Home') },
-        { icon: BookOpen, label: "Publications", href: "#" },
-        { icon: FileText, label: "Documents", href: "#" },
-        { icon: Users, label: "Authors", href: "#" },
-        { icon: Settings, label: "Settings", href: "#" },
-        { icon: HelpCircle, label: "Help", href: "#" },
+        { icon: FileText, label: "SearchPods", href: createPageUrl('SearchPods') },
+        { icon: BookOpen, label: "Dashboard", href: createPageUrl('DashboardComponents') },
+        { icon: Settings, label: "Test Functions", href: createPageUrl('TestFunctions') },
     ];
 
     const handleVoiceInput = () => {

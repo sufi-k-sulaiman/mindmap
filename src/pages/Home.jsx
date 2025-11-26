@@ -12,13 +12,11 @@ export default function Home() {
     const [searchQuery, setSearchQuery] = useState("");
 
     const menuItems = [
+        { icon: HomeIcon, label: "Home", href: createPageUrl('Home') },
         { icon: Sparkles, label: "AI Hub", href: createPageUrl('AIHub') },
-        { icon: HomeIcon, label: "Dashboard", href: "#" },
-        { icon: BookOpen, label: "Publications", href: "#" },
-        { icon: FileText, label: "Documents", href: "#" },
-        { icon: Users, label: "Authors", href: "#" },
-        { icon: Settings, label: "Settings", href: "#" },
-        { icon: HelpCircle, label: "Help", href: "#" },
+        { icon: FileText, label: "SearchPods", href: createPageUrl('SearchPods') },
+        { icon: BookOpen, label: "Dashboard", href: createPageUrl('DashboardComponents') },
+        { icon: Settings, label: "Test Functions", href: createPageUrl('TestFunctions') },
     ];
 
     return (
