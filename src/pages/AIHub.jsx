@@ -11,7 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import MetricCard from '../components/dashboard/MetricCard';
 import PieChartCard from '../components/dashboard/PieChartCard';
 
-const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/868a98750_1cPublishing-logo.png";
+import { LOGO_URL, menuItems as navMenuItems, footerLinks } from '../components/NavigationConfig';
 
 const AI_MODELS = [
     { id: 'qwirey', name: 'Qwirey', icon: null, isLogo: true, description: 'All-in-one AI assistant', color: '#6B4EE6' },
@@ -33,11 +33,7 @@ export default function AIHub() {
     const recognitionRef = useRef(null);
     const fileInputRef = useRef(null);
 
-    const menuItems = [
-        { icon: Sparkles, label: "AI Hub", href: createPageUrl('AIHub'), active: true },
-        { icon: FileText, label: "SearchPods", href: createPageUrl('SearchPods') },
-        { icon: Settings, label: "Settings", href: createPageUrl('Settings') },
-    ];
+
 
     const handleVoiceInput = () => {
         if (isListening && recognitionRef.current) {
@@ -299,13 +295,15 @@ export default function AIHub() {
                             {sidebarOpen ? <ChevronLeft className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                         </Button>
                         <div className="flex items-center gap-3">
-                            <img src={LOGO_URL} alt="1cPublishing" className="h-10 w-10 object-contain" />
-                            <div>
-                                <span className="text-xl font-bold text-black">1cPublishing</span>
-                                <p className="text-xs font-medium" style={{ color: '#6B4EE6' }}>AI Powered</p>
+                            <Link to={createPageUrl('Home')} className="flex items-center gap-3 hover:opacity-80">
+                                <img src={LOGO_URL} alt="1cPublishing" className="h-10 w-10 object-contain" />
+                                <div>
+                                    <span className="text-xl font-bold text-black">1cPublishing</span>
+                                    <p className="text-xs font-medium" style={{ color: '#6B4EE6' }}>AI Powered</p>
+                                </div>
+                            </Link>
                             </div>
-                        </div>
-                    </div>
+                            </div>
                     
                     {/* Model Selector */}
                     <div className="flex items-center gap-2">
@@ -338,12 +336,12 @@ export default function AIHub() {
                     className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 overflow-hidden bg-white border-r border-gray-200 flex-shrink-0`}
                 >
                     <nav className="p-4 space-y-2">
-                        {menuItems.map((item, index) => (
+                        {navMenuItems.map((item, index) => (
                             <Link
                                 key={index}
                                 to={item.href}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                                    item.active 
+                                    item.label === 'AI Hub' 
                                         ? 'bg-purple-100 text-purple-700' 
                                         : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'
                                 }`}
@@ -611,18 +609,13 @@ export default function AIHub() {
             <footer className="py-6 bg-white border-t border-gray-200">
                 <div className="max-w-6xl mx-auto px-4">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <div className="flex items-center gap-3">
-                            <img src={LOGO_URL} alt="1cPublishing" className="h-8 w-8 object-contain grayscale" />
-                        </div>
-                        
+                        <img src={LOGO_URL} alt="1cPublishing" className="h-8 w-8 object-contain grayscale" />
                         <nav className="flex flex-wrap justify-center gap-6 text-sm">
-                            <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">Contact Us</a>
-                            <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">Governance</a>
-                            <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">Cookie Policy</a>
-                            <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">Terms of Use</a>
+                            {footerLinks.map((link, i) => (
+                                <a key={i} href={link.href} className="text-gray-600 hover:text-purple-600 transition-colors">{link.label}</a>
+                            ))}
                         </nav>
                     </div>
-                    
                     <div className="mt-4 pt-4 border-t border-gray-200 text-center text-sm text-gray-500">
                         © 2025 1cPublishing.com
                     </div>

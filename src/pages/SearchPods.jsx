@@ -13,7 +13,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 
-const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/868a98750_1cPublishing-logo.png";
+import { LOGO_URL, menuItems, footerLinks } from '../components/NavigationConfig';
 
 const CATEGORIES = [
     { id: 'technology', name: 'Technology', color: '#6B4EE6', episodes: 16 },
@@ -59,11 +59,7 @@ const TRENDING = [
     { title: 'Peak Performance', category: 'Sports', plays: 2567, image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=400&fit=crop' },
 ];
 
-const menuItems = [
-    { icon: Sparkles, label: "AI Hub", href: createPageUrl('AIHub') },
-    { icon: Radio, label: "SearchPods", href: createPageUrl('SearchPods'), active: true },
-    { icon: Settings, label: "Settings", href: createPageUrl('Settings') },
-];
+
 
 export default function SearchPods() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -458,7 +454,7 @@ export default function SearchPods() {
                                 key={index}
                                 to={item.href}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                                    item.active
+                                    item.label === 'SearchPods'
                                         ? 'bg-purple-100 text-purple-700'
                                         : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'
                                 }`}
@@ -637,10 +633,9 @@ export default function SearchPods() {
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <img src={LOGO_URL} alt="1cPublishing" className="h-8 w-8 object-contain grayscale" />
                         <nav className="flex flex-wrap justify-center gap-6 text-sm">
-                            <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">Contact Us</a>
-                            <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">Governance</a>
-                            <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">Cookie Policy</a>
-                            <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">Terms of Use</a>
+                            {footerLinks.map((link, i) => (
+                                <a key={i} href={link.href} className="text-gray-600 hover:text-purple-600 transition-colors">{link.label}</a>
+                            ))}
                         </nav>
                     </div>
                     <div className="mt-4 pt-4 border-t border-gray-200 text-center text-sm text-gray-500">
