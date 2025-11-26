@@ -13,6 +13,7 @@ import Learning from './pages/Learning';
 import Tasks from './pages/Tasks';
 import Intelligence from './pages/Intelligence';
 import Notes from './pages/Notes';
+import Comms from './pages/Comms';
 
 
 export const PAGES = {
@@ -31,6 +32,7 @@ export const PAGES = {
     "Tasks": Tasks,
     "Intelligence": Intelligence,
     "Notes": Notes,
+    "Comms": Comms,
 }
 
 export const pagesConfig = {

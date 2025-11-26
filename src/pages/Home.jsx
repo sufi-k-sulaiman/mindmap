@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Sparkles, Radio, Settings, Brain, FileText, BarChart3, GraduationCap, ListTodo, Lightbulb, StickyNote } from "lucide-react";
+import { Sparkles, Radio, Settings, Brain, FileText, BarChart3, GraduationCap, ListTodo, Lightbulb, StickyNote, MessageCircle } from "lucide-react";
 import PageLayout from '../components/PageLayout';
 
 const pages = [
@@ -67,6 +67,13 @@ const pages = [
         icon: StickyNote, 
         description: 'Rich text notes with AI assistance',
         color: 'from-pink-600 to-rose-600'
+    },
+    { 
+        name: 'Comms', 
+        href: createPageUrl('Comms'), 
+        icon: MessageCircle, 
+        description: 'Calls, SMS, email & team collaboration',
+        color: 'from-cyan-600 to-blue-600'
     },
     { 
         name: 'Settings', 
