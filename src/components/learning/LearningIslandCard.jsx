@@ -8,7 +8,7 @@ import {
     Network, TrendingUp, Landmark, Skull, Lightbulb, Languages, BookText,
     PenTool, Palette, Music, Film
 } from 'lucide-react';
-import RealisticIsland from './RealisticIsland';
+import IslandSVG from './IslandSVG';
 
 // Icon mapping for dynamic icon rendering
 const ICON_MAP = {
@@ -49,29 +49,28 @@ export default function LearningIslandCard({ topic, index, progress = 0, onExplo
                 {index + 1}
             </div>
             
-            {/* Realistic Island */}
-            <div className="w-44 h-44 mx-auto">
-                <RealisticIsland 
+            {/* Island SVG */}
+            <div className="w-44 h-36 mx-auto">
+                <IslandSVG 
                     index={index} 
                     color={topic.color} 
                     completed={isCompleted}
                     progress={progress}
-                    Icon={Icon}
                 />
             </div>
             
-            {/* Icon overlay - positioned on the platform */}
+            {/* Icon overlay */}
             <div 
-                className="absolute top-[85px] left-1/2 w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-transform z-10"
+                className="absolute top-[70px] left-1/2 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-transform z-10"
                 style={{ 
                     backgroundColor: topic.color,
                     transform: hovered ? 'translate(-50%, -4px)' : 'translate(-50%, 0)'
                 }}
             >
                 {locked ? (
-                    <Lock className="w-5 h-5 text-white" />
+                    <Lock className="w-4 h-4 text-white" />
                 ) : (
-                    <Icon className="w-5 h-5 text-white" />
+                    <Icon className="w-4 h-4 text-white" />
                 )}
             </div>
             
