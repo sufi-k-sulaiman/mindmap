@@ -168,7 +168,7 @@ export default function TestFunctions() {
                         <TabsTrigger value="twilio"><MessageSquare className="w-4 h-4 mr-1" /> Twilio</TabsTrigger>
                         <TabsTrigger value="files"><FileText className="w-4 h-4 mr-1" /> Files</TabsTrigger>
                         <TabsTrigger value="webhooks"><Send className="w-4 h-4 mr-1" /> Webhooks</TabsTrigger>
-                            <TabsTrigger value="icons"><Icons className="w-4 h-4 mr-1" /> Icons</TabsTrigger>
+                            <TabsTrigger value="icons"><Grid3X3 className="w-4 h-4 mr-1" /> Icons</TabsTrigger>
                     </TabsList>
 
                     {/* LLM Tab */}
@@ -898,31 +898,98 @@ export default function TestFunctions() {
                                     />
                                 </div>
                                 <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2 max-h-[500px] overflow-y-auto">
-                                    {Object.entries(LucideIcons)
-                                        .filter(([name]) => 
-                                            typeof LucideIcons[name] === 'function' && 
-                                            name !== 'createLucideIcon' &&
-                                            name !== 'default' &&
-                                            !name.startsWith('Lucide') &&
-                                            name.toLowerCase().includes(iconSearch.toLowerCase())
-                                        )
-                                        .slice(0, 200)
-                                        .map(([name, Icon]) => (
-                                            <button
-                                                key={name}
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText(`import { ${name} } from "lucide-react";`);
-                                                    setResults(prev => ({ ...prev, iconCopy: `Copied: ${name}` }));
-                                                    setTimeout(() => setResults(prev => ({ ...prev, iconCopy: null })), 2000);
-                                                }}
-                                                className="p-2 rounded hover:bg-gray-100 flex flex-col items-center gap-1 group"
-                                                title={name}
-                                            >
-                                                <Icon className="w-5 h-5 text-gray-700 group-hover:text-blue-600" />
-                                                <span className="text-[10px] text-gray-500 truncate w-full text-center">{name}</span>
-                                            </button>
-                                        ))}
-                                </div>
+                                                                {(() => {
+                                                                    const icons = [
+                                                                        { name: 'Home', Icon: Home }, { name: 'Settings', Icon: Settings }, { name: 'User', Icon: User },
+                                                                        { name: 'Bell', Icon: Bell }, { name: 'Heart', Icon: Heart }, { name: 'Star', Icon: Star },
+                                                                        { name: 'Calendar', Icon: Calendar }, { name: 'Clock', Icon: Clock }, { name: 'Phone', Icon: Phone },
+                                                                        { name: 'Camera', Icon: Camera }, { name: 'Music', Icon: Music }, { name: 'Video', Icon: Video },
+                                                                        { name: 'Folder', Icon: Folder }, { name: 'File', Icon: File }, { name: 'Edit', Icon: Edit },
+                                                                        { name: 'Trash2', Icon: Trash2 }, { name: 'Plus', Icon: Plus }, { name: 'Minus', Icon: Minus },
+                                                                        { name: 'Check', Icon: Check }, { name: 'X', Icon: X }, { name: 'ChevronUp', Icon: ChevronUp },
+                                                                        { name: 'ChevronDown', Icon: ChevronDown }, { name: 'ChevronLeft', Icon: ChevronLeft }, { name: 'ChevronRight', Icon: ChevronRight },
+                                                                        { name: 'ArrowUp', Icon: ArrowUp }, { name: 'ArrowDown', Icon: ArrowDown }, { name: 'ArrowLeft', Icon: ArrowLeft },
+                                                                        { name: 'ArrowRight', Icon: ArrowRight }, { name: 'Menu', Icon: Menu }, { name: 'MoreHorizontal', Icon: MoreHorizontal },
+                                                                        { name: 'MoreVertical', Icon: MoreVertical }, { name: 'Share', Icon: Share }, { name: 'Link', Icon: Link },
+                                                                        { name: 'ExternalLink', Icon: ExternalLink }, { name: 'Eye', Icon: Eye }, { name: 'EyeOff', Icon: EyeOff },
+                                                                        { name: 'Lock', Icon: Lock }, { name: 'Unlock', Icon: Unlock }, { name: 'Key', Icon: Key },
+                                                                        { name: 'Shield', Icon: Shield }, { name: 'AlertCircle', Icon: AlertCircle }, { name: 'AlertTriangle', Icon: AlertTriangle },
+                                                                        { name: 'Info', Icon: Info }, { name: 'HelpCircle', Icon: HelpCircle }, { name: 'Zap', Icon: Zap },
+                                                                        { name: 'Activity', Icon: Activity }, { name: 'BarChart', Icon: BarChart }, { name: 'PieChart', Icon: PieChart },
+                                                                        { name: 'TrendingUp', Icon: TrendingUp }, { name: 'TrendingDown', Icon: TrendingDown }, { name: 'DollarSign', Icon: DollarSign },
+                                                                        { name: 'ShoppingCart', Icon: ShoppingCart }, { name: 'Package', Icon: Package }, { name: 'Truck', Icon: Truck },
+                                                                        { name: 'MapPin', Icon: MapPin }, { name: 'Globe', Icon: Globe }, { name: 'Wifi', Icon: Wifi },
+                                                                        { name: 'Bluetooth', Icon: Bluetooth }, { name: 'Battery', Icon: Battery }, { name: 'Sun', Icon: Sun },
+                                                                        { name: 'Moon', Icon: Moon }, { name: 'Cloud', Icon: Cloud }, { name: 'Umbrella', Icon: Umbrella },
+                                                                        { name: 'Thermometer', Icon: Thermometer }, { name: 'Droplet', Icon: Droplet }, { name: 'Wind', Icon: Wind },
+                                                                        { name: 'Flame', Icon: Flame }, { name: 'Leaf', Icon: Leaf }, { name: 'Mountain', Icon: Mountain },
+                                                                        { name: 'Waves', Icon: Waves }, { name: 'Anchor', Icon: Anchor }, { name: 'Plane', Icon: Plane },
+                                                                        { name: 'Car', Icon: Car }, { name: 'Bike', Icon: Bike }, { name: 'Train', Icon: Train },
+                                                                        { name: 'Ship', Icon: Ship }, { name: 'Rocket', Icon: Rocket }, { name: 'Gift', Icon: Gift },
+                                                                        { name: 'Award', Icon: Award }, { name: 'Trophy', Icon: Trophy }, { name: 'Flag', Icon: Flag },
+                                                                        { name: 'Bookmark', Icon: Bookmark }, { name: 'Tag', Icon: Tag }, { name: 'Hash', Icon: Hash },
+                                                                        { name: 'AtSign', Icon: AtSign }, { name: 'Code', Icon: Code }, { name: 'Terminal', Icon: Terminal },
+                                                                        { name: 'Database', Icon: Database }, { name: 'Server', Icon: Server }, { name: 'Cpu', Icon: Cpu },
+                                                                        { name: 'HardDrive', Icon: HardDrive }, { name: 'Monitor', Icon: Monitor }, { name: 'Smartphone', Icon: Smartphone },
+                                                                        { name: 'Tablet', Icon: Tablet }, { name: 'Laptop', Icon: Laptop }, { name: 'Watch', Icon: Watch },
+                                                                        { name: 'Headphones', Icon: Headphones }, { name: 'Speaker', Icon: Speaker }, { name: 'Mic', Icon: Mic },
+                                                                        { name: 'Volume2', Icon: Volume2 }, { name: 'VolumeX', Icon: VolumeX }, { name: 'Play', Icon: Play },
+                                                                        { name: 'Pause', Icon: Pause }, { name: 'Square', Icon: Square }, { name: 'SkipBack', Icon: SkipBack },
+                                                                        { name: 'SkipForward', Icon: SkipForward }, { name: 'Repeat', Icon: Repeat }, { name: 'Shuffle', Icon: Shuffle },
+                                                                        { name: 'List', Icon: List }, { name: 'Grid', Icon: Grid }, { name: 'Layers', Icon: Layers },
+                                                                        { name: 'Layout', Icon: Layout }, { name: 'Sidebar', Icon: Sidebar }, { name: 'PanelLeft', Icon: PanelLeft },
+                                                                        { name: 'Maximize', Icon: Maximize }, { name: 'Minimize', Icon: Minimize }, { name: 'Copy', Icon: Copy },
+                                                                        { name: 'Clipboard', Icon: Clipboard }, { name: 'Scissors', Icon: Scissors }, { name: 'RotateCw', Icon: RotateCw },
+                                                                        { name: 'RotateCcw', Icon: RotateCcw }, { name: 'RefreshCw', Icon: RefreshCw }, { name: 'Filter', Icon: Filter },
+                                                                        { name: 'Target', Icon: Target }, { name: 'Crosshair', Icon: Crosshair }, { name: 'Navigation', Icon: Navigation },
+                                                                        { name: 'Compass', Icon: Compass }, { name: 'Map', Icon: Map }, { name: 'Route', Icon: Route },
+                                                                        { name: 'Users', Icon: Users }, { name: 'UserPlus', Icon: UserPlus }, { name: 'UserMinus', Icon: UserMinus },
+                                                                        { name: 'UserCheck', Icon: UserCheck }, { name: 'UserX', Icon: UserX }, { name: 'Building', Icon: Building },
+                                                                        { name: 'Briefcase', Icon: Briefcase }, { name: 'GraduationCap', Icon: GraduationCap }, { name: 'BookOpen', Icon: BookOpen },
+                                                                        { name: 'Newspaper', Icon: Newspaper }, { name: 'Film', Icon: Film }, { name: 'Tv', Icon: Tv },
+                                                                        { name: 'Radio', Icon: Radio }, { name: 'Gamepad2', Icon: Gamepad2 }, { name: 'Puzzle', Icon: Puzzle },
+                                                                        { name: 'Lightbulb', Icon: Lightbulb }, { name: 'Wrench', Icon: Wrench }, { name: 'Hammer', Icon: Hammer },
+                                                                        { name: 'Palette', Icon: Palette }, { name: 'Brush', Icon: Brush }, { name: 'Pen', Icon: Pen },
+                                                                        { name: 'Pencil', Icon: Pencil }, { name: 'Eraser', Icon: Eraser }, { name: 'Type', Icon: Type },
+                                                                        { name: 'Bold', Icon: Bold }, { name: 'Italic', Icon: Italic }, { name: 'Underline', Icon: Underline },
+                                                                        { name: 'AlignLeft', Icon: AlignLeft }, { name: 'AlignCenter', Icon: AlignCenter }, { name: 'AlignRight', Icon: AlignRight },
+                                                                        { name: 'Table', Icon: Table }, { name: 'ZoomIn', Icon: ZoomIn }, { name: 'ZoomOut', Icon: ZoomOut },
+                                                                        { name: 'Hand', Icon: Hand }, { name: 'Pointer', Icon: Pointer }, { name: 'MousePointer', Icon: MousePointer },
+                                                                        { name: 'Fingerprint', Icon: Fingerprint }, { name: 'Scan', Icon: Scan }, { name: 'QrCode', Icon: QrCode },
+                                                                        { name: 'Receipt', Icon: Receipt }, { name: 'Wallet', Icon: Wallet }, { name: 'Banknote', Icon: Banknote },
+                                                                        { name: 'Coins', Icon: Coins }, { name: 'PiggyBank', Icon: PiggyBank }, { name: 'Calculator', Icon: Calculator },
+                                                                        { name: 'Circle', Icon: Circle }, { name: 'Triangle', Icon: Triangle }, { name: 'Hexagon', Icon: Hexagon },
+                                                                        { name: 'Diamond', Icon: Diamond }, { name: 'Gem', Icon: Gem }, { name: 'Crown', Icon: Crown },
+                                                                        { name: 'Sparkle', Icon: Sparkle }, { name: 'Wand2', Icon: Wand2 }, { name: 'Ghost', Icon: Ghost },
+                                                                        { name: 'Skull', Icon: Skull }, { name: 'Bug', Icon: Bug }, { name: 'Pill', Icon: Pill },
+                                                                        { name: 'Stethoscope', Icon: Stethoscope }, { name: 'Microscope', Icon: Microscope }, { name: 'FlaskConical', Icon: FlaskConical },
+                                                                        { name: 'Atom', Icon: Atom }, { name: 'Dna', Icon: Dna }, { name: 'Brain', Icon: Brain },
+                                                                        { name: 'Coffee', Icon: Coffee }, { name: 'Wine', Icon: Wine }, { name: 'Beer', Icon: Beer },
+                                                                        { name: 'Pizza', Icon: Pizza }, { name: 'Apple', Icon: Apple }, { name: 'Mail', Icon: Mail },
+                                                                        { name: 'MessageSquare', Icon: MessageSquare }, { name: 'Send', Icon: Send }, { name: 'Bot', Icon: Bot },
+                                                                        { name: 'Sparkles', Icon: Sparkles }, { name: 'Image', Icon: Image }, { name: 'Upload', Icon: Upload },
+                                                                        { name: 'Download', Icon: Download }, { name: 'FileText', Icon: FileText }, { name: 'CreditCard', Icon: CreditCard },
+                                                                        { name: 'Loader2', Icon: Loader2 }, { name: 'CheckCircle', Icon: CheckCircle }, { name: 'XCircle', Icon: XCircle }
+                                                                    ];
+                                                                    return icons
+                                                                        .filter(({ name }) => name.toLowerCase().includes(iconSearch.toLowerCase()))
+                                                                        .map(({ name, Icon }) => (
+                                                                            <button
+                                                                                key={name}
+                                                                                onClick={() => {
+                                                                                    navigator.clipboard.writeText(`import { ${name} } from "lucide-react";`);
+                                                                                    setResults(prev => ({ ...prev, iconCopy: `Copied: ${name}` }));
+                                                                                    setTimeout(() => setResults(prev => ({ ...prev, iconCopy: null })), 2000);
+                                                                                }}
+                                                                                className="p-2 rounded hover:bg-gray-100 flex flex-col items-center gap-1 group"
+                                                                                title={name}
+                                                                            >
+                                                                                <Icon className="w-5 h-5 text-gray-700 group-hover:text-blue-600" />
+                                                                                <span className="text-[10px] text-gray-500 truncate w-full text-center">{name}</span>
+                                                                            </button>
+                                                                        ));
+                                                                })()}
+                                                            </div>
                                 {results.iconCopy && (
                                     <div className="p-2 bg-green-50 border border-green-200 rounded text-sm text-green-700 flex items-center gap-2">
                                         <CheckCircle className="w-4 h-4" />
