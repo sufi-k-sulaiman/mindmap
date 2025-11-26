@@ -140,26 +140,26 @@ export default function Learning() {
     return (
         <PageLayout activePage="Learning" showSearch={false}>
             <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-purple-50">
-                {/* Hero Header with theme colors */}
-                <div className="text-white" style={{ background: `linear-gradient(135deg, ${THEME.primary} 0%, ${THEME.secondary} 50%, #3B82F6 100%)` }}>
+                {/* Hero Header - white/light themed */}
+                <div className="bg-white border-b border-gray-200 shadow-sm">
                     <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                             {/* User Profile & Stats */}
                             <div className="flex items-center gap-4">
-                                <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-4xl">
+                                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl" style={{ backgroundColor: `${THEME.primary}15` }}>
                                     {currentRank.icon}
                                 </div>
                                 <div>
-                                    <h1 className="text-2xl font-bold">Learning Explorer</h1>
+                                    <h1 className="text-xl font-bold text-gray-900">Learning Explorer</h1>
                                     <div className="flex items-center gap-2 mt-1">
                                         <span 
-                                            className="px-3 py-1 rounded-full text-sm font-medium"
-                                            style={{ backgroundColor: `${currentRank.color}40` }}
+                                            className="px-3 py-1 rounded-full text-xs font-medium text-white"
+                                            style={{ backgroundColor: currentRank.color }}
                                         >
                                             {currentRank.name}
                                         </span>
                                         {nextRank && (
-                                            <span className="text-white/70 text-sm">
+                                            <span className="text-gray-500 text-sm">
                                                 {xpToNextRank} XP to {nextRank.name}
                                             </span>
                                         )}
@@ -168,41 +168,41 @@ export default function Learning() {
                             </div>
 
                             {/* Stats Cards */}
-                            <div className="flex flex-wrap gap-3">
-                                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.accent }}>
-                                        <Zap className="w-5 h-5 text-white" />
+                            <div className="flex flex-wrap gap-2">
+                                <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
+                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.accent }}>
+                                        <Zap className="w-4 h-4 text-white" />
                                     </div>
                                     <div>
-                                        <p className="text-2xl font-bold">{totalXP.toLocaleString()}</p>
-                                        <p className="text-xs text-white/70">Total XP</p>
+                                        <p className="text-lg font-bold text-gray-900">{totalXP.toLocaleString()}</p>
+                                        <p className="text-xs text-gray-500">Total XP</p>
                                     </div>
                                 </div>
-                                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center">
-                                        <Flame className="w-5 h-5 text-white" />
+                                <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
+                                    <div className="w-9 h-9 rounded-lg bg-orange-500 flex items-center justify-center">
+                                        <Flame className="w-4 h-4 text-white" />
                                     </div>
                                     <div>
-                                        <p className="text-2xl font-bold">{streak}</p>
-                                        <p className="text-xs text-white/70">Day Streak</p>
+                                        <p className="text-lg font-bold text-gray-900">{streak}</p>
+                                        <p className="text-xs text-gray-500">Day Streak</p>
                                     </div>
                                 </div>
-                                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.success }}>
-                                        <Trophy className="w-5 h-5 text-white" />
+                                <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
+                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.success }}>
+                                        <Trophy className="w-4 h-4 text-white" />
                                     </div>
                                     <div>
-                                        <p className="text-2xl font-bold">{completedCourses}</p>
-                                        <p className="text-xs text-white/70">Completed</p>
+                                        <p className="text-lg font-bold text-gray-900">{completedCourses}</p>
+                                        <p className="text-xs text-gray-500">Completed</p>
                                     </div>
                                 </div>
-                                <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.primary }}>
-                                        <Award className="w-5 h-5 text-white" />
+                                <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
+                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.primary }}>
+                                        <Award className="w-4 h-4 text-white" />
                                     </div>
                                     <div>
-                                        <p className="text-2xl font-bold">{certificates}</p>
-                                        <p className="text-xs text-white/70">Certificates</p>
+                                        <p className="text-lg font-bold text-gray-900">{certificates}</p>
+                                        <p className="text-xs text-gray-500">Certificates</p>
                                     </div>
                                 </div>
                             </div>
@@ -210,11 +210,14 @@ export default function Learning() {
 
                         {/* XP Progress Bar */}
                         {nextRank && (
-                            <div className="mt-6">
-                                <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                            <div className="mt-4 max-w-7xl mx-auto px-4 md:px-8 pb-4">
+                                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                                     <div 
-                                        className="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full transition-all"
-                                        style={{ width: `${((totalXP - currentRank.minXP) / (nextRank.minXP - currentRank.minXP)) * 100}%` }}
+                                        className="h-full rounded-full transition-all"
+                                        style={{ 
+                                            width: `${((totalXP - currentRank.minXP) / (nextRank.minXP - currentRank.minXP)) * 100}%`,
+                                            background: `linear-gradient(90deg, ${THEME.accent}, #F97316)`
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -254,7 +257,7 @@ export default function Learning() {
                 <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
                     {loadingTopics ? (
                         <div className="flex flex-col items-center justify-center py-20">
-                            <Loader2 className="w-12 h-12 animate-spin mb-4" style={{ color: THEME.primary }} />
+                            <Loader2 className="w-12 h-12 animate-spin mb-4 text-purple-600" />
                             <p className="text-gray-600">Generating learning islands for you...</p>
                         </div>
                     ) : subTopics.length === 0 ? (
