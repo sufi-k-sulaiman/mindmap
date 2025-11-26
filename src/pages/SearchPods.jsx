@@ -49,7 +49,10 @@ const cleanTextForSpeech = (text) => {
 
 const QUICK_TOPICS = [
     'AI trends', 'Morning motivation', 'Sleep story', 'Health tips', 'World news', 'Book summary',
-    'Cryptocurrency', 'Climate change', 'Space exploration', 'Mental health', 'Productivity hacks', 'History facts'
+    'Cryptocurrency', 'Climate change', 'Space exploration', 'Mental health', 'Productivity hacks', 'History facts',
+    'Meditation guide', 'Stock market', 'Startup stories', 'Philosophy 101', 'True crime', 'Science breakthroughs',
+    'Leadership skills', 'Personal finance', 'Relationship advice', 'Travel destinations', 'Cooking basics', 'Fitness routines',
+    'Art history', 'Music theory', 'Language learning', 'Career growth', 'Tech gadgets', 'Movie reviews', 'Political analysis', 'Sports highlights'
 ];
 
 const TRENDING = [

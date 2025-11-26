@@ -47,6 +47,10 @@ export default function Notes() {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [toast, setToast] = useState(null);
     const [aiLoading, setAiLoading] = useState(false);
+    const [showAiTextModal, setShowAiTextModal] = useState(false);
+    const [showAiImageModal, setShowAiImageModal] = useState(false);
+    const [aiPrompt, setAiPrompt] = useState('');
+    const [formatLoading, setFormatLoading] = useState(false);
     const queryClient = useQueryClient();
 
     const { data: notes = [], isLoading } = useQuery({
@@ -122,15 +126,58 @@ export default function Notes() {
     };
 
     const generateAIText = async () => {
+        if (!aiPrompt.trim()) return;
         setAiLoading(true);
         try {
-            const prompt = noteTitle ? `Write a detailed note about: ${noteTitle}` : 'Write an interesting note about a random topic';
-            const response = await base44.integrations.Core.InvokeLLM({ prompt });
-            setEditorContent(prev => prev + '\n\n' + response);
+            const response = await base44.integrations.Core.InvokeLLM({ 
+                prompt: `Write detailed content about: ${aiPrompt}. Format it nicely with paragraphs.` 
+            });
+            setEditorContent(prev => prev + '<p>' + response.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>') + '</p>');
+            setShowAiTextModal(false);
+            setAiPrompt('');
         } catch (e) {
             console.error(e);
         } finally {
             setAiLoading(false);
+        }
+    };
+
+    const generateAIImage = async () => {
+        if (!aiPrompt.trim()) return;
+        setAiLoading(true);
+        try {
+            const { url } = await base44.integrations.Core.GenerateImage({ prompt: aiPrompt });
+            setEditorContent(prev => prev + `<p><img src="${url}" alt="${aiPrompt}" style="max-width: 100%; border-radius: 8px;" /></p>`);
+            setShowAiImageModal(false);
+            setAiPrompt('');
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
+    const formatContent = async () => {
+        if (!editorContent.trim()) return;
+        setFormatLoading(true);
+        try {
+            const plainText = editorContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            const response = await base44.integrations.Core.InvokeLLM({ 
+                prompt: `Format the following text into clean, well-structured HTML content. Use <h2> for main titles, <h3> for subtitles, <p> for paragraphs, <ul>/<li> for lists, <strong> for important terms. Keep the original meaning but make it readable:\n\n${plainText}`,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        formatted_html: { type: "string" }
+                    }
+                }
+            });
+            if (response?.formatted_html) {
+                setEditorContent(response.formatted_html);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setFormatLoading(false);
         }
     };
 
@@ -249,9 +296,17 @@ export default function Notes() {
                                 className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 max-w-md"
                             />
                             <div className="flex items-center gap-2">
-                                <Button onClick={generateAIText} disabled={aiLoading} variant="outline" size="sm" className="gap-2">
-                                    {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 text-purple-600" />}
+                                <Button onClick={() => setShowAiTextModal(true)} variant="outline" size="sm" className="gap-2">
+                                    <Sparkles className="w-4 h-4 text-purple-600" />
                                     AI Text
+                                </Button>
+                                <Button onClick={() => setShowAiImageModal(true)} variant="outline" size="sm" className="gap-2">
+                                    <Image className="w-4 h-4 text-pink-600" />
+                                    AI Image
+                                </Button>
+                                <Button onClick={formatContent} disabled={formatLoading} variant="outline" size="sm" className="gap-2">
+                                    {formatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4 text-blue-600" />}
+                                    Format
                                 </Button>
                                 <Button onClick={() => setIsFullscreen(!isFullscreen)} variant="ghost" size="icon">
                                     {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -321,6 +376,51 @@ export default function Notes() {
             </Dialog>
 
             {toast && <Toast message={toast} onClose={() => setToast(null)} />}
+
+            {/* AI Text Modal */}
+            <Dialog open={showAiTextModal} onOpenChange={setShowAiTextModal}>
+                <DialogContent className="max-w-md">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-purple-600" /> Generate AI Text
+                    </h3>
+                    <Input
+                        placeholder="Describe what you want to write about..."
+                        value={aiPrompt}
+                        onChange={e => setAiPrompt(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && generateAIText()}
+                    />
+                    <div className="flex justify-end gap-2 mt-4">
+                        <Button variant="outline" onClick={() => { setShowAiTextModal(false); setAiPrompt(''); }}>Cancel</Button>
+                        <Button onClick={generateAIText} disabled={aiLoading || !aiPrompt.trim()} className="bg-purple-600 hover:bg-purple-700">
+                            {aiLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                            Generate
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* AI Image Modal */}
+            <Dialog open={showAiImageModal} onOpenChange={setShowAiImageModal}>
+                <DialogContent className="max-w-md">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Image className="w-5 h-5 text-pink-600" /> Generate AI Image
+                    </h3>
+                    <Input
+                        placeholder="Describe the image you want to create..."
+                        value={aiPrompt}
+                        onChange={e => setAiPrompt(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && generateAIImage()}
+                    />
+                    <p className="text-xs text-gray-500 mt-2">Be descriptive for better results. Takes 5-10 seconds.</p>
+                    <div className="flex justify-end gap-2 mt-4">
+                        <Button variant="outline" onClick={() => { setShowAiImageModal(false); setAiPrompt(''); }}>Cancel</Button>
+                        <Button onClick={generateAIImage} disabled={aiLoading || !aiPrompt.trim()} className="bg-pink-600 hover:bg-pink-700">
+                            {aiLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Image className="w-4 h-4 mr-2" />}
+                            Generate
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </PageLayout>
     );
 }
