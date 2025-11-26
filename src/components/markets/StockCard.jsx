@@ -47,11 +47,14 @@ function MetricBadge({ label, value, color = 'gray' }) {
     );
 }
 
-export default function StockCard({ stock }) {
+export default function StockCard({ stock, onClick }) {
     const isPositive = stock.change >= 0;
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-lg hover:border-purple-200 transition-all cursor-pointer">
+        <div 
+            onClick={() => onClick?.(stock)}
+            className="bg-white rounded-2xl border border-gray-200 p-4 hover:shadow-lg hover:border-purple-200 transition-all cursor-pointer"
+        >
             {/* Header */}
             <div className="flex items-start justify-between mb-3">
                 <div>

@@ -15,6 +15,7 @@ import { LOGO_URL, menuItems, footerLinks } from '../components/NavigationConfig
 import StockCard from '../components/markets/StockCard';
 import StockTicker from '../components/markets/StockTicker';
 import FilterChips from '../components/markets/FilterChips';
+import StockDetailModal from '../components/markets/StockDetailModal';
 
 const PRESET_FILTERS = [
     { id: 'suggested', label: 'Suggested', icon: Sparkles },
@@ -53,6 +54,8 @@ export default function Markets() {
         dividend: 'Any',
         aiIndex: 'Any'
     });
+    const [selectedStock, setSelectedStock] = useState(null);
+    const [showStockModal, setShowStockModal] = useState(false);
 
     // Responsive sidebar
     useEffect(() => {
@@ -139,20 +142,63 @@ export default function Markets() {
         setIsRefreshing(false);
     };
 
+    const handleStockClick = (stock) => {
+        setSelectedStock(stock);
+        setShowStockModal(true);
+    };
+
     const generateMockStocks = () => {
         const mockTickers = [
-            { ticker: 'AAPL', name: 'Apple Inc.', sector: 'Technology' },
-            { ticker: 'MSFT', name: 'Microsoft Corporation', sector: 'Technology' },
-            { ticker: 'GOOGL', name: 'Alphabet Inc.', sector: 'Technology' },
-            { ticker: 'NVDA', name: 'NVIDIA Corporation', sector: 'Technology' },
-            { ticker: 'META', name: 'Meta Platforms Inc.', sector: 'Technology' },
-            { ticker: 'AMZN', name: 'Amazon.com Inc.', sector: 'Consumer' },
-            { ticker: 'TSLA', name: 'Tesla Inc.', sector: 'Automotive' },
-            { ticker: 'JPM', name: 'JPMorgan Chase & Co.', sector: 'Finance' },
-            { ticker: 'V', name: 'Visa Inc.', sector: 'Finance' },
-            { ticker: 'JNJ', name: 'Johnson & Johnson', sector: 'Healthcare' },
-            { ticker: 'WMT', name: 'Walmart Inc.', sector: 'Consumer' },
-            { ticker: 'PG', name: 'Procter & Gamble', sector: 'Consumer' },
+            { ticker: 'AAPL', name: 'Apple Inc.', sector: 'Technology', marketCap: '2890' },
+            { ticker: 'MSFT', name: 'Microsoft Corporation', sector: 'Technology', marketCap: '2780' },
+            { ticker: 'GOOGL', name: 'Alphabet Inc.', sector: 'Technology', marketCap: '1720' },
+            { ticker: 'NVDA', name: 'NVIDIA Corporation', sector: 'Technology', marketCap: '1180' },
+            { ticker: 'META', name: 'Meta Platforms Inc.', sector: 'Technology', marketCap: '890' },
+            { ticker: 'AMZN', name: 'Amazon.com Inc.', sector: 'Consumer', marketCap: '1540' },
+            { ticker: 'TSLA', name: 'Tesla Inc.', sector: 'Automotive', marketCap: '780' },
+            { ticker: 'JPM', name: 'JPMorgan Chase & Co.', sector: 'Finance', marketCap: '520' },
+            { ticker: 'V', name: 'Visa Inc.', sector: 'Finance', marketCap: '480' },
+            { ticker: 'JNJ', name: 'Johnson & Johnson', sector: 'Healthcare', marketCap: '420' },
+            { ticker: 'WMT', name: 'Walmart Inc.', sector: 'Consumer', marketCap: '410' },
+            { ticker: 'PG', name: 'Procter & Gamble', sector: 'Consumer', marketCap: '380' },
+            { ticker: 'MA', name: 'Mastercard Inc.', sector: 'Finance', marketCap: '390' },
+            { ticker: 'HD', name: 'Home Depot Inc.', sector: 'Consumer', marketCap: '340' },
+            { ticker: 'XOM', name: 'Exxon Mobil Corp.', sector: 'Energy', marketCap: '460' },
+            { ticker: 'CVX', name: 'Chevron Corp.', sector: 'Energy', marketCap: '290' },
+            { ticker: 'BAC', name: 'Bank of America', sector: 'Finance', marketCap: '270' },
+            { ticker: 'ABBV', name: 'AbbVie Inc.', sector: 'Healthcare', marketCap: '280' },
+            { ticker: 'KO', name: 'Coca-Cola Company', sector: 'Consumer', marketCap: '260' },
+            { ticker: 'PEP', name: 'PepsiCo Inc.', sector: 'Consumer', marketCap: '230' },
+            { ticker: 'COST', name: 'Costco Wholesale', sector: 'Consumer', marketCap: '250' },
+            { ticker: 'MRK', name: 'Merck & Co.', sector: 'Healthcare', marketCap: '270' },
+            { ticker: 'TMO', name: 'Thermo Fisher Scientific', sector: 'Healthcare', marketCap: '210' },
+            { ticker: 'AVGO', name: 'Broadcom Inc.', sector: 'Technology', marketCap: '360' },
+            { ticker: 'CSCO', name: 'Cisco Systems', sector: 'Technology', marketCap: '220' },
+            { ticker: 'ACN', name: 'Accenture plc', sector: 'Technology', marketCap: '200' },
+            { ticker: 'ADBE', name: 'Adobe Inc.', sector: 'Technology', marketCap: '240' },
+            { ticker: 'CRM', name: 'Salesforce Inc.', sector: 'Technology', marketCap: '250' },
+            { ticker: 'INTC', name: 'Intel Corporation', sector: 'Technology', marketCap: '180' },
+            { ticker: 'AMD', name: 'Advanced Micro Devices', sector: 'Technology', marketCap: '220' },
+            { ticker: 'IBM', name: 'IBM Corporation', sector: 'Technology', marketCap: '150' },
+            { ticker: 'ORCL', name: 'Oracle Corporation', sector: 'Technology', marketCap: '310' },
+            { ticker: 'QCOM', name: 'Qualcomm Inc.', sector: 'Technology', marketCap: '170' },
+            { ticker: 'NOW', name: 'ServiceNow Inc.', sector: 'Technology', marketCap: '150' },
+            { ticker: 'INTU', name: 'Intuit Inc.', sector: 'Technology', marketCap: '170' },
+            { ticker: 'SNOW', name: 'Snowflake Inc.', sector: 'Technology', marketCap: '65' },
+            { ticker: 'PLTR', name: 'Palantir Technologies', sector: 'Technology', marketCap: '45' },
+            { ticker: 'CRWD', name: 'CrowdStrike Holdings', sector: 'Technology', marketCap: '72' },
+            { ticker: 'NKE', name: 'Nike Inc.', sector: 'Consumer', marketCap: '150' },
+            { ticker: 'LOW', name: 'Lowes Companies', sector: 'Consumer', marketCap: '130' },
+            { ticker: 'SBUX', name: 'Starbucks Corporation', sector: 'Consumer', marketCap: '105' },
+            { ticker: 'TGT', name: 'Target Corporation', sector: 'Consumer', marketCap: '72' },
+            { ticker: 'MCD', name: 'McDonalds Corporation', sector: 'Consumer', marketCap: '205' },
+            { ticker: 'DIS', name: 'Walt Disney Company', sector: 'Media', marketCap: '175' },
+            { ticker: 'NFLX', name: 'Netflix Inc.', sector: 'Media', marketCap: '195' },
+            { ticker: 'PYPL', name: 'PayPal Holdings', sector: 'Finance', marketCap: '68' },
+            { ticker: 'SQ', name: 'Block Inc.', sector: 'Finance', marketCap: '42' },
+            { ticker: 'GS', name: 'Goldman Sachs', sector: 'Finance', marketCap: '135' },
+            { ticker: 'MS', name: 'Morgan Stanley', sector: 'Finance', marketCap: '150' },
+            { ticker: 'AXP', name: 'American Express', sector: 'Finance', marketCap: '165' },
         ];
         
         return mockTickers.map(stock => ({
@@ -325,7 +371,7 @@ export default function Markets() {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             {filteredStocks.map((stock, i) => (
-                                <StockCard key={stock.ticker || i} stock={stock} />
+                                <StockCard key={stock.ticker || i} stock={stock} onClick={handleStockClick} />
                             ))}
                         </div>
                     )}
@@ -345,6 +391,13 @@ export default function Markets() {
                     © 2025 1cPublishing.com • Market data for informational purposes only
                 </div>
             </footer>
+
+            {/* Stock Detail Modal */}
+            <StockDetailModal 
+                stock={selectedStock} 
+                isOpen={showStockModal} 
+                onClose={() => setShowStockModal(false)} 
+            />
         </div>
     );
 }
