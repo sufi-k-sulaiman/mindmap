@@ -11,12 +11,20 @@ import LearningIslandCard from '../components/learning/LearningIslandCard';
 import CourseModal from '../components/learning/CourseModal';
 import { SUBJECTS } from '../components/learning/SubjectData';
 
+// App theme colors
+const THEME = {
+    primary: '#6B4EE6',
+    secondary: '#8B5CF6',
+    accent: '#F59E0B',
+    success: '#10B981',
+};
+
 const RANKS = [
     { name: 'Novice', minXP: 0, color: '#9CA3AF', icon: '🌱' },
-    { name: 'Explorer', minXP: 500, color: '#3B82F6', icon: '🧭' },
-    { name: 'Scholar', minXP: 2000, color: '#10B981', icon: '📚' },
-    { name: 'Expert', minXP: 5000, color: '#8B5CF6', icon: '🎓' },
-    { name: 'Master', minXP: 10000, color: '#F59E0B', icon: '👑' },
+    { name: 'Explorer', minXP: 500, color: THEME.primary, icon: '🧭' },
+    { name: 'Scholar', minXP: 2000, color: THEME.success, icon: '📚' },
+    { name: 'Expert', minXP: 5000, color: THEME.secondary, icon: '🎓' },
+    { name: 'Master', minXP: 10000, color: THEME.accent, icon: '👑' },
     { name: 'Legend', minXP: 25000, color: '#EF4444', icon: '🌟' },
 ];
 
@@ -132,8 +140,8 @@ export default function Learning() {
     return (
         <PageLayout activePage="Learning" showSearch={false}>
             <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-purple-50">
-                {/* Hero Header */}
-                <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white">
+                {/* Hero Header with theme colors */}
+                <div className="text-white" style={{ background: `linear-gradient(135deg, ${THEME.primary} 0%, ${THEME.secondary} 50%, #3B82F6 100%)` }}>
                     <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                             {/* User Profile & Stats */}
@@ -162,7 +170,7 @@ export default function Learning() {
                             {/* Stats Cards */}
                             <div className="flex flex-wrap gap-3">
                                 <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-amber-400 flex items-center justify-center">
+                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.accent }}>
                                         <Zap className="w-5 h-5 text-white" />
                                     </div>
                                     <div>
@@ -171,7 +179,7 @@ export default function Learning() {
                                     </div>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-orange-400 flex items-center justify-center">
+                                    <div className="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center">
                                         <Flame className="w-5 h-5 text-white" />
                                     </div>
                                     <div>
@@ -180,7 +188,7 @@ export default function Learning() {
                                     </div>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-emerald-400 flex items-center justify-center">
+                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.success }}>
                                         <Trophy className="w-5 h-5 text-white" />
                                     </div>
                                     <div>
@@ -189,7 +197,7 @@ export default function Learning() {
                                     </div>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-purple-400 flex items-center justify-center">
+                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.primary }}>
                                         <Award className="w-5 h-5 text-white" />
                                     </div>
                                     <div>
@@ -220,7 +228,7 @@ export default function Learning() {
                         <div className="flex flex-col md:flex-row md:items-center gap-4">
                             <div className="flex-1">
                                 <h2 className="text-lg font-semibold text-gray-800 mb-1">
-                                    <Sparkles className="w-5 h-5 inline mr-2 text-purple-500" />
+                                    <Sparkles className="w-5 h-5 inline mr-2" style={{ color: THEME.primary }} />
                                     Select Your Learning Path
                                 </h2>
                                 <p className="text-sm text-gray-500">Choose subjects to generate personalized learning islands</p>
@@ -246,7 +254,7 @@ export default function Learning() {
                 <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
                     {loadingTopics ? (
                         <div className="flex flex-col items-center justify-center py-20">
-                            <Loader2 className="w-12 h-12 text-purple-600 animate-spin mb-4" />
+                            <Loader2 className="w-12 h-12 animate-spin mb-4" style={{ color: THEME.primary }} />
                             <p className="text-gray-600">Generating learning islands for you...</p>
                         </div>
                     ) : subTopics.length === 0 ? (
@@ -289,8 +297,8 @@ export default function Learning() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
-                                        <Star className="w-6 h-6 text-purple-600" />
+                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME.primary}20` }}>
+                                        <Star className="w-6 h-6" style={{ color: THEME.primary }} />
                                     </div>
                                     <div>
                                         <p className="text-3xl font-bold text-gray-900">{subTopics.length}</p>
@@ -300,8 +308,8 @@ export default function Learning() {
                             </div>
                             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                                        <Target className="w-6 h-6 text-emerald-600" />
+                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME.success}20` }}>
+                                        <Target className="w-6 h-6" style={{ color: THEME.success }} />
                                     </div>
                                     <div>
                                         <p className="text-3xl font-bold text-gray-900">
@@ -313,8 +321,8 @@ export default function Learning() {
                             </div>
                             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                                        <Zap className="w-6 h-6 text-amber-600" />
+                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME.accent}20` }}>
+                                        <Zap className="w-6 h-6" style={{ color: THEME.accent }} />
                                     </div>
                                     <div>
                                         <p className="text-3xl font-bold text-gray-900">
