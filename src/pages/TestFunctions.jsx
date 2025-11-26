@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, CheckCircle, XCircle, Send, FileText, Download, CreditCard, MessageSquare, Bot } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, CheckCircle, XCircle, Send, FileText, Download, CreditCard, MessageSquare, Bot, Sparkles, Image, Upload, Mail } from "lucide-react";
 
 export default function TestFunctions() {
     const [loading, setLoading] = useState({});
@@ -86,6 +87,70 @@ export default function TestFunctions() {
     const [embedText, setEmbedText] = useState("Hello world");
     const [smsTo, setSmsTo] = useState("");
     const [smsBody, setSmsBody] = useState("Test message from Base44");
+    
+    // LLM states
+    const [llmPrompt, setLlmPrompt] = useState("What is the capital of France?");
+    const [imagePrompt, setImagePrompt] = useState("A beautiful sunset over mountains");
+    const [emailTo, setEmailTo] = useState("");
+    const [emailSubject, setEmailSubject] = useState("Test Email");
+    const [emailBody, setEmailBody] = useState("This is a test email from Base44.");
+    
+    // InvokeLLM test function
+    const testLLM = async (name, prompt, options = {}) => {
+        setLoading(prev => ({ ...prev, [name]: true }));
+        setResults(prev => ({ ...prev, [name]: null }));
+        setErrors(prev => ({ ...prev, [name]: null }));
+        
+        try {
+            const response = await base44.integrations.Core.InvokeLLM({
+                prompt,
+                ...options
+            });
+            setResults(prev => ({ ...prev, [name]: response }));
+        } catch (err) {
+            setErrors(prev => ({ ...prev, [name]: err.message || 'Failed' }));
+        } finally {
+            setLoading(prev => ({ ...prev, [name]: false }));
+        }
+    };
+    
+    // GenerateImage test
+    const testGenerateImage = async () => {
+        setLoading(prev => ({ ...prev, generateImage: true }));
+        setResults(prev => ({ ...prev, generateImage: null }));
+        setErrors(prev => ({ ...prev, generateImage: null }));
+        
+        try {
+            const response = await base44.integrations.Core.GenerateImage({
+                prompt: imagePrompt
+            });
+            setResults(prev => ({ ...prev, generateImage: response }));
+        } catch (err) {
+            setErrors(prev => ({ ...prev, generateImage: err.message || 'Failed' }));
+        } finally {
+            setLoading(prev => ({ ...prev, generateImage: false }));
+        }
+    };
+    
+    // SendEmail test
+    const testSendEmail = async () => {
+        setLoading(prev => ({ ...prev, sendEmail: true }));
+        setResults(prev => ({ ...prev, sendEmail: null }));
+        setErrors(prev => ({ ...prev, sendEmail: null }));
+        
+        try {
+            const response = await base44.integrations.Core.SendEmail({
+                to: emailTo,
+                subject: emailSubject,
+                body: emailBody
+            });
+            setResults(prev => ({ ...prev, sendEmail: response }));
+        } catch (err) {
+            setErrors(prev => ({ ...prev, sendEmail: err.message || 'Failed' }));
+        } finally {
+            setLoading(prev => ({ ...prev, sendEmail: false }));
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
@@ -93,14 +158,378 @@ export default function TestFunctions() {
                 <h1 className="text-3xl font-bold mb-2">Backend Functions Test Suite</h1>
                 <p className="text-gray-500 mb-6">Test all your backend integrations</p>
                 
-                <Tabs defaultValue="openai" className="space-y-4">
-                    <TabsList className="grid grid-cols-5 w-full">
+                <Tabs defaultValue="llm" className="space-y-4">
+                    <TabsList className="flex flex-wrap gap-1 h-auto p-1">
+                        <TabsTrigger value="llm"><Sparkles className="w-4 h-4 mr-1" /> LLMs</TabsTrigger>
+                        <TabsTrigger value="integrations"><Image className="w-4 h-4 mr-1" /> Integrations</TabsTrigger>
                         <TabsTrigger value="openai"><Bot className="w-4 h-4 mr-1" /> OpenAI</TabsTrigger>
                         <TabsTrigger value="stripe"><CreditCard className="w-4 h-4 mr-1" /> Stripe</TabsTrigger>
                         <TabsTrigger value="twilio"><MessageSquare className="w-4 h-4 mr-1" /> Twilio</TabsTrigger>
                         <TabsTrigger value="files"><FileText className="w-4 h-4 mr-1" /> Files</TabsTrigger>
                         <TabsTrigger value="webhooks"><Send className="w-4 h-4 mr-1" /> Webhooks</TabsTrigger>
                     </TabsList>
+
+                    {/* LLM Tab */}
+                    <TabsContent value="llm" className="space-y-4">
+                        <Card className="mb-4">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-lg">Test Prompt</CardTitle>
+                                <CardDescription>Enter a prompt to test with different LLM models</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Textarea 
+                                    value={llmPrompt} 
+                                    onChange={(e) => setLlmPrompt(e.target.value)}
+                                    placeholder="Enter your test prompt..."
+                                    rows={2}
+                                />
+                            </CardContent>
+                        </Card>
+
+                        <h3 className="font-semibold text-gray-700 mb-2">OpenAI Models</h3>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">GPT-4o</CardTitle>
+                                    <CardDescription>Most advanced multimodal model</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Text Generation</span>
+                                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">Code</span>
+                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Vision</span>
+                                    </div>
+                                    <TestButton name="gpt4o" onClick={() => testLLM('gpt4o', llmPrompt)}>
+                                        Test GPT-4o
+                                    </TestButton>
+                                    <ResultDisplay name="gpt4o" />
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">GPT-4o-mini</CardTitle>
+                                    <CardDescription>Faster, cost-effective version</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Text Generation</span>
+                                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">Fast Response</span>
+                                    </div>
+                                    <TestButton name="gpt4omini" onClick={() => testLLM('gpt4omini', llmPrompt)}>
+                                        Test GPT-4o-mini
+                                    </TestButton>
+                                    <ResultDisplay name="gpt4omini" />
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <h3 className="font-semibold text-gray-700 mb-2 mt-6">Anthropic Claude Models</h3>
+                        <div className="grid gap-4 md:grid-cols-3">
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Claude 3.5 Sonnet</CardTitle>
+                                    <CardDescription>Enhanced reasoning and coding</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">Advanced Reasoning</span>
+                                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">Code</span>
+                                    </div>
+                                    <TestButton name="claudeSonnet" onClick={() => testLLM('claudeSonnet', llmPrompt)}>
+                                        Test Claude Sonnet
+                                    </TestButton>
+                                    <ResultDisplay name="claudeSonnet" />
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Claude 3 Opus</CardTitle>
+                                    <CardDescription>Most powerful for complex tasks</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Complex Tasks</span>
+                                        <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Research</span>
+                                    </div>
+                                    <TestButton name="claudeOpus" onClick={() => testLLM('claudeOpus', llmPrompt)}>
+                                        Test Claude Opus
+                                    </TestButton>
+                                    <ResultDisplay name="claudeOpus" />
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Claude 3 Haiku</CardTitle>
+                                    <CardDescription>Fast and lightweight</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Speed</span>
+                                        <span className="text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded">Cost-Effective</span>
+                                    </div>
+                                    <TestButton name="claudeHaiku" onClick={() => testLLM('claudeHaiku', llmPrompt)}>
+                                        Test Claude Haiku
+                                    </TestButton>
+                                    <ResultDisplay name="claudeHaiku" />
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <h3 className="font-semibold text-gray-700 mb-2 mt-6">Google Gemini Models</h3>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Gemini 1.5 Pro</CardTitle>
+                                    <CardDescription>1M+ token context window</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Massive Context</span>
+                                        <span className="text-xs bg-pink-100 text-pink-700 px-2 py-0.5 rounded">Multimodal</span>
+                                    </div>
+                                    <TestButton name="geminiPro" onClick={() => testLLM('geminiPro', llmPrompt)}>
+                                        Test Gemini Pro
+                                    </TestButton>
+                                    <ResultDisplay name="geminiPro" />
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Gemini 1.5 Flash</CardTitle>
+                                    <CardDescription>Fast and efficient</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">Speed</span>
+                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Real-time</span>
+                                    </div>
+                                    <TestButton name="geminiFlash" onClick={() => testLLM('geminiFlash', llmPrompt)}>
+                                        Test Gemini Flash
+                                    </TestButton>
+                                    <ResultDisplay name="geminiFlash" />
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <h3 className="font-semibold text-gray-700 mb-2 mt-6">Advanced Features</h3>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">LLM with Internet Context</CardTitle>
+                                    <CardDescription>Get real-time data from the web</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <TestButton name="llmInternet" onClick={() => testLLM('llmInternet', llmPrompt, { add_context_from_internet: true })}>
+                                        Test with Internet
+                                    </TestButton>
+                                    <ResultDisplay name="llmInternet" />
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">LLM with JSON Schema</CardTitle>
+                                    <CardDescription>Get structured JSON output</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <TestButton name="llmJson" onClick={() => testLLM('llmJson', "Give me 3 random colors", { 
+                                        response_json_schema: {
+                                            type: "object",
+                                            properties: {
+                                                colors: { type: "array", items: { type: "string" } }
+                                            }
+                                        }
+                                    })}>
+                                        Test JSON Output
+                                    </TestButton>
+                                    <ResultDisplay name="llmJson" />
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </TabsContent>
+
+                    {/* Integrations Tab */}
+                    <TabsContent value="integrations" className="space-y-4">
+                        <h3 className="font-semibold text-gray-700 mb-2">AI Generation</h3>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Generate Image</CardTitle>
+                                    <CardDescription>AI-powered image generation (DALL-E)</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap mb-2">
+                                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">Text-to-Image</span>
+                                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">High Resolution</span>
+                                    </div>
+                                    <Textarea 
+                                        value={imagePrompt} 
+                                        onChange={(e) => setImagePrompt(e.target.value)}
+                                        placeholder="Describe the image..."
+                                        rows={2}
+                                    />
+                                    <TestButton name="generateImage" onClick={testGenerateImage}>
+                                        Generate Image
+                                    </TestButton>
+                                    {results.generateImage?.url && (
+                                        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                            <img src={results.generateImage.url} alt="Generated" className="rounded max-h-48 w-full object-contain" />
+                                        </div>
+                                    )}
+                                    {errors.generateImage && (
+                                        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                                            <div className="flex items-center gap-2 text-red-700 text-sm">
+                                                <XCircle className="w-4 h-4" />
+                                                <span>{errors.generateImage}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Extract Data from File</CardTitle>
+                                    <CardDescription>OCR, PDF parsing, structured output</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">OCR</span>
+                                        <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">PDF Parsing</span>
+                                    </div>
+                                    <p className="text-xs text-gray-500">Upload a file first, then use ExtractDataFromUploadedFile</p>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <h3 className="font-semibold text-gray-700 mb-2 mt-6">Communication</h3>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Send Email</CardTitle>
+                                    <CardDescription>Transactional email service</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap mb-2">
+                                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">SMTP</span>
+                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Templates</span>
+                                    </div>
+                                    <Input 
+                                        value={emailTo} 
+                                        onChange={(e) => setEmailTo(e.target.value)}
+                                        placeholder="Recipient email"
+                                    />
+                                    <Input 
+                                        value={emailSubject} 
+                                        onChange={(e) => setEmailSubject(e.target.value)}
+                                        placeholder="Subject"
+                                    />
+                                    <Textarea 
+                                        value={emailBody} 
+                                        onChange={(e) => setEmailBody(e.target.value)}
+                                        placeholder="Email body..."
+                                        rows={2}
+                                    />
+                                    <TestButton name="sendEmail" onClick={testSendEmail}>
+                                        <Mail className="w-4 h-4 mr-2" /> Send Email
+                                    </TestButton>
+                                    <ResultDisplay name="sendEmail" />
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Slack Integration</CardTitle>
+                                    <CardDescription>OAuth integration for messaging</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">OAuth</span>
+                                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Channels</span>
+                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Bots</span>
+                                    </div>
+                                    <p className="text-xs text-gray-500">Requires OAuth authorization</p>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <h3 className="font-semibold text-gray-700 mb-2 mt-6">Storage</h3>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Upload File (Public)</CardTitle>
+                                    <CardDescription>Public storage with CDN</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Public Storage</span>
+                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">CDN</span>
+                                    </div>
+                                    <p className="text-xs text-gray-500">Use Core.UploadFile integration</p>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Upload Private File</CardTitle>
+                                    <CardDescription>Private storage with signed URLs</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Private Storage</span>
+                                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">Signed URLs</span>
+                                    </div>
+                                    <p className="text-xs text-gray-500">Use Core.UploadPrivateFile integration</p>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <h3 className="font-semibold text-gray-700 mb-2 mt-6">Productivity (OAuth Required)</h3>
+                        <div className="grid gap-4 md:grid-cols-3">
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Google Calendar</CardTitle>
+                                    <CardDescription>Calendar management</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">OAuth</span>
+                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Events</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Notion</CardTitle>
+                                    <CardDescription>Workspace access</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">OAuth</span>
+                                        <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">Databases</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg">Salesforce</CardTitle>
+                                    <CardDescription>CRM integration</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">OAuth</span>
+                                        <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">CRM</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </TabsContent>
 
                     {/* OpenAI Tab */}
                     <TabsContent value="openai" className="space-y-4">
