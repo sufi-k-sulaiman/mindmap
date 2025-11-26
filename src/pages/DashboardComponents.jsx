@@ -17,6 +17,10 @@ import LineChartWithMarkers from '../components/dashboard/LineChartWithMarkers';
 import PieChartCard from '../components/dashboard/PieChartCard';
 import RankingPodium from '../components/dashboard/RankingPodium';
 import InfoCard from '../components/dashboard/InfoCard';
+import StackedBarChart from '../components/dashboard/StackedBarChart';
+import SemiCircleProgress from '../components/dashboard/SemiCircleProgress';
+import AreaChartWithMarkers from '../components/dashboard/AreaChartWithMarkers';
+import StepCards from '../components/dashboard/StepCards';
 
 export default function DashboardComponents() {
     return (
@@ -265,6 +269,64 @@ export default function DashboardComponents() {
                         <InfoCard content="Monitor your author sales, commissions, and reader engagement in real-time." bgColor="#6B4EE6" />
                         <InfoCard content="Stay updated with the latest trends in digital publishing and content distribution." bgColor="#50C8E8" />
                     </div>
+                </section>
+
+                {/* Stacked Bar Chart */}
+                <section>
+                    <h2 className="text-xl font-semibold text-gray-700 mb-4">Stacked Bar Charts</h2>
+                    <StackedBarChart 
+                        title="Yearly Performance Comparison"
+                        description="Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod."
+                    />
+                </section>
+
+                {/* Semi Circle Progress */}
+                <section>
+                    <h2 className="text-xl font-semibold text-gray-700 mb-4">Semi-Circle Progress</h2>
+                    <div className="max-w-lg">
+                        <SemiCircleProgress 
+                            title="Workflow Steps"
+                            steps={[
+                                { name: 'Step 01', value: 20, color: '#8BC34A' },
+                                { name: 'Step 02', value: 20, color: '#6B4EE6' },
+                                { name: 'Step 03', value: 20, color: '#8BC34A' },
+                                { name: 'Step 04', value: 20, color: '#A78BFA' },
+                                { name: 'Step 05', value: 20, color: '#C4B5FD' }
+                            ]}
+                        />
+                    </div>
+                </section>
+
+                {/* Area Chart with Markers */}
+                <section>
+                    <h2 className="text-xl font-semibold text-gray-700 mb-4">Area Chart with Markers</h2>
+                    <AreaChartWithMarkers 
+                        title="Growth Milestones"
+                        data={[
+                            { name: 'A', value: 10 },
+                            { name: 'B', value: 18, marker: '12%' },
+                            { name: 'C', value: 28 },
+                            { name: 'D', value: 45, marker: '32%' },
+                            { name: 'E', value: 58 },
+                            { name: 'F', value: 72 },
+                            { name: 'G', value: 88, marker: '50%' },
+                            { name: 'H', value: 95 },
+                            { name: 'I', value: 100 }
+                        ]}
+                    />
+                </section>
+
+                {/* Step Cards */}
+                <section>
+                    <h2 className="text-xl font-semibold text-gray-700 mb-4">Step Cards</h2>
+                    <StepCards 
+                        title="Publishing Process"
+                        steps={[
+                            { id: 'A', step: '01', label: 'Draft', color: '#6B4EE6', size: 'large' },
+                            { id: 'B', step: '02', label: 'Review', color: '#6B4EE6', size: 'wide' },
+                            { id: 'C', step: '03', label: 'Publish', color: '#8BC34A', size: 'small' }
+                        ]}
+                    />
                 </section>
             </div>
         </div>
