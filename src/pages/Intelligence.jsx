@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Maximize2, Minimize2 } from 'lucide-react';
-import PageLayout from '../components/PageLayout';
+
 import { base44 } from '@/api/base44Client';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart as RechartsPC, Pie, Cell } from 'recharts';
 
@@ -122,185 +122,182 @@ export default function Intelligence() {
     };
 
     return (
-        <PageLayout activePage="Intelligence" showSearch={false}>
-            <div className="min-h-screen bg-gray-50 p-4 md:p-6">
-                <div className="max-w-7xl mx-auto">
-                    {/* Header */}
-                    <div className="mb-6">
-                        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                            <Brain className="w-7 h-7 text-purple-600" />
-                            Generative Intelligence Platform
-                        </h1>
-                        <p className="text-gray-500 mt-1">Advanced AI-powered predictive analytics and scenario modeling</p>
-                    </div>
-
-                    {/* Stats Row */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                        {stats.map((stat, i) => (
-                            <div key={i} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-gray-500">{stat.label}</p>
-                                        <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                                        {stat.change && <p className="text-sm text-emerald-600">{stat.change} vs last period</p>}
-                                    </div>
-                                    <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                                        <stat.icon className="w-5 h-5 text-purple-600" />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Tabs */}
-                    <div className="flex gap-2 mb-6">
-                        {[
-                            { id: 'generator', label: 'AI Generator', icon: Sparkles },
-                            { id: 'results', label: 'Analysis Results', icon: BarChart3 },
-                            { id: 'library', label: 'Intelligence Library', icon: Brain },
-                        ].map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                                    activeTab === tab.id 
-                                        ? 'bg-purple-600 text-white' 
-                                        : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-                                }`}
-                            >
-                                <tab.icon className="w-4 h-4" />
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Sector Selector */}
-                    <div className="flex flex-wrap gap-2 mb-6">
-                        {SECTORS.map(sector => (
-                            <button
-                                key={sector}
-                                onClick={() => setSelectedSector(sector)}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                                    selectedSector === sector
-                                        ? 'bg-purple-600 text-white'
-                                        : 'bg-white text-gray-700 border border-gray-200 hover:border-purple-300'
-                                }`}
-                            >
-                                {sector}
-                            </button>
-                        ))}
-                    </div>
-
-                    {activeTab === 'generator' && (
-                        <>
-                            {/* Analysis Type Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                                {ANALYSIS_TYPES.map(type => (
-                                    <div key={type.id} className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
-                                        <div className="flex items-start gap-3 mb-3">
-                                            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${type.color}20` }}>
-                                                <type.icon className="w-5 h-5" style={{ color: type.color }} />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-semibold text-gray-900">{type.name}</h3>
-                                                <p className="text-sm text-gray-500">{type.description}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex flex-wrap gap-1.5 mb-4">
-                                            {type.tags.map((tag, i) => (
-                                                <span key={i} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">{tag}</span>
-                                            ))}
-                                        </div>
-                                        <Button 
-                                            onClick={() => runAnalysis(type)}
-                                            disabled={loading}
-                                            className="w-full"
-                                            style={{ backgroundColor: type.color }}
-                                        >
-                                            {loading && selectedAnalysis?.id === type.id ? (
-                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                            ) : (
-                                                <Play className="w-4 h-4 mr-2" />
-                                            )}
-                                            Run {type.name}
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Custom Query */}
-                            <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <Zap className="w-5 h-5 text-purple-600" />
-                                    <h3 className="font-semibold text-gray-900">Custom Query</h3>
-                                    <span className="text-sm text-gray-500">Ask anything with AI</span>
-                                </div>
-                                <Textarea
-                                    placeholder="e.g., 'What if we increase healthcare spending by 20%?' or 'Predict economic impact of new trade agreements...'"
-                                    value={customQuery}
-                                    onChange={e => setCustomQuery(e.target.value)}
-                                    rows={3}
-                                    className="mb-3"
-                                />
-                                <Button 
-                                    onClick={runCustomQuery} 
-                                    disabled={loading || !customQuery.trim()}
-                                    className="bg-purple-600 hover:bg-purple-700"
-                                >
-                                    {loading && !selectedAnalysis ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
-                                    Generate Analysis
-                                </Button>
-                            </div>
-                        </>
-                    )}
-
-                    {activeTab === 'results' && (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                                <h3 className="font-semibold text-gray-900 mb-4">Trend Analysis</h3>
-                                <ResponsiveContainer width="100%" height={250}>
-                                    <AreaChart data={SAMPLE_CHART_DATA}>
-                                        <defs>
-                                            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
-                                                <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
-                                            </linearGradient>
-                                        </defs>
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                                        <YAxis axisLine={false} tickLine={false} />
-                                        <Tooltip />
-                                        <Area type="monotone" dataKey="value" stroke="#8B5CF6" fill="url(#colorValue)" />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </div>
-                            <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                                <h3 className="font-semibold text-gray-900 mb-4">Performance Metrics</h3>
-                                <div className="grid grid-cols-3 gap-4">
-                                    <div className="text-center p-4 bg-purple-50 rounded-xl">
-                                        <p className="text-2xl font-bold text-purple-600">36.9K</p>
-                                        <p className="text-sm text-gray-500">Initiated</p>
-                                    </div>
-                                    <div className="text-center p-4 bg-emerald-50 rounded-xl">
-                                        <p className="text-2xl font-bold text-emerald-600">56%</p>
-                                        <p className="text-sm text-gray-500">Engaged</p>
-                                    </div>
-                                    <div className="text-center p-4 bg-amber-50 rounded-xl">
-                                        <p className="text-2xl font-bold text-amber-600">17%</p>
-                                        <p className="text-sm text-gray-500">Completed</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'library' && (
-                        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                            <p className="text-center text-gray-500 py-12">Intelligence library with saved analyses coming soon...</p>
-                        </div>
-                    )}
+        <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+            <div className="max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <Brain className="w-7 h-7 text-purple-600" />
+                        Generative Intelligence Platform
+                    </h1>
+                    <p className="text-gray-500 mt-1">Advanced AI-powered predictive analytics and scenario modeling</p>
                 </div>
-            </div>
 
+                {/* Stats Row */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    {stats.map((stat, i) => (
+                        <div key={i} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-500">{stat.label}</p>
+                                    <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                                    {stat.change && <p className="text-sm text-emerald-600">{stat.change} vs last period</p>}
+                                </div>
+                                <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                                    <stat.icon className="w-5 h-5 text-purple-600" />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Tabs */}
+                <div className="flex gap-2 mb-6">
+                    {[
+                        { id: 'generator', label: 'AI Generator', icon: Sparkles },
+                        { id: 'results', label: 'Analysis Results', icon: BarChart3 },
+                        { id: 'library', label: 'Intelligence Library', icon: Brain },
+                    ].map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                                activeTab === tab.id 
+                                    ? 'bg-purple-600 text-white' 
+                                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                            }`}
+                        >
+                            <tab.icon className="w-4 h-4" />
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Sector Selector */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                    {SECTORS.map(sector => (
+                        <button
+                            key={sector}
+                            onClick={() => setSelectedSector(sector)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                selectedSector === sector
+                                    ? 'bg-purple-600 text-white'
+                                    : 'bg-white text-gray-700 border border-gray-200 hover:border-purple-300'
+                            }`}
+                        >
+                            {sector}
+                        </button>
+                    ))}
+                </div>
+
+                {activeTab === 'generator' && (
+                    <>
+                        {/* Analysis Type Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                            {ANALYSIS_TYPES.map(type => (
+                                <div key={type.id} className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="flex items-start gap-3 mb-3">
+                                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${type.color}20` }}>
+                                            <type.icon className="w-5 h-5" style={{ color: type.color }} />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900">{type.name}</h3>
+                                            <p className="text-sm text-gray-500">{type.description}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1.5 mb-4">
+                                        {type.tags.map((tag, i) => (
+                                            <span key={i} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">{tag}</span>
+                                        ))}
+                                    </div>
+                                    <Button 
+                                        onClick={() => runAnalysis(type)}
+                                        disabled={loading}
+                                        className="w-full"
+                                        style={{ backgroundColor: type.color }}
+                                    >
+                                        {loading && selectedAnalysis?.id === type.id ? (
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        ) : (
+                                            <Play className="w-4 h-4 mr-2" />
+                                        )}
+                                        Run {type.name}
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Custom Query */}
+                        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Zap className="w-5 h-5 text-purple-600" />
+                                <h3 className="font-semibold text-gray-900">Custom Query</h3>
+                                <span className="text-sm text-gray-500">Ask anything with AI</span>
+                            </div>
+                            <Textarea
+                                placeholder="e.g., 'What if we increase healthcare spending by 20%?' or 'Predict economic impact of new trade agreements...'"
+                                value={customQuery}
+                                onChange={e => setCustomQuery(e.target.value)}
+                                rows={3}
+                                className="mb-3"
+                            />
+                            <Button 
+                                onClick={runCustomQuery} 
+                                disabled={loading || !customQuery.trim()}
+                                className="bg-purple-600 hover:bg-purple-700"
+                            >
+                                {loading && !selectedAnalysis ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                                Generate Analysis
+                            </Button>
+                        </div>
+                    </>
+                )}
+
+                {activeTab === 'results' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                            <h3 className="font-semibold text-gray-900 mb-4">Trend Analysis</h3>
+                            <ResponsiveContainer width="100%" height={250}>
+                                <AreaChart data={SAMPLE_CHART_DATA}>
+                                    <defs>
+                                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                                    <YAxis axisLine={false} tickLine={false} />
+                                    <Tooltip />
+                                    <Area type="monotone" dataKey="value" stroke="#8B5CF6" fill="url(#colorValue)" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                            <h3 className="font-semibold text-gray-900 mb-4">Performance Metrics</h3>
+                            <div className="grid grid-cols-3 gap-4">
+                                <div className="text-center p-4 bg-purple-50 rounded-xl">
+                                    <p className="text-2xl font-bold text-purple-600">36.9K</p>
+                                    <p className="text-sm text-gray-500">Initiated</p>
+                                </div>
+                                <div className="text-center p-4 bg-emerald-50 rounded-xl">
+                                    <p className="text-2xl font-bold text-emerald-600">56%</p>
+                                    <p className="text-sm text-gray-500">Engaged</p>
+                                </div>
+                                <div className="text-center p-4 bg-amber-50 rounded-xl">
+                                    <p className="text-2xl font-bold text-amber-600">17%</p>
+                                    <p className="text-sm text-gray-500">Completed</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'library' && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                        <p className="text-center text-gray-500 py-12">Intelligence library with saved analyses coming soon...</p>
+                    </div>
+                )}
+            </div>
             {/* Results Modal */}
             <Dialog open={showResultModal} onOpenChange={setShowResultModal}>
                 <DialogContent className={`${isFullscreen ? 'max-w-full w-full h-full max-h-full rounded-none' : 'max-w-3xl max-h-[90vh]'} overflow-y-auto p-0 transition-all`}>
@@ -373,6 +370,6 @@ export default function Intelligence() {
                     )}
                 </DialogContent>
             </Dialog>
-        </PageLayout>
+        </div>
     );
 }

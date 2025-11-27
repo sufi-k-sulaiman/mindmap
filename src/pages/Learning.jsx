@@ -5,7 +5,7 @@ import {
     Loader2, RefreshCw, Sparkles
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import PageLayout from '../components/PageLayout';
+
 import SubjectSelector from '../components/learning/SubjectSelector';
 import LearningIslandCard from '../components/learning/LearningIslandCard';
 import CourseModal from '../components/learning/CourseModal';
@@ -149,208 +149,205 @@ export default function Learning() {
     };
 
     return (
-        <PageLayout activePage="Learning" showSearch={false}>
-            <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-purple-50">
-                {/* Hero Header - white/light themed */}
-                <div className="bg-white border-b border-gray-200 shadow-sm">
-                    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                            {/* User Profile & Stats */}
-                            <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl" style={{ backgroundColor: `${THEME.primary}15` }}>
-                                    {currentRank.icon}
+        <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-purple-50">
+            {/* Hero Header - white/light themed */}
+            <div className="bg-white border-b border-gray-200 shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                        {/* User Profile & Stats */}
+                        <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl" style={{ backgroundColor: `${THEME.primary}15` }}>
+                                {currentRank.icon}
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold text-gray-900">Learning Explorer</h1>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span 
+                                        className="px-3 py-1 rounded-full text-xs font-medium text-white"
+                                        style={{ backgroundColor: currentRank.color }}
+                                    >
+                                        {currentRank.name}
+                                    </span>
+                                    {nextRank && (
+                                        <span className="text-gray-500 text-sm">
+                                            {xpToNextRank} XP to {nextRank.name}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Stats Cards */}
+                        <div className="flex flex-wrap gap-2">
+                            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
+                                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.accent }}>
+                                    <Zap className="w-4 h-4 text-white" />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl font-bold text-gray-900">Learning Explorer</h1>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <span 
-                                            className="px-3 py-1 rounded-full text-xs font-medium text-white"
-                                            style={{ backgroundColor: currentRank.color }}
-                                        >
-                                            {currentRank.name}
-                                        </span>
-                                        {nextRank && (
-                                            <span className="text-gray-500 text-sm">
-                                                {xpToNextRank} XP to {nextRank.name}
-                                            </span>
-                                        )}
-                                    </div>
+                                    <p className="text-lg font-bold text-gray-900">{totalXP.toLocaleString()}</p>
+                                    <p className="text-xs text-gray-500">Total XP</p>
                                 </div>
                             </div>
-
-                            {/* Stats Cards */}
-                            <div className="flex flex-wrap gap-2">
-                                <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
-                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.accent }}>
-                                        <Zap className="w-4 h-4 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="text-lg font-bold text-gray-900">{totalXP.toLocaleString()}</p>
-                                        <p className="text-xs text-gray-500">Total XP</p>
-                                    </div>
+                            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
+                                <div className="w-9 h-9 rounded-lg bg-orange-500 flex items-center justify-center">
+                                    <Flame className="w-4 h-4 text-white" />
                                 </div>
-                                <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
-                                    <div className="w-9 h-9 rounded-lg bg-orange-500 flex items-center justify-center">
-                                        <Flame className="w-4 h-4 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="text-lg font-bold text-gray-900">{streak}</p>
-                                        <p className="text-xs text-gray-500">Day Streak</p>
-                                    </div>
-                                </div>
-                                <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
-                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.success }}>
-                                        <Trophy className="w-4 h-4 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="text-lg font-bold text-gray-900">{completedCourses}</p>
-                                        <p className="text-xs text-gray-500">Completed</p>
-                                    </div>
-                                </div>
-                                <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
-                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.primary }}>
-                                        <Award className="w-4 h-4 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="text-lg font-bold text-gray-900">{certificates}</p>
-                                        <p className="text-xs text-gray-500">Certificates</p>
-                                    </div>
+                                <div>
+                                    <p className="text-lg font-bold text-gray-900">{streak}</p>
+                                    <p className="text-xs text-gray-500">Day Streak</p>
                                 </div>
                             </div>
-                        </div>
-
-                        {/* XP Progress Bar */}
-                        {nextRank && (
-                            <div className="mt-4 max-w-7xl mx-auto px-4 md:px-8 pb-4">
-                                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div 
-                                        className="h-full rounded-full transition-all"
-                                        style={{ 
-                                            width: `${((totalXP - currentRank.minXP) / (nextRank.minXP - currentRank.minXP)) * 100}%`,
-                                            background: `linear-gradient(90deg, ${THEME.accent}, #F97316)`
-                                        }}
-                                    />
+                            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
+                                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.success }}>
+                                    <Trophy className="w-4 h-4 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-lg font-bold text-gray-900">{completedCourses}</p>
+                                    <p className="text-xs text-gray-500">Completed</p>
                                 </div>
                             </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Subject Selector */}
-                <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                        <div className="flex flex-col md:flex-row md:items-center gap-4">
-                            <div className="flex-1">
-                                <h2 className="text-lg font-semibold text-gray-800 mb-1">
-                                    <Sparkles className="w-5 h-5 inline mr-2" style={{ color: THEME.primary }} />
-                                    Select Your Learning Path
-                                </h2>
-                                <p className="text-sm text-gray-500">Choose subjects to generate personalized learning islands</p>
+                            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
+                                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.primary }}>
+                                    <Award className="w-4 h-4 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-lg font-bold text-gray-900">{certificates}</p>
+                                    <p className="text-xs text-gray-500">Certificates</p>
+                                </div>
                             </div>
-                            <SubjectSelector 
-                                selectedSubjects={selectedSubjects}
-                                onSelectionChange={setSelectedSubjects}
-                            />
-                            <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={generateSubTopics}
-                                disabled={loadingTopics || selectedSubjects.length === 0}
-                            >
-                                <RefreshCw className={`w-4 h-4 mr-2 ${loadingTopics ? 'animate-spin' : ''}`} />
-                                Refresh
-                            </Button>
                         </div>
                     </div>
-                </div>
 
-                {/* Learning Islands Grid */}
-                <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
-                    {loadingTopics ? (
-                        <div className="flex flex-col items-center justify-center py-20">
-                            <Loader2 className="w-12 h-12 animate-spin mb-4 text-purple-600" />
-                            <p className="text-gray-600">Generating learning islands for you...</p>
-                        </div>
-                    ) : subTopics.length === 0 ? (
-                        <div className="text-center py-20">
-                            <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">Select subjects to explore</h3>
-                            <p className="text-gray-400">Choose one or more subjects above to generate learning islands</p>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-xl font-bold text-gray-800">
-                                    Your Learning Archipelago
-                                </h2>
-                                <div className="flex items-center gap-2 text-sm text-gray-500">
-                                    <Target className="w-4 h-4" />
-                                    {subTopics.length} islands to explore
-                                </div>
+                    {/* XP Progress Bar */}
+                    {nextRank && (
+                        <div className="mt-4 max-w-7xl mx-auto px-4 md:px-8 pb-4">
+                            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full rounded-full transition-all"
+                                    style={{ 
+                                        width: `${((totalXP - currentRank.minXP) / (nextRank.minXP - currentRank.minXP)) * 100}%`,
+                                        background: `linear-gradient(90deg, ${THEME.accent}, #F97316)`
+                                    }}
+                                />
                             </div>
-
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                                {subTopics.map((topic, index) => (
-                                    <LearningIslandCard
-                                        key={topic.id}
-                                        topic={topic}
-                                        index={index}
-                                        progress={userProgress[topic.id] || 0}
-                                        onExplore={handleExplore}
-                                        locked={false}
-                                    />
-                                ))}
-                            </div>
-                        </>
+                        </div>
                     )}
                 </div>
+            </div>
 
-                {/* Summary Stats */}
-                {subTopics.length > 0 && (
-                    <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME.primary}20` }}>
-                                        <Star className="w-6 h-6" style={{ color: THEME.primary }} />
-                                    </div>
-                                    <div>
-                                        <p className="text-3xl font-bold text-gray-900">{subTopics.length}</p>
-                                        <p className="text-sm text-gray-500">Learning Islands</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME.success}20` }}>
-                                        <Target className="w-6 h-6" style={{ color: THEME.success }} />
-                                    </div>
-                                    <div>
-                                        <p className="text-3xl font-bold text-gray-900">
-                                            {Object.values(userProgress).filter(p => p === 100).length}
-                                        </p>
-                                        <p className="text-sm text-gray-500">Islands Completed</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME.accent}20` }}>
-                                        <Zap className="w-6 h-6" style={{ color: THEME.accent }} />
-                                    </div>
-                                    <div>
-                                        <p className="text-3xl font-bold text-gray-900">
-                                            {subTopics.length * 500}
-                                        </p>
-                                        <p className="text-sm text-gray-500">Potential XP</p>
-                                    </div>
-                                </div>
+            {/* Subject Selector */}
+            <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div className="flex flex-col md:flex-row md:items-center gap-4">
+                        <div className="flex-1">
+                            <h2 className="text-lg font-semibold text-gray-800 mb-1">
+                                <Sparkles className="w-5 h-5 inline mr-2" style={{ color: THEME.primary }} />
+                                Select Your Learning Path
+                            </h2>
+                            <p className="text-sm text-gray-500">Choose subjects to generate personalized learning islands</p>
+                        </div>
+                        <SubjectSelector 
+                            selectedSubjects={selectedSubjects}
+                            onSelectionChange={setSelectedSubjects}
+                        />
+                        <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={generateSubTopics}
+                            disabled={loadingTopics || selectedSubjects.length === 0}
+                        >
+                            <RefreshCw className={`w-4 h-4 mr-2 ${loadingTopics ? 'animate-spin' : ''}`} />
+                            Refresh
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Learning Islands Grid */}
+            <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
+                {loadingTopics ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                        <Loader2 className="w-12 h-12 animate-spin mb-4 text-purple-600" />
+                        <p className="text-gray-600">Generating learning islands for you...</p>
+                    </div>
+                ) : subTopics.length === 0 ? (
+                    <div className="text-center py-20">
+                        <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <h3 className="text-xl font-semibold text-gray-600 mb-2">Select subjects to explore</h3>
+                        <p className="text-gray-400">Choose one or more subjects above to generate learning islands</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold text-gray-800">
+                                Your Learning Archipelago
+                            </h2>
+                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                                <Target className="w-4 h-4" />
+                                {subTopics.length} islands to explore
                             </div>
                         </div>
-                    </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                            {subTopics.map((topic, index) => (
+                                <LearningIslandCard
+                                    key={topic.id}
+                                    topic={topic}
+                                    index={index}
+                                    progress={userProgress[topic.id] || 0}
+                                    onExplore={handleExplore}
+                                    locked={false}
+                                />
+                            ))}
+                        </div>
+                    </>
                 )}
             </div>
 
+            {/* Summary Stats */}
+            {subTopics.length > 0 && (
+                <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME.primary}20` }}>
+                                    <Star className="w-6 h-6" style={{ color: THEME.primary }} />
+                                </div>
+                                <div>
+                                    <p className="text-3xl font-bold text-gray-900">{subTopics.length}</p>
+                                    <p className="text-sm text-gray-500">Learning Islands</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME.success}20` }}>
+                                    <Target className="w-6 h-6" style={{ color: THEME.success }} />
+                                </div>
+                                <div>
+                                    <p className="text-3xl font-bold text-gray-900">
+                                        {Object.values(userProgress).filter(p => p === 100).length}
+                                    </p>
+                                    <p className="text-sm text-gray-500">Islands Completed</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME.accent}20` }}>
+                                    <Zap className="w-6 h-6" style={{ color: THEME.accent }} />
+                                </div>
+                                <div>
+                                    <p className="text-3xl font-bold text-gray-900">
+                                        {subTopics.length * 500}
+                                    </p>
+                                    <p className="text-sm text-gray-500">Potential XP</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Course Modal */}
             <CourseModal 
                 isOpen={showCourseModal}
@@ -358,6 +355,6 @@ export default function Learning() {
                 topic={selectedTopic}
                 onComplete={handleCourseComplete}
             />
-        </PageLayout>
+        </div>
     );
 }

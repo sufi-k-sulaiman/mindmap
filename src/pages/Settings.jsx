@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import PageLayout from '../components/PageLayout';
+
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { 
