@@ -7,7 +7,7 @@ export const LOGO_URL = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/obj
 export const menuItems = [
     { label: 'Home', icon: Home, href: createPageUrl('Home') },
     { label: 'Geospatial', icon: Globe, href: createPageUrl('Geospatial') },
-    { label: 'AI Hub', icon: Sparkles, href: createPageUrl('AIHub') },
+    { label: 'Qwirey', icon: Sparkles, href: createPageUrl('Qwirey') },
     { label: 'SearchPods', icon: Radio, href: createPageUrl('SearchPods') },
     { label: 'MindMap', icon: Brain, href: createPageUrl('MindMap') },
     { label: 'Intelligence', icon: Lightbulb, href: createPageUrl('Intelligence') },
