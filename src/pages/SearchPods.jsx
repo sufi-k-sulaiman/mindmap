@@ -3,13 +3,14 @@ import { base44 } from '@/api/base44Client';
 import { 
     Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
     Sparkles, Radio, Loader2, TrendingUp, Users, Mic,
-    ChevronRight, X, Clock, Search, Plus
+    ChevronRight, X, Clock, Search, Plus, AlertTriangle
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
+import { ERROR_CODES, getErrorCode } from '@/components/ErrorDisplay';
 
 const CATEGORIES = [
     { id: 'technology', name: 'Technology', color: '#10B981', episodes: 16 },
@@ -88,6 +89,7 @@ export default function SearchPods() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [generationStep, setGenerationStep] = useState('');
+    const [generationError, setGenerationError] = useState(null);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [volume, setVolume] = useState(80);
@@ -188,6 +190,7 @@ export default function SearchPods() {
         setIsPlaying(false);
         isPlayingRef.current = false;
         setIsGenerating(true);
+        setGenerationError(null);
         setGenerationStep('Researching topic...');
         currentIndexRef.current = 0;
         
@@ -238,6 +241,9 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
             
         } catch (error) {
             console.error('Script generation error:', error);
+            const errorCode = getErrorCode(error);
+            const errorInfo = ERROR_CODES[errorCode] || ERROR_CODES.E500;
+            setGenerationError({ code: errorCode, ...errorInfo });
             setIsGenerating(false);
             sentencesRef.current = [`Welcome to ${episode.title}. This is an exciting topic.`];
             setCurrentCaption(sentencesRef.current[0]);
@@ -543,7 +549,15 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
                         {/* Album Art */}
                         <div className="flex justify-center mb-6">
                             <div className="relative w-56 h-56 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-2xl shadow-purple-500/30 overflow-hidden">
-                                {isGenerating ? (
+                                {generationError ? (
+                                    <div className="flex flex-col items-center gap-3 p-4">
+                                        <AlertTriangle className="w-12 h-12 text-white/80" />
+                                        <span className="text-white/80 text-xs text-center">{generationError.title}</span>
+                                        <Button size="sm" variant="ghost" className="text-white/80 hover:text-white" onClick={() => { setGenerationError(null); playEpisode(currentEpisode); }}>
+                                            Retry
+                                        </Button>
+                                    </div>
+                                ) : isGenerating ? (
                                     <div className="flex flex-col items-center gap-3">
                                         <Loader2 className="w-12 h-12 text-white/80 animate-spin" />
                                         <span className="text-white/80 text-sm">{generationStep}</span>

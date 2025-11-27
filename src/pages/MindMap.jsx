@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Network } from 'lucide-react';
 import LearnMoreModal from '../components/mindmap/LearnMoreModal';
+import ErrorDisplay, { getErrorCode } from '@/components/ErrorDisplay';
 
 const NODE_COLORS = [
     { bg: 'bg-purple-500' },
@@ -140,6 +141,7 @@ export default function MindMapPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
     const [treeData, setTreeData] = useState(null);
+    const [error, setError] = useState(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [selectedKeyword, setSelectedKeyword] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -148,6 +150,7 @@ export default function MindMapPage() {
     const handleSearch = async (topic) => {
         if (!topic?.trim()) return;
         setLoading(true);
+        setError(null);
 
         try {
             const response = await base44.integrations.Core.InvokeLLM({
@@ -174,8 +177,9 @@ export default function MindMapPage() {
 
             setTreeData(response);
             setSearchTerm('');
-        } catch (error) {
-            console.error('Search failed:', error);
+        } catch (err) {
+            console.error('Search failed:', err);
+            setError(getErrorCode(err));
         } finally {
             setLoading(false);
         }
@@ -295,6 +299,11 @@ export default function MindMapPage() {
                             <Loader2 className="w-12 h-12 animate-spin text-purple-600 mb-4" />
                             <p className="text-gray-600">Building knowledge network...</p>
                         </div>
+                    ) : error ? (
+                        <ErrorDisplay 
+                            errorCode={error} 
+                            onRetry={() => handleSearch(searchTerm || 'Technology')}
+                        />
                     ) : (
                         <div className="flex justify-center py-8 overflow-x-auto">
                             <div className="min-w-max px-8">

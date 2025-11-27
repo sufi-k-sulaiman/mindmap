@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, RefreshCw, TrendingUp, TrendingDown, Shield, Zap, DollarSign, BarChart3, Activity } from 'lucide-react';
+import { Search, RefreshCw, TrendingUp, TrendingDown, Shield, Zap, DollarSign, BarChart3, Activity, AlertTriangle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import StockCard from '@/components/markets/StockCard';
 import StockTicker from '@/components/markets/StockTicker';
 import FilterChips from '@/components/markets/FilterChips';
 import StockDetailModal from '@/components/markets/StockDetailModal';
+import { EmptyState } from '@/components/ErrorDisplay';
 
 const PRESET_FILTERS = [
     { id: 'all', label: 'All Stocks', icon: BarChart3 },
@@ -896,7 +897,15 @@ export default function Markets() {
                 {filteredStocks.map((stock, i) => (<StockCard key={stock.ticker || i} stock={stock} onClick={handleStockClick} />))}
             </div>
 
-            {filteredStocks.length === 0 && (<div className="text-center py-20"><BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" /><p className="text-gray-500 mb-4">No stocks match your current filters</p><Button onClick={clearFilters} variant="outline">Clear All Filters</Button></div>)}
+            {filteredStocks.length === 0 && (
+                <EmptyState 
+                    icon={BarChart3}
+                    title="No Stocks Found"
+                    message="No stocks match your current filters. Try adjusting your search criteria."
+                    action={clearFilters}
+                    actionLabel="Clear All Filters"
+                />
+            )}
 
             <StockDetailModal stock={selectedStock} isOpen={showStockModal} onClose={() => setShowStockModal(false)} />
         </div>
