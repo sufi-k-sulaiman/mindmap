@@ -330,9 +330,18 @@ export default function Notes() {
                                 <Button onClick={() => setIsFullscreen(!isFullscreen)} variant="ghost" size="icon">
                                     {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                                 </Button>
-                                <Button onClick={saveNote} disabled={createMutation.isPending || updateMutation.isPending} className="bg-purple-600 hover:bg-purple-700 gap-2">
-                                    <Save className="w-4 h-4" />
-                                    Save
+                                <Button onClick={saveNote} disabled={createMutation.isPending || updateMutation.isPending} className="bg-purple-600 hover:bg-purple-700 gap-2 min-w-[100px]">
+                                    {(createMutation.isPending || updateMutation.isPending) ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Save className="w-4 h-4" />
+                                            Save
+                                        </>
+                                    )}
                                 </Button>
                                 <Button variant="ghost" size="icon" onClick={() => setShowEditor(false)}>
                                     <X className="w-5 h-5" />

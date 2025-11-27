@@ -607,6 +607,330 @@ export default function StockDetailModal({ stock, isOpen, onClose }) {
                     </div>
                 );
 
+            case 'valuation':
+                return (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-2">
+                                    <BarChart3 className="w-5 h-5 text-purple-600" />
+                                    <h3 className="font-semibold text-gray-900">Valuation Analysis</h3>
+                                </div>
+                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    data.grade === 'A' || data.grade === 'B' ? 'bg-green-100 text-green-700' :
+                                    data.grade === 'C' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                                }`}>
+                                    Grade: {data.grade || 'B+'}
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 mb-6">
+                                <div className="bg-purple-50 rounded-xl p-4 text-center">
+                                    <p className="text-sm text-gray-600">Fair Value</p>
+                                    <p className="text-2xl font-bold text-purple-600">${data.fairValue || (stock.price * 1.1).toFixed(2)}</p>
+                                </div>
+                                <div className="bg-blue-50 rounded-xl p-4 text-center">
+                                    <p className="text-sm text-gray-600">DCF Value</p>
+                                    <p className="text-2xl font-bold text-blue-600">${data.dcfValue || (stock.price * 1.15).toFixed(2)}</p>
+                                </div>
+                                <div className="bg-green-50 rounded-xl p-4 text-center">
+                                    <p className="text-sm text-gray-600">Margin of Safety</p>
+                                    <p className="text-2xl font-bold text-green-600">{data.marginOfSafety || 12}%</p>
+                                </div>
+                            </div>
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <span className="text-sm text-gray-600">Sector Avg P/E</span>
+                                    <span className="font-medium text-gray-700">{data.sectorAvgPE || 22.5}x</span>
+                                </div>
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <span className="text-sm text-gray-600">Current P/E</span>
+                                    <span className="font-medium text-gray-700">{stock.pe || 18.3}x</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+            case 'fundamentals':
+                return (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <LineChart className="w-5 h-5 text-purple-600" />
+                                <h3 className="font-semibold text-gray-900">Fundamental Analysis</h3>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 mb-6">
+                                <div className="bg-green-50 rounded-xl p-4 text-center">
+                                    <p className="text-sm text-gray-600">Gross Margin</p>
+                                    <p className="text-2xl font-bold text-green-600">{data.margins?.gross || 42}%</p>
+                                </div>
+                                <div className="bg-blue-50 rounded-xl p-4 text-center">
+                                    <p className="text-sm text-gray-600">Operating Margin</p>
+                                    <p className="text-2xl font-bold text-blue-600">{data.margins?.operating || 28}%</p>
+                                </div>
+                                <div className="bg-purple-50 rounded-xl p-4 text-center">
+                                    <p className="text-sm text-gray-600">Net Margin</p>
+                                    <p className="text-2xl font-bold text-purple-600">{data.margins?.net || 18}%</p>
+                                </div>
+                            </div>
+                            <div className="h-48 mb-6">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={data.revenueGrowth || [
+                                        { year: '2020', growth: 12 },
+                                        { year: '2021', growth: 18 },
+                                        { year: '2022', growth: 15 },
+                                        { year: '2023', growth: 22 },
+                                        { year: '2024', growth: 28 }
+                                    ]}>
+                                        <XAxis dataKey="year" tick={{ fontSize: 11 }} />
+                                        <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} />
+                                        <Tooltip />
+                                        <Bar dataKey="growth" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 bg-gray-50 rounded-xl">
+                                    <p className="text-sm text-gray-500 mb-1">Debt to Equity</p>
+                                    <p className="text-xl font-bold text-gray-900">{data.debtToEquity || 0.45}</p>
+                                </div>
+                                <div className="p-4 bg-gray-50 rounded-xl">
+                                    <p className="text-sm text-gray-500 mb-1">Interest Coverage</p>
+                                    <p className="text-xl font-bold text-gray-900">{data.interestCoverage || 12.5}x</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+            case 'financials':
+                return (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <Activity className="w-5 h-5 text-purple-600" />
+                                <h3 className="font-semibold text-gray-900">Financial Health</h3>
+                            </div>
+                            <div className="grid grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <p className="text-sm text-gray-500 mb-2">Balance Sheet Score</p>
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                            <div className="h-full bg-green-500 rounded-full" style={{ width: `${data.balanceSheetScore || 78}%` }} />
+                                        </div>
+                                        <span className="font-bold text-gray-900">{data.balanceSheetScore || 78}/100</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500 mb-2">Cash Flow Score</p>
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                            <div className="h-full bg-blue-500 rounded-full" style={{ width: `${data.cashFlowScore || 85}%` }} />
+                                        </div>
+                                        <span className="font-bold text-gray-900">{data.cashFlowScore || 85}/100</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-4 gap-4">
+                                <div className="bg-purple-50 rounded-xl p-4 text-center">
+                                    <p className="text-xs text-gray-500">ROE</p>
+                                    <p className="text-lg font-bold text-purple-600">{stock.roe || 24}%</p>
+                                </div>
+                                <div className="bg-blue-50 rounded-xl p-4 text-center">
+                                    <p className="text-xs text-gray-500">ROA</p>
+                                    <p className="text-lg font-bold text-blue-600">12%</p>
+                                </div>
+                                <div className="bg-green-50 rounded-xl p-4 text-center">
+                                    <p className="text-xs text-gray-500">ROIC</p>
+                                    <p className="text-lg font-bold text-green-600">18%</p>
+                                </div>
+                                <div className="bg-yellow-50 rounded-xl p-4 text-center">
+                                    <p className="text-xs text-gray-500">FCF Yield</p>
+                                    <p className="text-lg font-bold text-yellow-600">4.2%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+            case 'technicals':
+                return (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-2">
+                                    <TrendingUp className="w-5 h-5 text-purple-600" />
+                                    <h3 className="font-semibold text-gray-900">Technical Analysis</h3>
+                                </div>
+                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    data.trend === 'Bullish' ? 'bg-green-100 text-green-700' :
+                                    data.trend === 'Bearish' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+                                }`}>
+                                    {data.trend || 'Bullish'}
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 mb-6">
+                                <div className="bg-gray-50 rounded-xl p-4 text-center">
+                                    <p className="text-xs text-gray-500">50-Day MA</p>
+                                    <p className="text-lg font-bold text-gray-900">${data.ma50 || (stock.price * 0.95).toFixed(2)}</p>
+                                </div>
+                                <div className="bg-gray-50 rounded-xl p-4 text-center">
+                                    <p className="text-xs text-gray-500">100-Day MA</p>
+                                    <p className="text-lg font-bold text-gray-900">${data.ma100 || (stock.price * 0.92).toFixed(2)}</p>
+                                </div>
+                                <div className="bg-gray-50 rounded-xl p-4 text-center">
+                                    <p className="text-xs text-gray-500">200-Day MA</p>
+                                    <p className="text-lg font-bold text-gray-900">${data.ma200 || (stock.price * 0.88).toFixed(2)}</p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="p-4 bg-gray-50 rounded-xl">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-sm text-gray-600">RSI (14)</span>
+                                        <span className={`font-bold ${(data.rsi || 58) > 70 ? 'text-red-600' : (data.rsi || 58) < 30 ? 'text-green-600' : 'text-gray-900'}`}>
+                                            {data.rsi || 58}
+                                        </span>
+                                    </div>
+                                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                        <div className="h-full bg-purple-500 rounded-full" style={{ width: `${data.rsi || 58}%` }} />
+                                    </div>
+                                </div>
+                                <div className="p-4 bg-gray-50 rounded-xl">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-sm text-gray-600">MACD Signal</span>
+                                        <span className={`font-bold ${data.macdSignal === 'Bullish' ? 'text-green-600' : 'text-red-600'}`}>
+                                            {data.macdSignal || 'Bullish'}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-gray-500">Volume: {data.volumeTrend || 'Above Average'}</p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-green-50 rounded-xl p-4">
+                                    <p className="text-sm text-gray-600 mb-2">Support Levels</p>
+                                    <div className="flex gap-2">
+                                        {(data.support || [stock.price * 0.95, stock.price * 0.9]).map((s, i) => (
+                                            <span key={i} className="px-2 py-1 bg-green-100 text-green-700 text-sm rounded">${s?.toFixed?.(2) || s}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="bg-red-50 rounded-xl p-4">
+                                    <p className="text-sm text-gray-600 mb-2">Resistance Levels</p>
+                                    <div className="flex gap-2">
+                                        {(data.resistance || [stock.price * 1.05, stock.price * 1.1]).map((r, i) => (
+                                            <span key={i} className="px-2 py-1 bg-red-100 text-red-700 text-sm rounded">${r?.toFixed?.(2) || r}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+            case 'risk':
+                return (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-2">
+                                    <Shield className="w-5 h-5 text-purple-600" />
+                                    <h3 className="font-semibold text-gray-900">Risk Assessment</h3>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-3xl font-bold text-orange-600">{data.riskScore || 4.2}<span className="text-lg text-gray-400">/10</span></p>
+                                    <p className="text-sm text-gray-500">Risk Score</p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 mb-6">
+                                <div className="bg-gray-50 rounded-xl p-4 text-center">
+                                    <p className="text-sm text-gray-500">Volatility</p>
+                                    <p className="text-lg font-bold text-gray-900">{data.volatility || 'Medium'}</p>
+                                </div>
+                                <div className="bg-gray-50 rounded-xl p-4 text-center">
+                                    <p className="text-sm text-gray-500">Beta</p>
+                                    <p className="text-lg font-bold text-gray-900">{data.beta || 1.15}</p>
+                                </div>
+                                <div className="bg-gray-50 rounded-xl p-4 text-center">
+                                    <p className="text-sm text-gray-500">Max Drawdown</p>
+                                    <p className="text-lg font-bold text-red-600">-{data.maxDrawdown || 18}%</p>
+                                </div>
+                            </div>
+                            <div className="space-y-4">
+                                <div>
+                                    <h4 className="font-medium text-gray-900 mb-2">Sector Risks</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {(data.sectorRisks || ['Market cyclicality', 'Regulatory changes', 'Competition']).map((r, i) => (
+                                            <span key={i} className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full">{r}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 className="font-medium text-gray-900 mb-2">Company Risks</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {(data.companyRisks || ['Key person dependency', 'Debt levels']).map((r, i) => (
+                                            <span key={i} className="px-3 py-1 bg-red-100 text-red-800 text-sm rounded-full">{r}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+            case 'news':
+                return (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <FileText className="w-5 h-5 text-purple-600" />
+                                <h3 className="font-semibold text-gray-900">Recent News</h3>
+                            </div>
+                            <div className="space-y-4">
+                                {(data.news || [
+                                    { headline: `${stock.name} Reports Strong Q3 Earnings`, date: '2 days ago', sentiment: 'Positive' },
+                                    { headline: `Analysts Raise Price Target for ${stock.ticker}`, date: '5 days ago', sentiment: 'Positive' },
+                                    { headline: `${stock.name} Announces New Product Launch`, date: '1 week ago', sentiment: 'Neutral' },
+                                    { headline: `${stock.ticker} Expands Into New Markets`, date: '2 weeks ago', sentiment: 'Positive' },
+                                    { headline: `Industry Report Highlights ${stock.name} Growth`, date: '3 weeks ago', sentiment: 'Neutral' }
+                                ]).map((n, i) => (
+                                    <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                                        <span className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${
+                                            n.sentiment === 'Positive' ? 'bg-green-500' :
+                                            n.sentiment === 'Negative' ? 'bg-red-500' : 'bg-gray-400'
+                                        }`} />
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium text-gray-900">{n.headline}</p>
+                                            <p className="text-xs text-gray-500 mt-1">{n.date}</p>
+                                        </div>
+                                        <span className={`px-2 py-0.5 text-xs rounded ${
+                                            n.sentiment === 'Positive' ? 'bg-green-100 text-green-700' :
+                                            n.sentiment === 'Negative' ? 'bg-red-100 text-red-700' : 'bg-gray-200 text-gray-600'
+                                        }`}>
+                                            {n.sentiment}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <Calendar className="w-4 h-4" /> Upcoming Events
+                            </h4>
+                            <div className="space-y-3">
+                                {(data.upcomingEvents || [
+                                    { event: 'Q4 Earnings Call', date: 'Jan 28, 2025' },
+                                    { event: 'Annual Shareholder Meeting', date: 'Mar 15, 2025' }
+                                ]).map((e, i) => (
+                                    <div key={i} className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                                        <span className="text-sm text-gray-900">{e.event}</span>
+                                        <span className="text-sm text-purple-600 font-medium">{e.date}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+
             default:
                 return (
                     <div className="bg-white rounded-2xl border border-gray-200 p-6">
