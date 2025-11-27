@@ -5,11 +5,11 @@ import { createPageUrl } from '@/utils';
 export const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/868a98750_1cPublishing-logo.png";
 
 export const menuItems = [
-    { icon: Globe, label: "Geospatial", href: createPageUrl('Geospatial') },
     { icon: Sparkles, label: "AI Hub", href: createPageUrl('AIHub') },
+    { icon: Lightbulb, label: "Intelligence", href: createPageUrl('Intelligence') },
+    { icon: Globe, label: "Geospatial", href: createPageUrl('Geospatial') },
     { icon: Radio, label: "SearchPods", href: createPageUrl('SearchPods') },
     { icon: Brain, label: "MindMap", href: createPageUrl('MindMap') },
-    { icon: Lightbulb, label: "Intelligence", href: createPageUrl('Intelligence') },
     { icon: FileText, label: "Resume Builder", href: createPageUrl('ResumeBuilder') },
     { icon: BarChart3, label: "Markets", href: createPageUrl('Markets') },
     { icon: GraduationCap, label: "Learning", href: createPageUrl('Learning') },
