@@ -30,12 +30,12 @@ export default function LearnMoreModal({ keyword, isOpen, onClose, containerRef 
         }
     }, [isOpen, keyword]);
 
-    // Generate image after data is loaded using overview text
+    // Generate image using keyword name (header text)
     useEffect(() => {
-        if (data?.overview?.description && keyword) {
-            generateImage(data.overview.description);
+        if (isOpen && keyword?.name) {
+            generateImage(keyword.name);
         }
-    }, [data?.overview?.description]);
+    }, [isOpen, keyword?.name]);
 
     const fetchDocuments = async () => {
         setDocumentsLoading(true);
@@ -82,13 +82,11 @@ For each document, provide the actual URL where it can be found.`,
         }
     };
 
-    const generateImage = async (overviewText) => {
+    const generateImage = async (topicName) => {
         setImageLoading(true);
         setGeneratedImage(null);
         try {
-            const prompt = overviewText 
-                ? `Visual representation of: ${overviewText.substring(0, 300)}. Professional, high quality illustration or photography.`
-                : `Beautiful visual representing "${keyword.name}". Professional, high quality illustration or photography.`;
+            const prompt = `Beautiful professional visual representation of "${topicName}". High quality illustration or photography, modern and clean.`;
             const result = await base44.integrations.Core.GenerateImage({ prompt });
             setGeneratedImage(result?.url);
         } catch (error) {
