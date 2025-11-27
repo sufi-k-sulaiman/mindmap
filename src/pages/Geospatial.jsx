@@ -309,19 +309,43 @@ Provide comprehensive analysis:
                                 <p className="text-white/80 text-sm">Multi-source data analysis across 8 domains for 195 countries</p>
                             </div>
                         </div>
-                        <div className="flex gap-6">
-                            <div className="text-center">
-                                <p className="text-2xl font-bold">{domainMetrics.totalCountries || 195}</p>
-                                <p className="text-xs text-white/70">Countries</p>
+                        <div className="flex items-center gap-4">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" />
+                                <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="Search countries..." className="pl-9 w-44 bg-white/20 border-white/30 text-white placeholder:text-white/60" />
                             </div>
-                            <div className="text-center">
-                                <p className="text-2xl font-bold">{domainMetrics.dataSources || '2.4K'}</p>
-                                <p className="text-xs text-white/70">Data Sources</p>
-                            </div>
-                            <div className="text-center">
-                                <p className="text-2xl font-bold">{domainMetrics.activeAlerts || 24}</p>
-                                <p className="text-xs text-white/70">Active Alerts</p>
-                            </div>
+                            <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                                <SelectTrigger className="w-36 bg-white/20 border-white/30 text-white">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {REGIONS.map(r => (
+                                        <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Button onClick={loadGeospatialData} variant="ghost" size="icon" disabled={loading} className="text-white hover:bg-white/20">
+                                <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="flex gap-6 mt-4 pt-4 border-t border-white/20">
+                        <div className="text-center">
+                            <p className="text-2xl font-bold">{domainMetrics.totalCountries || 195}</p>
+                            <p className="text-xs text-white/70">Countries</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-2xl font-bold">{domainMetrics.dataSources || '2.4K'}</p>
+                            <p className="text-xs text-white/70">Data Sources</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-2xl font-bold">{domainMetrics.activeAlerts || 24}</p>
+                            <p className="text-xs text-white/70">Active Alerts</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-2xl font-bold">{domainMetrics.avgScore || 72}</p>
+                            <p className="text-xs text-white/70">Avg Score</p>
                         </div>
                     </div>
                 </div>
@@ -341,45 +365,23 @@ Provide comprehensive analysis:
                     </TabsList>
                 </Tabs>
 
-                {/* Domain Selection & Filters */}
-                <div className="flex flex-col md:flex-row gap-4 mb-6">
-                    <div className="flex gap-2 overflow-x-auto pb-2 flex-1">
-                        {DOMAINS.map(domain => {
-                            const Icon = domain.icon;
-                            return (
-                                <button key={domain.id} onClick={() => setActiveDomain(domain.id)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl whitespace-nowrap transition-all ${
-                                        activeDomain === domain.id
-                                            ? 'bg-white shadow-md border-2 text-gray-900'
-                                            : 'bg-white/70 text-gray-600 hover:bg-white border border-gray-200'
-                                    }`}
-                                    style={{ borderColor: activeDomain === domain.id ? domain.color : undefined }}>
-                                    <Icon className="w-4 h-4" style={{ color: domain.color }} />
-                                    <span className="font-medium text-sm">{domain.name}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search countries..." className="pl-9 w-44 bg-white" />
-                        </div>
-                        <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                            <SelectTrigger className="w-36 bg-white">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {REGIONS.map(r => (
-                                    <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <Button onClick={loadGeospatialData} variant="outline" size="sm" disabled={loading}>
-                            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                        </Button>
-                    </div>
+                {/* Domain Selection */}
+                <div className="flex gap-2 overflow-x-auto pb-2 mb-6">
+                    {DOMAINS.map(domain => {
+                        const Icon = domain.icon;
+                        return (
+                            <button key={domain.id} onClick={() => setActiveDomain(domain.id)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl whitespace-nowrap transition-all ${
+                                    activeDomain === domain.id
+                                        ? 'bg-white shadow-md border-2 text-gray-900'
+                                        : 'bg-white/70 text-gray-600 hover:bg-white border border-gray-200'
+                                }`}
+                                style={{ borderColor: activeDomain === domain.id ? domain.color : undefined }}>
+                                <Icon className="w-4 h-4" style={{ color: domain.color }} />
+                                <span className="font-medium text-sm">{domain.name}</span>
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {loading ? (

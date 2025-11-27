@@ -68,7 +68,7 @@ function ZoomControls() {
 }
 
 export default function InteractiveMap({ countryData, activeDomain, selectedRegion, onSelectCountry }) {
-    const [mapStyle, setMapStyle] = useState('dark');
+    const [mapStyle, setMapStyle] = useState('default');
     const [center, setCenter] = useState([20, 0]);
     const [zoom, setZoom] = useState(2);
     const [showLabels, setShowLabels] = useState(true);
@@ -125,8 +125,7 @@ export default function InteractiveMap({ countryData, activeDomain, selectedRegi
                     const coords = COUNTRY_COORDS[country.country];
                     if (!coords) return null;
                     
-                    const metric = country.metrics?.[activeDomain];
-                    const value = metric?.current || 50;
+                    const value = country.score || 50;
                     const color = getColor(value);
                     
                     return (
@@ -154,8 +153,8 @@ export default function InteractiveMap({ countryData, activeDomain, selectedRegi
                                     </div>
                                     <div className="mt-1 flex items-center justify-between">
                                         <span className="text-sm text-gray-600">Change:</span>
-                                        <span className={`text-sm font-medium ${metric?.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                            {metric?.change >= 0 ? '+' : ''}{metric?.change || 0}%
+                                        <span className={`text-sm font-medium ${country.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                            {country.change >= 0 ? '+' : ''}{country.change || 0}%
                                         </span>
                                     </div>
                                 </div>
