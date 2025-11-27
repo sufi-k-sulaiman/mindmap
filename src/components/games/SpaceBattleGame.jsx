@@ -170,11 +170,16 @@ export default function SpaceBattleGame({ onExit }) {
             bgLayers: {
                 farMountains: [],
                 nearMountains: [],
-                ground: []
+                ground: [],
+                planets: [],
+                stars: [],
+                galaxies: []
             },
             score: 0,
             levelScore: 0,
-            levelTarget: 500 * currentLevel,
+            levelTarget: 1000 * currentLevel, // 10 aliens * 100 points each
+            aliensKilled: 0,
+            minAliensToKill: 10,
             gameOver: false,
             levelComplete: false,
             enemySpawnTimer: 100,
@@ -185,6 +190,8 @@ export default function SpaceBattleGame({ onExit }) {
             mouseY: canvas.height / 2,
             bombs: 3,
             alienTypes: ['truck', 'spacesuit', 'spaceship', 'rocket', 'ufo', 'mech'],
+            floorOffset: 0,
+            time: 0,
         };
         gameStateRef.current = state;
 
@@ -201,6 +208,42 @@ export default function SpaceBattleGame({ onExit }) {
                 x: i * 200 - 400,
                 height: 120 + Math.random() * 80,
                 width: 180 + Math.random() * 80
+            });
+        }
+
+        // Initialize space elements - planets
+        for (let i = 0; i < 3; i++) {
+            state.bgLayers.planets.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height * 0.3 + 50,
+                radius: 30 + Math.random() * 50,
+                color: ['#ff6b6b', '#4ecdc4', '#ffe66d', '#95e1d3', '#f38181', '#aa96da'][Math.floor(Math.random() * 6)],
+                rings: Math.random() > 0.5,
+                speed: 0.1 + Math.random() * 0.2
+            });
+        }
+
+        // Initialize stars
+        for (let i = 0; i < 150; i++) {
+            state.bgLayers.stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height * 0.5,
+                size: Math.random() * 2 + 0.5,
+                twinkle: Math.random() * Math.PI * 2,
+                speed: 0.05 + Math.random() * 0.1
+            });
+        }
+
+        // Initialize galaxies/nebulae
+        for (let i = 0; i < 2; i++) {
+            state.bgLayers.galaxies.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height * 0.25 + 20,
+                width: 100 + Math.random() * 150,
+                height: 50 + Math.random() * 80,
+                color: ['rgba(138, 43, 226, 0.3)', 'rgba(0, 191, 255, 0.3)', 'rgba(255, 105, 180, 0.3)'][Math.floor(Math.random() * 3)],
+                rotation: Math.random() * Math.PI,
+                speed: 0.02 + Math.random() * 0.05
             });
         }
 
@@ -237,6 +280,7 @@ export default function SpaceBattleGame({ onExit }) {
                         });
                     }
                     state.score += 100;
+                    state.aliensKilled += 1;
                 });
                 state.enemies = [];
                 state.cameraShake = 15;
@@ -261,8 +305,12 @@ export default function SpaceBattleGame({ onExit }) {
                 return;
             }
             
-            // Check level completion
-            if (state.levelScore >= state.levelTarget && !state.levelComplete) {
+            // Update time and floor animation
+            state.time += 1;
+            state.floorOffset = (state.floorOffset + 2) % 150;
+
+            // Check level completion - must kill at least 10 aliens
+            if (state.aliensKilled >= state.minAliensToKill && !state.levelComplete) {
                 state.levelComplete = true;
                 setGameScore(state.score);
                 setLevelComplete(true);
@@ -289,15 +337,63 @@ export default function SpaceBattleGame({ onExit }) {
             ctx.fillStyle = skyGradient;
             ctx.fillRect(0, 0, canvas.width, horizon);
 
-            // Draw stars with parallax
-            ctx.fillStyle = 'rgba(255,255,255,0.4)';
-            for (let i = 0; i < 100; i++) {
-                const starX = ((i * 73 + state.viewAngle * 0.1) % canvas.width);
-                const starY = (i * 37) % (horizon * 0.8);
+            // Draw twinkling stars
+            state.bgLayers.stars.forEach(star => {
+                star.twinkle += 0.05;
+                const opacity = 0.3 + Math.sin(star.twinkle) * 0.3;
+                ctx.fillStyle = `rgba(255,255,255,${opacity})`;
                 ctx.beginPath();
-                ctx.arc(starX, starY, 1, 0, Math.PI * 2);
+                ctx.arc(star.x - state.viewAngle * star.speed, star.y, star.size, 0, Math.PI * 2);
                 ctx.fill();
-            }
+            });
+
+            // Draw galaxies/nebulae
+            state.bgLayers.galaxies.forEach(galaxy => {
+                ctx.save();
+                ctx.translate(galaxy.x - state.viewAngle * galaxy.speed, galaxy.y);
+                ctx.rotate(galaxy.rotation);
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, galaxy.width / 2);
+                gradient.addColorStop(0, galaxy.color);
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, galaxy.width / 2, galaxy.height / 2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // Draw planets
+            state.bgLayers.planets.forEach(planet => {
+                const px = planet.x - state.viewAngle * planet.speed;
+                ctx.save();
+                ctx.translate(px, planet.y);
+
+                // Planet shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.arc(3, 3, planet.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Planet body with gradient
+                const planetGradient = ctx.createRadialGradient(-planet.radius * 0.3, -planet.radius * 0.3, 0, 0, 0, planet.radius);
+                planetGradient.addColorStop(0, planet.color);
+                planetGradient.addColorStop(1, 'rgba(0,0,0,0.5)');
+                ctx.fillStyle = planetGradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, planet.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Rings if applicable
+                if (planet.rings) {
+                    ctx.strokeStyle = `${planet.color}88`;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, planet.radius * 1.5, planet.radius * 0.3, 0.3, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+            });
 
             // Far mountains (slowest parallax)
             ctx.fillStyle = '#1a2235';
@@ -344,14 +440,31 @@ export default function SpaceBattleGame({ onExit }) {
                 ctx.stroke();
             }
 
-            // Vertical lines converging to horizon (vanishing point)
+            // Vertical lines converging to horizon (vanishing point) - animated
             for (let i = -10; i <= 10; i++) {
-                const baseX = centerX + i * 150 - (state.viewAngle % 150);
+                const baseX = centerX + i * 150 - (state.viewAngle % 150) - state.floorOffset;
                 ctx.beginPath();
                 ctx.moveTo(baseX, horizon);
                 const endX = centerX + (baseX - centerX) * 4;
                 ctx.lineTo(endX, canvas.height);
                 ctx.stroke();
+            }
+
+            // Additional animated floor markers for movement effect
+            ctx.fillStyle = 'rgba(100, 150, 200, 0.15)';
+            for (let row = 0; row < 8; row++) {
+                const rowY = horizon + (row + 1) * (canvas.height - horizon) / 8;
+                const scale = (rowY - horizon) / (canvas.height - horizon);
+                const markerSpacing = 80 * (1 + scale * 2);
+                const offset = (state.floorOffset * scale * 2) % markerSpacing;
+
+                for (let col = -10; col <= 10; col++) {
+                    const markerX = centerX + col * markerSpacing - offset - state.viewAngle * scale;
+                    const markerSize = 4 + scale * 6;
+                    ctx.beginPath();
+                    ctx.arc(markerX, rowY, markerSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
 
             // Player view rotation based on mouse
@@ -576,6 +689,7 @@ export default function SpaceBattleGame({ onExit }) {
                         state.lasers.splice(i, 1);
                         state.score += 100;
                         state.levelScore += 100;
+                        state.aliensKilled += 1;
                         state.cameraShake = 5;
                         return false;
                     }
@@ -797,10 +911,10 @@ export default function SpaceBattleGame({ onExit }) {
             
             ctx.fillStyle = '#00ff88';
             ctx.font = 'bold 16px monospace';
-            ctx.fillText(state.levelScore, scoreX, compassY + 5);
+            ctx.fillText(state.aliensKilled, scoreX, compassY + 5);
             ctx.fillStyle = 'rgba(255,255,255,0.5)';
             ctx.font = '10px monospace';
-            ctx.fillText(`/ ${state.levelTarget}`, scoreX, compassY + 20);
+            ctx.fillText(`/ ${state.minAliensToKill} kills`, scoreX, compassY + 20);
 
             // Health (hearts) top left
             ctx.fillStyle = '#fff';
