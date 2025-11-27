@@ -302,10 +302,10 @@ Also suggest 3 follow-up questions the user might want to ask.`,
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const handleFollowUp = (question) => {
+        const handleFollowUp = (question) => {
         setPrompt(question);
         setResult(null);
-        handleSubmit();
+        handleSubmit(question);
     };
 
     return (
