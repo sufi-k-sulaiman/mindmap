@@ -39,6 +39,11 @@ export default function WordShooter({ onExit }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [trendingTopics, setTrendingTopics] = useState([]);
   const [loadingTrending, setLoadingTrending] = useState(false);
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [currentTopic, setCurrentTopic] = useState(null);
+  const [subLevels, setSubLevels] = useState([]);
+  const [completedLevels, setCompletedLevels] = useState([]);
+  const [totalScore, setTotalScore] = useState(0);
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -65,12 +70,36 @@ export default function WordShooter({ onExit }) {
     fetchTrending();
   }, []);
 
-  const generateWordData = async (topic) => {
+  const generateSubLevels = async (topic) => {
     setLoading(true);
     setScreen('loading');
     try {
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Generate a learning dataset for: "${topic}". Return 30 primary concepts/terms with their related terms and definitions. Format as JSON: { "words": [{ "primary": "term", "frequency": 50-100, "related": ["term1", "term2"], "definition": "short definition" }] }`,
+        prompt: `Generate 5 sub-topics/levels for learning about "${topic}". Each level should be progressively more advanced. Return as JSON: { "levels": [{ "id": 1, "name": "Level Name", "description": "What you'll learn", "difficulty": "Beginner/Intermediate/Advanced" }] }`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            levels: { type: "array", items: { type: "object", properties: { id: { type: "number" }, name: { type: "string" }, description: { type: "string" }, difficulty: { type: "string" } } } }
+          }
+        }
+      });
+      setSubLevels(result.levels || []);
+      setCurrentTopic(topic);
+      setScreen('levels');
+    } catch (error) {
+      console.error('Failed to generate levels:', error);
+      setScreen('title');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateWordData = async (levelName) => {
+    setLoading(true);
+    setScreen('loading');
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Generate a learning dataset for: "${currentTopic} - ${levelName}". Return 20 primary concepts/terms with their related terms and definitions. Format as JSON: { "words": [{ "primary": "term", "frequency": 50-100, "related": ["term1", "term2"], "definition": "short definition" }] }`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -83,7 +112,7 @@ export default function WordShooter({ onExit }) {
     } catch (error) {
       console.error('Failed to generate words:', error);
       alert('Failed to generate word data. Please try again.');
-      setScreen('title');
+      setScreen('levels');
     } finally {
       setLoading(false);
     }
@@ -92,10 +121,25 @@ export default function WordShooter({ onExit }) {
   const handleStartGame = (deck) => {
     if (deck === 'custom') {
       if (!searchQuery.trim()) return;
-      generateWordData(searchQuery);
+      setCurrentTopic(searchQuery);
+      generateSubLevels(searchQuery);
     } else {
-      generateWordData(deck.topic);
+      setCurrentTopic(deck.topic);
+      generateSubLevels(deck.topic);
     }
+  };
+
+  const handlePlayLevel = (level) => {
+    setCurrentLevel(level.id);
+    generateWordData(level.name);
+  };
+
+  const handleLevelComplete = (score) => {
+    setTotalScore(prev => prev + score);
+    if (!completedLevels.includes(currentLevel)) {
+      setCompletedLevels(prev => [...prev, currentLevel]);
+    }
+    setScreen('levels');
   };
 
   const filteredDecks = (decks) => {
@@ -370,7 +414,12 @@ export default function WordShooter({ onExit }) {
         ctx.fillText(`Words Mastered: ${state.wordsCompleted}/${state.totalWords}`, w/2, h/2 + 50);
         ctx.fillText(`Max Combo: x${state.maxCombo}`, w/2, h/2 + 100);
         ctx.fillStyle = '#9ca3af'; ctx.font = '24px Inter'; ctx.shadowBlur = 0;
-        ctx.fillText('Press ESC to return', w/2, h/2 + 180);
+        ctx.fillText('Click anywhere to continue', w/2, h/2 + 180);
+        
+        // Listen for click to go back to levels
+        canvas.onclick = () => {
+          handleLevelComplete(state.score);
+        };
         return;
       }
       
@@ -414,9 +463,74 @@ export default function WordShooter({ onExit }) {
           <Button onClick={toggleFullscreen} className="bg-blue-600 hover:bg-blue-700" size="sm">
             {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </Button>
-          <Button onClick={onExit} className="bg-purple-600 hover:bg-purple-700" size="sm">
-            <X className="w-4 h-4 mr-1" /> Exit
+          <Button onClick={() => setScreen('levels')} className="bg-purple-600 hover:bg-purple-700" size="sm">
+            <X className="w-4 h-4 mr-1" /> Back
           </Button>
+        </div>
+        <div className="absolute top-5 left-5 bg-black/60 px-4 py-2 rounded-lg">
+          <p className="text-white text-sm">Level {currentLevel} • {currentTopic}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Levels screen
+  if (screen === 'levels') {
+    return (
+      <div className="fixed inset-0 bg-[#090b16] z-[9999] overflow-auto p-8">
+        <Button onClick={() => setScreen('title')} className="absolute top-4 left-4 bg-gray-700 hover:bg-gray-600">
+          ← Back to Topics
+        </Button>
+        <Button onClick={onExit} className="absolute top-4 right-4 bg-red-600 hover:bg-red-700">
+          <X className="w-4 h-4 mr-2" /> Close
+        </Button>
+        
+        <div className="max-w-4xl mx-auto pt-16">
+          <div className="text-center mb-10">
+            <h1 className="text-4xl font-black text-white mb-2">{currentTopic}</h1>
+            <p className="text-xl text-gray-400">Choose a level to play</p>
+            <div className="mt-4 flex justify-center gap-6">
+              <div className="bg-blue-600/20 px-4 py-2 rounded-lg">
+                <span className="text-blue-400 font-bold">Total Score: {totalScore}</span>
+              </div>
+              <div className="bg-green-600/20 px-4 py-2 rounded-lg">
+                <span className="text-green-400 font-bold">Completed: {completedLevels.length}/{subLevels.length}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {subLevels.map((level, i) => {
+              const isCompleted = completedLevels.includes(level.id);
+              const isLocked = i > 0 && !completedLevels.includes(subLevels[i-1]?.id) && !isCompleted;
+              const difficultyColors = {
+                'Beginner': 'from-green-500 to-green-600',
+                'Intermediate': 'from-yellow-500 to-orange-500',
+                'Advanced': 'from-red-500 to-red-600',
+              };
+              
+              return (
+                <Card key={level.id} className={`p-6 bg-[#18181b] border-2 ${isCompleted ? 'border-green-500' : isLocked ? 'border-gray-700 opacity-50' : 'border-blue-500'}`}>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${difficultyColors[level.difficulty] || 'from-gray-500 to-gray-600'} text-white`}>
+                      {level.difficulty}
+                    </span>
+                    {isCompleted && <span className="text-green-400 text-xl">✓</span>}
+                    {isLocked && <span className="text-gray-500">🔒</span>}
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Level {level.id}: {level.name}</h3>
+                  <p className="text-gray-400 text-sm mb-4">{level.description}</p>
+                  <Button 
+                    onClick={() => !isLocked && handlePlayLevel(level)} 
+                    disabled={isLocked}
+                    className={`w-full ${isLocked ? 'bg-gray-700' : isCompleted ? 'bg-green-600 hover:bg-green-700' : 'bg-gradient-to-r from-blue-500 to-purple-500'}`}
+                  >
+                    {isLocked ? 'Locked' : isCompleted ? 'Play Again' : 'Start Level'}
+                  </Button>
+                </Card>
+              );
+            })}
+          </div>
         </div>
       </div>
     );
