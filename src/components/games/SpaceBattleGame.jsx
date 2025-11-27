@@ -373,12 +373,13 @@ export default function SpaceBattleGame({ onExit }) {
             // Update and draw enemies with 3D perspective
             state.enemies = state.enemies.filter((enemy) => {
                 enemy.z += 0.003;
+                enemy.wobble += 0.05;
                 
-                // 3D to 2D projection
+                // 3D to 2D projection with wobble
                 const scale = enemy.z * 3;
-                const screenX = centerX + (enemy.x - state.viewAngle * 2) * scale;
+                const screenX = centerX + (enemy.x - state.viewAngle * 2) * scale + Math.sin(enemy.wobble) * 5;
                 const screenY = horizon + (canvas.height - horizon) * enemy.z * 0.8;
-                const size = 60 * scale;
+                const size = 80 * scale; // Larger aliens
 
                 if (enemy.z > 1.2) {
                     state.player.health--;
@@ -391,73 +392,122 @@ export default function SpaceBattleGame({ onExit }) {
                 ctx.save();
                 ctx.translate(screenX, screenY);
 
-                // Draw alien icons
-                const alienColors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#8b5cf6'];
-                ctx.fillStyle = alienColors[Math.floor(enemy.x + enemy.z * 100) % alienColors.length];
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = ctx.fillStyle;
+                ctx.fillStyle = enemy.color;
+                ctx.shadowBlur = 25;
+                ctx.shadowColor = enemy.color;
                 
-                if (enemy.type === 'tank') {
-                    // Bug alien - draw a bug shape
+                // Draw different alien types
+                if (enemy.type === 'bug') {
+                    // Bug alien - rounded body with antennae
                     ctx.beginPath();
                     ctx.ellipse(0, 0, size/2, size/3, 0, 0, Math.PI * 2);
                     ctx.fill();
-                    // Antennae
-                    ctx.strokeStyle = ctx.fillStyle;
-                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = enemy.color;
+                    ctx.lineWidth = 4;
                     ctx.beginPath();
                     ctx.moveTo(-size/4, -size/3);
-                    ctx.lineTo(-size/3, -size/2);
+                    ctx.quadraticCurveTo(-size/3, -size/2, -size/2, -size/2);
                     ctx.moveTo(size/4, -size/3);
-                    ctx.lineTo(size/3, -size/2);
+                    ctx.quadraticCurveTo(size/3, -size/2, size/2, -size/2);
                     ctx.stroke();
                     // Eyes
                     ctx.fillStyle = '#fff';
                     ctx.beginPath();
-                    ctx.arc(-size/6, -size/8, size/10, 0, Math.PI * 2);
-                    ctx.arc(size/6, -size/8, size/10, 0, Math.PI * 2);
+                    ctx.arc(-size/6, -size/10, size/8, 0, Math.PI * 2);
+                    ctx.arc(size/6, -size/10, size/8, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.fillStyle = '#000';
                     ctx.beginPath();
-                    ctx.arc(-size/6, -size/8, size/20, 0, Math.PI * 2);
-                    ctx.arc(size/6, -size/8, size/20, 0, Math.PI * 2);
+                    ctx.arc(-size/6, -size/10, size/16, 0, Math.PI * 2);
+                    ctx.arc(size/6, -size/10, size/16, 0, Math.PI * 2);
                     ctx.fill();
-                } else {
-                    // Ghost alien - draw a ghost shape
+                } else if (enemy.type === 'ghost') {
+                    // Ghost alien
                     ctx.beginPath();
                     ctx.arc(0, -size/6, size/3, Math.PI, 0, false);
                     ctx.lineTo(size/3, size/4);
-                    ctx.lineTo(size/6, size/8);
-                    ctx.lineTo(0, size/4);
-                    ctx.lineTo(-size/6, size/8);
-                    ctx.lineTo(-size/3, size/4);
+                    for (let i = 0; i < 4; i++) {
+                        const waveX = size/3 - (i * size/6);
+                        ctx.lineTo(waveX - size/12, size/6);
+                        ctx.lineTo(waveX - size/6, size/4);
+                    }
                     ctx.closePath();
                     ctx.fill();
-                    // Eyes
                     ctx.fillStyle = '#fff';
                     ctx.beginPath();
                     ctx.arc(-size/8, -size/6, size/10, 0, Math.PI * 2);
                     ctx.arc(size/8, -size/6, size/10, 0, Math.PI * 2);
                     ctx.fill();
+                } else if (enemy.type === 'skull') {
+                    // Skull alien
+                    ctx.beginPath();
+                    ctx.arc(0, -size/10, size/3, 0, Math.PI * 2);
+                    ctx.fill();
                     ctx.fillStyle = '#000';
                     ctx.beginPath();
-                    ctx.arc(-size/8, -size/6, size/20, 0, Math.PI * 2);
-                    ctx.arc(size/8, -size/6, size/20, 0, Math.PI * 2);
+                    ctx.ellipse(-size/8, -size/8, size/10, size/8, 0, 0, Math.PI * 2);
+                    ctx.ellipse(size/8, -size/8, size/10, size/8, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillRect(-size/6, size/10, size/3, size/12);
+                } else if (enemy.type === 'bot') {
+                    // Robot alien
+                    ctx.fillRect(-size/3, -size/4, size*2/3, size/2);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(-size/5, -size/6, size/8, size/8);
+                    ctx.fillRect(size/10, -size/6, size/8, size/8);
+                    ctx.strokeStyle = enemy.color;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(-size/3, -size/4);
+                    ctx.lineTo(-size/2, -size/2);
+                    ctx.moveTo(size/3, -size/4);
+                    ctx.lineTo(size/2, -size/2);
+                    ctx.stroke();
+                } else if (enemy.type === 'ufo') {
+                    // UFO alien
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, size/2, size/6, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(0, -size/8, size/4, Math.PI, 0, false);
+                    ctx.fill();
+                    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                    ctx.beginPath();
+                    ctx.arc(0, -size/6, size/6, Math.PI, 0, false);
+                    ctx.fill();
+                } else if (enemy.type === 'squid') {
+                    // Squid alien
+                    ctx.beginPath();
+                    ctx.arc(0, -size/6, size/4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = enemy.color;
+                    ctx.lineWidth = 4;
+                    for (let i = -2; i <= 2; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(i * size/8, size/8);
+                        ctx.quadraticCurveTo(i * size/6, size/3, i * size/5, size/2);
+                        ctx.stroke();
+                    }
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.arc(-size/10, -size/6, size/12, 0, Math.PI * 2);
+                    ctx.arc(size/10, -size/6, size/12, 0, Math.PI * 2);
                     ctx.fill();
                 }
                 ctx.shadowBlur = 0;
 
                 ctx.restore();
 
-                // Collision with bullets
-                for (let i = state.bullets.length - 1; i >= 0; i--) {
-                    const b = state.bullets[i];
-                    const bScreenX = centerX;
-                    const bScreenY = canvas.height * 0.6 - (1 - b.z) * 400;
+                // Collision with lasers
+                for (let i = state.lasers.length - 1; i >= 0; i--) {
+                    const laser = state.lasers[i];
+                    if (laser.progress < 0.3) continue;
                     
-                    if (Math.abs(bScreenX - screenX) < size && 
-                        Math.abs(bScreenY - screenY) < size/2 && 
-                        Math.abs(b.z - enemy.z) < 0.2) {
+                    const laserX = laser.startX + (laser.targetX - laser.startX) * laser.progress;
+                    const laserY = laser.startY + (laser.targetY - laser.startY) * laser.progress;
+                    
+                    if (Math.abs(laserX - screenX) < size/2 && 
+                        Math.abs(laserY - screenY) < size/2) {
                         // Explosion
                         for (let j = 0; j < 30; j++) {
                             state.particles.push({
@@ -465,11 +515,12 @@ export default function SpaceBattleGame({ onExit }) {
                                 vx: (Math.random() - 0.5) * 15,
                                 vy: (Math.random() - 0.5) * 15 - 5,
                                 life: 40, maxLife: 40,
-                                color: Math.random() > 0.5 ? '#ff6b35' : '#ffaa00'
+                                color: enemy.color
                             });
                         }
-                        state.bullets.splice(i, 1);
+                        state.lasers.splice(i, 1);
                         state.score += 100;
+                        state.levelScore += 100;
                         state.cameraShake = 5;
                         return false;
                     }
