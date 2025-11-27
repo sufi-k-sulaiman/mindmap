@@ -1,12 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { 
     Upload, FileText, Sparkles, Download, Eye, Plus, Trash2, 
-    User, Mail, Phone, MapPin, Linkedin, Globe, Briefcase, 
-    GraduationCap, Award, Loader2, Check, ChevronLeft, Menu,
-    Save, RefreshCw, Pencil, X, Lightbulb
+    Globe, Loader2, Check, Save, X, Lightbulb
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,15 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { LOGO_URL, menuItems, footerLinks } from '../components/NavigationConfig';
-import GlobalSearchBar from '../components/GlobalSearchBar';
 import { TemplateSelector, RESUME_TEMPLATES } from '../components/resume/ResumeTemplates';
 import ResumePreview from '../components/resume/ResumePreview';
 import ATSAnalysis from '../components/resume/ATSAnalysis';
 import ExportOptions from '../components/resume/ExportOptions';
 
 export default function ResumeBuilder() {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('builder');
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedResume, setGeneratedResume] = useState(null);
@@ -51,16 +44,6 @@ export default function ResumeBuilder() {
     });
 
     const [newTalkingPoint, setNewTalkingPoint] = useState('');
-
-    // Responsive sidebar
-    React.useEffect(() => {
-        const handleResize = () => {
-            setSidebarOpen(window.innerWidth >= 768);
-        };
-        handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -250,48 +233,8 @@ Provide:
     const template = RESUME_TEMPLATES.find(t => t.id === selectedTemplate) || RESUME_TEMPLATES[0];
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50">
-            {/* Header */}
-            <header className="bg-white sticky top-0 z-40 border-b border-gray-200 shadow-sm h-[72px]">
-                <div className="flex items-center justify-between px-4 h-full">
-                    <div className="flex items-center gap-4">
-                        <Link to={createPageUrl('Home')} className="flex items-center gap-3 hover:opacity-80">
-                            <img src={LOGO_URL} alt="1cPublishing" className="h-10 w-10 object-contain" />
-                            <div className="hidden sm:block">
-                                <span className="text-xl font-bold text-gray-900">1cPublishing</span>
-                                <p className="text-xs font-medium text-purple-600">AI Powered</p>
-                            </div>
-                        </Link>
-                        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="hover:bg-gray-100">
-                           {sidebarOpen ? <ChevronLeft className="w-5 h-5 text-purple-600" /> : <Menu className="w-5 h-5 text-purple-600" />}
-                        </Button>
-                    </div>
-
-                    <GlobalSearchBar placeholder="Search templates, tips..." className="flex-1 max-w-xl mx-4 md:mx-8" />
-
-                    <div className="w-10 md:w-20" />
-                </div>
-            </header>
-
-            <div className="flex flex-1">
-                {/* Mobile Overlay */}
-                {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />}
-
-                {/* Sidebar */}
-                <aside className={`${sidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full md:translate-x-0'} transition-all duration-300 overflow-hidden bg-white border-r border-gray-200 flex-shrink-0 fixed md:relative z-50 md:z-auto h-[calc(100vh-72px)] md:h-auto`}>
-                    <nav className="p-4 space-y-2">
-                        {menuItems.map((item, index) => (
-                            <Link key={index} to={item.href} onClick={() => window.innerWidth < 768 && setSidebarOpen(false)} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${item.label === 'Resume Builder' ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'}`}>
-                                <item.icon className="w-5 h-5 text-purple-600" />
-                                <span className="font-medium">{item.label}</span>
-                            </Link>
-                        ))}
-                    </nav>
-                </aside>
-
-                {/* Main Content */}
-                <main className="flex-1 overflow-auto">
-                    <div className="p-4 md:p-6">
+        <div className="min-h-screen bg-gray-50">
+            <div className="p-4 md:p-6">
                         {/* Tabs */}
                         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
@@ -537,23 +480,6 @@ Provide:
                             </TabsContent>
                         </Tabs>
                     </div>
-                </main>
-            </div>
-
-            {/* Footer */}
-            <footer className="py-6 bg-white border-t border-gray-200">
-                <div className="max-w-6xl mx-auto px-4">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <img src={LOGO_URL} alt="1cPublishing" className="h-8 w-8 object-contain grayscale" />
-                        <nav className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm">
-                            {footerLinks.map((link, i) => (
-                                <a key={i} href={link.href} className="text-gray-600 hover:text-purple-600">{link.label}</a>
-                            ))}
-                        </nav>
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-gray-200 text-center text-sm text-gray-500">© 2025 1cPublishing.com</div>
-                </div>
-            </footer>
 
             {/* Full Preview Dialog */}
             <Dialog open={showPreview} onOpenChange={setShowPreview}>

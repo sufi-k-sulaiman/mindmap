@@ -1,8 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
-import { Search, Globe, Paperclip, Mic, Sparkles, Bot, Lightbulb, FileText, Image, Loader2, X, ExternalLink, Download, Menu, ChevronLeft, Home, Users, Settings, HelpCircle, BookOpen, ArrowRight } from 'lucide-react';
+import { Globe, Paperclip, Mic, Sparkles, Bot, Lightbulb, FileText, Image, Loader2, X, ExternalLink, Download, ArrowRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,9 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import ReactMarkdown from 'react-markdown';
 import MetricCard from '../components/dashboard/MetricCard';
 import PieChartCard from '../components/dashboard/PieChartCard';
-
-import { LOGO_URL, menuItems as navMenuItems, footerLinks } from '../components/NavigationConfig';
-import GlobalSearchBar from '../components/GlobalSearchBar';
+import { LOGO_URL } from '../components/NavigationConfig';
 
 const AI_MODELS = [
     { id: 'qwirey', name: 'Qwirey', icon: null, isLogo: true, description: 'All-in-one AI assistant', color: '#6B4EE6' },
@@ -22,7 +18,6 @@ const AI_MODELS = [
 ];
 
 export default function AIHub() {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
     const [query, setQuery] = useState('');
     const [selectedModel, setSelectedModel] = useState('qwirey');
     const [isLoading, setIsLoading] = useState(false);
@@ -281,81 +276,34 @@ export default function AIHub() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-white">
-            {/* Header */}
-            <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
-                <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-3">
-                            <Link to={createPageUrl('Home')} className="flex items-center gap-3 hover:opacity-80">
-                              <img src={LOGO_URL} alt="1cPublishing" className="h-10 w-10 object-contain" />
-                              <div>
-                                  <span className="text-xl font-bold text-black">1cPublishing</span>
-                                  <p className="text-xs font-medium" style={{ color: '#6B4EE6' }}>Ai Hub</p>
-                              </div>
-                            </Link>
-                        </div>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setSidebarOpen(!sidebarOpen)}
-                            className="hover:bg-gray-100"
-                            style={{ color: '#6B4EE6' }}
+        <div className="min-h-screen bg-gray-50">
+            {/* Model Selector */}
+            <div className="bg-white border-b border-gray-200 px-4 py-3">
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                    {AI_MODELS.map(model => (
+                        <button
+                            key={model.id}
+                            onClick={() => setSelectedModel(model.id)}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
+                                selectedModel === model.id 
+                                    ? 'bg-purple-100 ring-2 ring-purple-500' 
+                                    : 'hover:bg-gray-100'
+                            }`}
+                            title={model.description}
                         >
-                            {sidebarOpen ? <ChevronLeft className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                        </Button>
-                    </div>
-                    
-                    {/* Model Selector */}
-                    <div className="flex items-center gap-2">
-                        {AI_MODELS.map(model => (
-                            <button
-                                key={model.id}
-                                onClick={() => setSelectedModel(model.id)}
-                                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
-                                    selectedModel === model.id 
-                                        ? 'bg-purple-100 ring-2 ring-purple-500' 
-                                        : 'hover:bg-gray-100'
-                                }`}
-                                title={model.description}
-                            >
-                                {model.isLogo ? (
-                                    <img src={LOGO_URL} alt={model.name} className="w-5 h-5" />
-                                ) : (
-                                    <model.icon className="w-5 h-5" style={{ color: model.color }} />
-                                )}
-                                <span className="text-sm font-medium hidden md:inline">{model.name}</span>
-                            </button>
-                        ))}
-                    </div>
+                            {model.isLogo ? (
+                                <img src={LOGO_URL} alt={model.name} className="w-5 h-5" />
+                            ) : (
+                                <model.icon className="w-5 h-5" style={{ color: model.color }} />
+                            )}
+                            <span className="text-sm font-medium hidden md:inline">{model.name}</span>
+                        </button>
+                    ))}
                 </div>
-            </header>
+            </div>
 
-            <div className="flex flex-1">
-                {/* Left Sidebar */}
-                <aside 
-                    className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 overflow-hidden bg-white border-r border-gray-200 flex-shrink-0`}
-                >
-                    <nav className="p-4 space-y-2">
-                        {navMenuItems.map((item, index) => (
-                            <Link
-                                key={index}
-                                to={item.href}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                                    item.label === 'AI Hub' 
-                                        ? 'bg-purple-100 text-purple-700' 
-                                        : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'
-                                }`}
-                            >
-                                <item.icon className="w-5 h-5" style={{ color: '#6B4EE6' }} />
-                                <span className="font-medium">{item.label}</span>
-                            </Link>
-                        ))}
-                    </nav>
-                </aside>
-
-                {/* Main Content */}
-                <main className="flex-1 p-8 bg-gray-50 overflow-auto">
+            {/* Main Content */}
+            <div className="p-4 md:p-8">
                     <div className="max-w-4xl mx-auto">
                         {/* Search Input */}
                         <div className={`transition-all duration-500 ${results ? 'mb-8' : 'mt-16'}`}>
