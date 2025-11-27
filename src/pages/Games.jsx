@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Gamepad2, Rocket, Target } from 'lucide-react';
 
-import WordShooter from '../components/games/WordShooter';
-import SpaceBattleGame from '../components/games/SpaceBattleGame';
+import WordShooter from '@/components/games/WordShooter';
+import SpaceBattleGame from '@/components/games/SpaceBattleGame';
 import { Button } from '@/components/ui/button';
 
 export default function Games() {

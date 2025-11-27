@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import MetricCard from '../components/dashboard/MetricCard';
-import PieChartCard from '../components/dashboard/PieChartCard';
-import HorizontalBarChart from '../components/dashboard/HorizontalBarChart';
+import MetricCard from '@/components/dashboard/MetricCard';
+import PieChartCard from '@/components/dashboard/PieChartCard';
+import HorizontalBarChart from '@/components/dashboard/HorizontalBarChart';
 
 const NODE_COLORS = ['#6B4EE6', '#3B82F6', '#10B981', '#F59E0B', '#EC4899', '#06B6D4', '#8B5CF6', '#EF4444'];
 
