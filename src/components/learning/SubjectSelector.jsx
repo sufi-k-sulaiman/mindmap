@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, X, ChevronDown, Check } from 'lucide-react';
-import { SUBJECTS, CATEGORIES } from '@/components/learning/SubjectData';
+import { SUBJECTS, CATEGORIES } from './SubjectData';
 
 export default function SubjectSelector({ selectedSubjects, onSelectionChange }) {
     const [isOpen, setIsOpen] = useState(false);

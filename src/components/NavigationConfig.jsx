@@ -1,31 +1,27 @@
-import { 
-    Home, Search, BookOpen, Settings, BarChart3, FileText, MessageSquare,
-    Brain, TrendingUp, Globe, Gamepad2, Users, Mail, Phone, Scale, Cookie, FileCheck
-} from 'lucide-react';
 
-export const LOGO_URL = 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=100&h=100&fit=crop';
+import { Sparkles, Radio, Brain, Settings, FileText, BarChart3, GraduationCap, ListTodo, Lightbulb, StickyNote, Gamepad2, Globe } from 'lucide-react';
+import { createPageUrl } from '@/utils';
+
+export const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/868a98750_1cPublishing-logo.png";
 
 export const menuItems = [
-    { label: 'Home', page: 'Home', icon: Home },
-    { label: 'AI Hub', page: 'AIHub', icon: Brain },
-    { label: 'SearchPods', page: 'SearchPods', icon: Search },
-    { label: 'MindMap', page: 'MindMap', icon: BookOpen },
-    { label: 'Intelligence', page: 'Intelligence', icon: TrendingUp },
-    { label: 'Geospatial', page: 'Geospatial', icon: Globe },
-    { label: 'Markets', page: 'Markets', icon: BarChart3 },
-    { label: 'Learning', page: 'Learning', icon: BookOpen },
-    { label: 'Resume Builder', page: 'ResumeBuilder', icon: FileText },
-    { label: 'Tasks', page: 'Tasks', icon: FileText },
-    { label: 'Notes', page: 'Notes', icon: FileText },
-    { label: 'Comms', page: 'Comms', icon: MessageSquare },
-    { label: 'Games', page: 'Games', icon: Gamepad2 },
-    { label: 'Settings', page: 'Settings', icon: Settings },
+    { icon: Sparkles, label: "AI Hub", href: createPageUrl('AIHub') },
+    { icon: Radio, label: "SearchPods", href: createPageUrl('SearchPods') },
+    { icon: Brain, label: "MindMap", href: createPageUrl('MindMap') },
+    { icon: FileText, label: "Resume Builder", href: createPageUrl('ResumeBuilder') },
+    { icon: BarChart3, label: "Markets", href: createPageUrl('Markets') },
+    { icon: Lightbulb, label: "Intelligence", href: createPageUrl('Intelligence') },
+    { icon: Globe, label: "Geospatial", href: createPageUrl('Geospatial') },
+    { icon: GraduationCap, label: "Learning", href: createPageUrl('Learning') },
+    { icon: ListTodo, label: "Tasks", href: createPageUrl('Tasks') },
+    { icon: StickyNote, label: "Notes", href: createPageUrl('Notes') },
+    { icon: Gamepad2, label: "Games", href: createPageUrl('Games') },
+    { icon: Settings, label: "Settings", href: createPageUrl('Settings') },
 ];
 
 export const footerLinks = [
-    { label: 'Contact Us', page: 'ContactUs' },
-    { label: 'Teams', page: 'Teams' },
-    { label: 'Governance', page: 'Governance' },
-    { label: 'Terms of Use', page: 'TermsOfUse' },
-    { label: 'Cookie Policy', page: 'CookiePolicy' },
+    { label: "Contact Us", href: "#" },
+    { label: "Governance", href: "#" },
+    { label: "Cookie Policy", href: "#" },
+    { label: "Terms of Use", href: "#" },
 ];

@@ -8,7 +8,7 @@ import {
     Network, TrendingUp, Landmark, Skull, Lightbulb, Languages, BookText,
     PenTool, Palette, Music, Film
 } from 'lucide-react';
-import IslandSVG from '@/components/learning/IslandSVG';
+import IslandSVG from './IslandSVG';
 
 // Icon mapping for dynamic icon rendering
 const ICON_MAP = {

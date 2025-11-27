@@ -21,9 +21,9 @@ const RECENT_SEARCHES = [
 ];
 
 const QUICK_ACTIONS = [
-    { label: 'AI Hub', icon: Sparkles, page: 'AIHub', color: '#6B4EE6' },
-    { label: 'SearchPods', icon: Radio, page: 'SearchPods', color: '#3B82F6' },
-    { label: 'MindMap', icon: Brain, page: 'MindMap', color: '#EC4899' },
+    { label: 'AI Hub', icon: Sparkles, href: createPageUrl('AIHub'), color: '#6B4EE6' },
+    { label: 'SearchPods', icon: Radio, href: createPageUrl('SearchPods'), color: '#3B82F6' },
+    { label: 'MindMap', icon: Brain, href: createPageUrl('MindMap'), color: '#EC4899' },
 ];
 
 export default function GlobalSearchBar({ 
@@ -153,7 +153,7 @@ export default function GlobalSearchBar({
                                 {QUICK_ACTIONS.map((action, i) => (
                                     <Link
                                         key={i}
-                                        to={createPageUrl(action.page)}
+                                        to={action.href}
                                         className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all"
                                     >
                                         <action.icon className="w-4 h-4" style={{ color: action.color }} />
