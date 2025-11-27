@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { 
-    Search, Brain, X,
+    Search, Brain, X, Menu, ChevronLeft,
     BookOpen, Users, Briefcase, Clock, BarChart3, FileText, Globe,
     Target, Award, GraduationCap, Calendar, Loader2, Compass, Network, Zap, Maximize2, Minimize2
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LOGO_URL, menuItems, footerLinks } from '../components/NavigationConfig';
+import GlobalSearchBar from '../components/GlobalSearchBar';
 import MetricCard from '../components/dashboard/MetricCard';
 import PieChartCard from '../components/dashboard/PieChartCard';
 import HorizontalBarChart from '../components/dashboard/HorizontalBarChart';
@@ -79,8 +82,8 @@ function ChildNode({ node, colorIndex, onLearn }) {
 }
 
 export default function MindMap() {
+    const [sidebarOpen, setSidebarOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [searchInput, setSearchInput] = useState('');
     const [nodes, setNodes] = useState([]);
     const [centerTopic, setCenterTopic] = useState(null);
     const [selectedNode, setSelectedNode] = useState(null);
@@ -253,10 +256,9 @@ export default function MindMap() {
         }
     };
 
-    const handleSearch = (e) => {
-        e?.preventDefault?.();
-        if (searchInput.trim()) {
-            generateMindMap(searchInput.trim());
+    const handleSearch = (query) => {
+        if (query.trim()) {
+            generateMindMap(query.trim());
         }
     };
 
@@ -265,34 +267,60 @@ export default function MindMap() {
     const rightNodes = nodes.filter((_, i) => i >= 4);
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Search Bar */}
-            <div className="bg-white border-b border-gray-200 px-4 py-4">
-                <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <Input
-                        value={searchInput}
-                        onChange={(e) => setSearchInput(e.target.value)}
-                        placeholder="Enter any topic to generate a mind map..."
-                        className="pl-12 h-12 rounded-full"
-                    />
-                </form>
-            </div>
-
-            {/* Main Content */}
-            <div className="p-4 md:p-6">
-                <div className="max-w-7xl mx-auto">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
-                                <Brain className="w-6 h-6 text-purple-600" />
-                            </div>
+        <div className="min-h-screen flex flex-col bg-gray-50">
+            {/* Header */}
+            <header className="bg-white sticky top-0 z-40 border-b border-gray-200 shadow-sm h-[72px]">
+                <div className="flex items-center justify-between px-4 h-full">
+                    <div className="flex items-center gap-4">
+                        <Link to={createPageUrl('Home')} className="flex items-center gap-3 hover:opacity-80">
+                            <img src={LOGO_URL} alt="1cPublishing" className="h-10 w-10 object-contain" />
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Neural Mind Map Explorer</h1>
-                                <p className="text-gray-500">AI-powered knowledge visualization</p>
+                                <span className="text-xl font-bold text-gray-900">1cPublishing</span>
+                                <p className="text-xs font-medium text-purple-600">Ai MindMap</p>
+                            </div>
+                        </Link>
+                        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="hover:bg-gray-100">
+                            {sidebarOpen ? <ChevronLeft className="w-5 h-5 text-purple-600" /> : <Menu className="w-5 h-5 text-purple-600" />}
+                        </Button>
+                    </div>
+
+                    <GlobalSearchBar 
+                        onSearch={handleSearch}
+                        placeholder="Enter any topic to generate a mind map..."
+                        className="flex-1 max-w-2xl mx-8"
+                    />
+
+                    <div className="w-20" />
+                </div>
+            </header>
+
+            <div className="flex flex-1">
+                {/* Sidebar */}
+                <aside className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 overflow-hidden bg-white border-r border-gray-200 flex-shrink-0`}>
+                    <nav className="p-4 space-y-2">
+                        {menuItems.map((item, index) => (
+                            <Link key={index} to={item.href} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${item.label === 'MindMap' ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'}`}>
+                                <item.icon className="w-5 h-5 text-purple-600" />
+                                <span className="font-medium">{item.label}</span>
+                            </Link>
+                        ))}
+                    </nav>
+                </aside>
+
+                {/* Main Content */}
+                <main className="flex-1 overflow-auto p-6">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                                    <Brain className="w-6 h-6 text-purple-600" />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-900">Neural Mind Map Explorer</h1>
+                                    <p className="text-gray-500">AI-powered knowledge visualization and topic exploration</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
                         {/* Mind Map Canvas */}
                         <div className={`bg-slate-900 rounded-2xl ${isFullscreen ? 'fixed inset-0 z-50 rounded-none' : 'min-h-[600px]'}`}>
@@ -316,7 +344,7 @@ export default function MindMap() {
                                     <p className="text-slate-400 mb-6">Enter a topic above to generate an AI-powered mind map</p>
                                     <div className="flex flex-wrap justify-center gap-2">
                                         {['Artificial Intelligence', 'Climate Change', 'Blockchain', 'Quantum Computing'].map(topic => (
-                                            <button key={topic} onClick={() => { setSearchInput(topic); generateMindMap(topic); }} className="px-4 py-2 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm transition-colors">
+                                            <button key={topic} onClick={() => handleSearch(topic)} className="px-4 py-2 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm transition-colors">
                                                 {topic}
                                             </button>
                                         ))}
@@ -402,7 +430,23 @@ export default function MindMap() {
                             )}
                         </div>
                     </div>
+                </main>
+            </div>
+
+            {/* Footer */}
+            <footer className="py-6 bg-white border-t border-gray-200">
+                <div className="max-w-6xl mx-auto px-4">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <img src={LOGO_URL} alt="1cPublishing" className="h-8 w-8 object-contain grayscale" />
+                        <nav className="flex flex-wrap justify-center gap-6 text-sm">
+                            {footerLinks.map((link, i) => (
+                                <a key={i} href={link.href} className="text-gray-600 hover:text-purple-600">{link.label}</a>
+                            ))}
+                        </nav>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-gray-200 text-center text-sm text-gray-500">© 2025 1cPublishing.com</div>
                 </div>
+            </footer>
 
             {/* Detail Modal */}
             <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>

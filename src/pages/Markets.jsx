@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { 
-    Search, RefreshCw, TrendingUp, Shield, 
-    DollarSign, BarChart3, Activity
+    Search, RefreshCw, TrendingUp, TrendingDown, Shield, 
+    Zap, DollarSign, BarChart3, Activity, Sparkles, 
+    ChevronDown, X, Filter, Loader2, Menu, ChevronLeft
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { LOGO_URL, menuItems, footerLinks } from '../components/NavigationConfig';
 import StockCard from '../components/markets/StockCard';
 import StockTicker from '../components/markets/StockTicker';
 import FilterChips from '../components/markets/FilterChips';
@@ -1276,6 +1280,7 @@ function generateStockData(stockInfo) {
 }
 
 export default function Markets() {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [stocks, setStocks] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [activePreset, setActivePreset] = useState('all');
@@ -1290,6 +1295,13 @@ export default function Markets() {
     });
     const [selectedStock, setSelectedStock] = useState(null);
     const [showStockModal, setShowStockModal] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setSidebarOpen(window.innerWidth >= 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Generate all stocks immediately on mount
     useEffect(() => {
@@ -1381,31 +1393,66 @@ export default function Markets() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Search & Ticker */}
-            <div className="bg-white border-b border-gray-200">
-                <div className="px-4 py-3 flex items-center justify-between gap-4">
-                    <div className="flex-1 max-w-md relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <Input
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search stocks..."
-                            className="pl-12 h-10 rounded-full"
-                        />
+        <div className="min-h-screen flex flex-col bg-gray-50">
+            {/* Header */}
+            <header className="bg-white sticky top-0 z-40 border-b border-gray-200 shadow-sm h-[72px]">
+                <div className="flex items-center justify-between px-4 h-full">
+                    <div className="flex items-center gap-2">
+                        <Link to={createPageUrl('Home')} className="flex items-center gap-3 hover:opacity-80">
+                            <img src={LOGO_URL} alt="1cPublishing" className="h-10 w-10 object-contain" />
+                            <div className="hidden sm:block">
+                                <span className="text-xl font-bold text-gray-900">1cPublishing</span>
+                                <p className="text-xs font-medium text-purple-600">Ai Markets</p>
+                            </div>
+                        </Link>
                     </div>
+
+                    <div className="flex-1 max-w-md mx-4 md:mx-8">
+                        <div className="relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <Input
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search stocks..."
+                                className="pl-12 h-12 rounded-full border-gray-200 focus:border-purple-500"
+                            />
+                        </div>
+                    </div>
+
                     <div className="flex items-center gap-3">
                         <Button onClick={refreshStocks} variant="outline" size="sm" className="gap-2">
                             <RefreshCw className="w-4 h-4" />
                             <span className="hidden md:inline">Refresh</span>
                         </Button>
                         <span className="text-sm text-gray-500 hidden md:block">{stocks.length} stocks</span>
+                        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="hover:bg-gray-100">
+                            {sidebarOpen ? <ChevronLeft className="w-5 h-5 text-purple-600" /> : <Menu className="w-5 h-5 text-purple-600" />}
+                        </Button>
                     </div>
-                </div>
+                    </div>
+
+            </header>
+            
+            {/* Ticker below header, not overlapping sidebar */}
+            <div className="sticky top-[72px] z-30 bg-gray-100 border-b border-gray-200">
                 <StockTicker stocks={topMovers} />
             </div>
 
-            <div className="p-4 md:p-6">
+            <div className="flex flex-1">
+                {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />}
+
+                <aside className={`${sidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full md:translate-x-0'} transition-all duration-300 overflow-hidden bg-white border-r border-gray-200 flex-shrink-0 fixed md:relative z-40 md:z-auto h-[calc(100vh-120px)] md:h-auto top-[120px] md:top-0`}>
+                    <nav className="p-4 space-y-2">
+                        {menuItems.map((item, index) => (
+                            <Link key={index} to={item.href} onClick={() => window.innerWidth < 768 && setSidebarOpen(false)} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${item.label === 'Markets' ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'}`}>
+                                <item.icon className="w-5 h-5 text-purple-600" />
+                                <span className="font-medium">{item.label}</span>
+                            </Link>
+                        ))}
+                    </nav>
+                </aside>
+
+                <main className="flex-1 overflow-auto p-4 md:p-6">
                     {/* Preset Filters */}
                     <div className="flex flex-wrap gap-2 mb-4">
                         {PRESET_FILTERS.map(preset => (
