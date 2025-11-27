@@ -308,13 +308,17 @@ export default function SpaceBattleGame({ onExit }) {
                 ctx.stroke();
             }
 
-            // Player view rotation
-            const targetAngle = ((mouseX - centerX) / centerX) * 30;
+            // Player view rotation based on mouse
+            const targetAngle = ((state.mouseX - centerX) / centerX) * 30;
             state.viewAngle += (targetAngle - state.viewAngle) * 0.1;
 
-            // Movement
-            if (keys.arrowleft || keys.a) state.viewAngle -= 3;
-            if (keys.arrowright || keys.d) state.viewAngle += 3;
+            // Keyboard movement for arrow keys
+            if (keys.arrowleft) state.mouseX = Math.max(100, state.mouseX - 8);
+            if (keys.arrowright) state.mouseX = Math.min(canvas.width - 100, state.mouseX + 8);
+            if (keys.arrowup) state.mouseY = Math.max(100, state.mouseY - 8);
+            if (keys.arrowdown) state.mouseY = Math.min(canvas.height - 100, state.mouseY + 8);
+            if (keys.a) state.viewAngle -= 3;
+            if (keys.d) state.viewAngle += 3;
 
             // Spawn enemies in 3D space
             state.enemySpawnTimer--;
