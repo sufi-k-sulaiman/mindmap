@@ -174,16 +174,49 @@ export default function MindMapPage() {
     const [annotationMode, setAnnotationMode] = useState(null); // null, 'draw', 'text', 'rectangle', 'circle', 'eraser'
     const [annotations, setAnnotations] = useState([]);
     const [currentAnnotation, setCurrentAnnotation] = useState(null);
-    const [annotationColor, setAnnotationColor] = useState('#ef4444');
+    const [annotationColor, setAnnotationColor] = useState('#00BCD4');
     const canvasOverlayRef = useRef(null);
     const [textInput, setTextInput] = useState({ visible: false, x: 0, y: 0, value: '' });
 
-    // Handle spacebar for panning
+    // Handle keyboard shortcuts for tools and panning
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.code === 'Space' && !e.target.matches('input, textarea')) {
+            if (e.target.matches('input, textarea')) return;
+            
+            if (e.code === 'Space') {
                 e.preventDefault();
                 setSpacePressed(true);
+                setAnnotationMode(null);
+            }
+            
+            // Keyboard shortcuts for annotation tools
+            if (!treeData) return;
+            switch(e.key.toLowerCase()) {
+                case 'p':
+                    e.preventDefault();
+                    setAnnotationMode('draw');
+                    break;
+                case 't':
+                    e.preventDefault();
+                    setAnnotationMode('text');
+                    break;
+                case 'r':
+                    e.preventDefault();
+                    setAnnotationMode('rectangle');
+                    break;
+                case 'c':
+                case 'o':
+                    e.preventDefault();
+                    setAnnotationMode('circle');
+                    break;
+                case 'e':
+                    e.preventDefault();
+                    setAnnotationMode('eraser');
+                    break;
+                case 'escape':
+                    e.preventDefault();
+                    setAnnotationMode(null);
+                    break;
             }
         };
         const handleKeyUp = (e) => {
@@ -198,9 +231,14 @@ export default function MindMapPage() {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
         };
-    }, []);
+    }, [treeData]);
+
+    const [isDrawing, setIsDrawing] = useState(false);
 
     const handleCanvasMouseDown = (e) => {
+        // Prevent default to stop text selection
+        e.preventDefault();
+        
         if (spacePressed) {
             setIsDragging(true);
             setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
@@ -210,8 +248,8 @@ export default function MindMapPage() {
         if (!annotationMode) return;
         
         const rect = canvasOverlayRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = e.clientX - rect.left + canvasOverlayRef.current.scrollLeft;
+        const y = e.clientY - rect.top + canvasOverlayRef.current.scrollTop;
         
         if (annotationMode === 'text') {
             setTextInput({ visible: true, x, y, value: '' });
@@ -237,6 +275,7 @@ export default function MindMapPage() {
             return;
         }
         
+        setIsDrawing(true);
         if (annotationMode === 'draw') {
             setCurrentAnnotation({ type: 'draw', points: [{ x, y }], color: annotationColor });
         } else if (annotationMode === 'rectangle' || annotationMode === 'circle') {
@@ -253,11 +292,11 @@ export default function MindMapPage() {
             return;
         }
         
-        if (!currentAnnotation) return;
+        if (!currentAnnotation || !isDrawing) return;
         
         const rect = canvasOverlayRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = e.clientX - rect.left + canvasOverlayRef.current.scrollLeft;
+        const y = e.clientY - rect.top + canvasOverlayRef.current.scrollTop;
         
         if (currentAnnotation.type === 'draw') {
             setCurrentAnnotation(prev => ({
@@ -275,8 +314,15 @@ export default function MindMapPage() {
 
     const handleCanvasMouseUp = () => {
         setIsDragging(false);
+        setIsDrawing(false);
         if (currentAnnotation) {
-            setAnnotations(prev => [...prev, currentAnnotation]);
+            // Only add if there's actual content
+            if (currentAnnotation.type === 'draw' && currentAnnotation.points.length > 1) {
+                setAnnotations(prev => [...prev, currentAnnotation]);
+            } else if ((currentAnnotation.type === 'rectangle' || currentAnnotation.type === 'circle') && 
+                       (Math.abs(currentAnnotation.width) > 5 || Math.abs(currentAnnotation.height) > 5)) {
+                setAnnotations(prev => [...prev, currentAnnotation]);
+            }
             setCurrentAnnotation(null);
         }
     };
@@ -485,52 +531,64 @@ export default function MindMapPage() {
                         {treeData && (
                             <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
                                 <Button
-                                    variant={annotationMode === null ? "secondary" : "ghost"}
+                                    variant={annotationMode === null && !spacePressed ? "secondary" : "ghost"}
                                     size="sm"
                                     onClick={() => setAnnotationMode(null)}
-                                    title="Select (Hold Space to pan)"
+                                    title="Hand / Pan (Space)"
+                                    className="gap-1"
                                 >
                                     <Hand className="w-4 h-4" />
+                                    <span className="text-[10px] text-gray-400">Space</span>
                                 </Button>
                                 <Button
                                     variant={annotationMode === 'draw' ? "secondary" : "ghost"}
                                     size="sm"
                                     onClick={() => setAnnotationMode('draw')}
-                                    title="Draw"
+                                    title="Pencil (P)"
+                                    className="gap-1"
                                 >
                                     <Pencil className="w-4 h-4" />
+                                    <span className="text-[10px] text-gray-400">P</span>
                                 </Button>
                                 <Button
                                     variant={annotationMode === 'text' ? "secondary" : "ghost"}
                                     size="sm"
                                     onClick={() => setAnnotationMode('text')}
-                                    title="Text"
+                                    title="Text (T)"
+                                    className="gap-1"
                                 >
                                     <Type className="w-4 h-4" />
+                                    <span className="text-[10px] text-gray-400">T</span>
                                 </Button>
                                 <Button
                                     variant={annotationMode === 'rectangle' ? "secondary" : "ghost"}
                                     size="sm"
                                     onClick={() => setAnnotationMode('rectangle')}
-                                    title="Rectangle"
+                                    title="Rectangle (R)"
+                                    className="gap-1"
                                 >
                                     <Square className="w-4 h-4" />
+                                    <span className="text-[10px] text-gray-400">R</span>
                                 </Button>
                                 <Button
                                     variant={annotationMode === 'circle' ? "secondary" : "ghost"}
                                     size="sm"
                                     onClick={() => setAnnotationMode('circle')}
-                                    title="Circle"
+                                    title="Circle (O/C)"
+                                    className="gap-1"
                                 >
                                     <Circle className="w-4 h-4" />
+                                    <span className="text-[10px] text-gray-400">O</span>
                                 </Button>
                                 <Button
                                     variant={annotationMode === 'eraser' ? "secondary" : "ghost"}
                                     size="sm"
                                     onClick={() => setAnnotationMode('eraser')}
-                                    title="Eraser"
+                                    title="Eraser (E)"
+                                    className="gap-1"
                                 >
                                     <Eraser className="w-4 h-4" />
+                                    <span className="text-[10px] text-gray-400">E</span>
                                 </Button>
                                 <Popover>
                                     <PopoverTrigger asChild>
@@ -540,7 +598,7 @@ export default function MindMapPage() {
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-2">
                                         <div className="flex gap-1">
-                                            {['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#000000'].map(color => (
+                                            {['#FF9800', '#E91E63', '#00BCD4', '#4CAF50', '#9DD5E8', '#2196F3', '#000000'].map(color => (
                                                 <button
                                                     key={color}
                                                     className={`w-6 h-6 rounded-full border-2 ${annotationColor === color ? 'border-gray-800' : 'border-transparent'}`}
@@ -666,12 +724,13 @@ export default function MindMapPage() {
                         />
                     ) : (
                         <div 
-                            className={`relative flex justify-center overflow-auto pt-4 ${spacePressed ? 'cursor-grab' : ''} ${isDragging ? 'cursor-grabbing' : ''} ${annotationMode === 'draw' || annotationMode === 'rectangle' || annotationMode === 'circle' ? 'cursor-crosshair' : ''} ${annotationMode === 'text' ? 'cursor-text' : ''} ${annotationMode === 'eraser' ? 'cursor-pointer' : ''}`}
+                            className={`relative flex justify-center overflow-auto pt-4 select-none ${spacePressed ? 'cursor-grab' : ''} ${isDragging ? 'cursor-grabbing' : ''} ${annotationMode === 'draw' || annotationMode === 'rectangle' || annotationMode === 'circle' ? 'cursor-crosshair' : ''} ${annotationMode === 'text' ? 'cursor-text' : ''} ${annotationMode === 'eraser' ? 'cursor-pointer' : ''}`}
                             ref={canvasOverlayRef}
                             onMouseDown={handleCanvasMouseDown}
                             onMouseMove={handleCanvasMouseMove}
                             onMouseUp={handleCanvasMouseUp}
                             onMouseLeave={handleCanvasMouseUp}
+                            style={{ minHeight: '400px' }}
                         >
                             {renderAnnotations()}
                             {textInput.visible && (
