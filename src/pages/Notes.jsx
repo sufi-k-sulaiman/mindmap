@@ -235,6 +235,13 @@ export default function Notes() {
         return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     };
 
+    // Listen for header search changes
+    useEffect(() => {
+        const handleHeaderSearch = (e) => setSearchQuery(e.detail || '');
+        window.addEventListener('headerSearchChange', handleHeaderSearch);
+        return () => window.removeEventListener('headerSearchChange', handleHeaderSearch);
+    }, []);
+
     return (
         <>
             <div className="min-h-screen bg-gray-50 p-4 md:p-6">
@@ -245,20 +252,9 @@ export default function Notes() {
                             <h1 className="text-2xl font-bold text-gray-900">AI Generative Notes</h1>
                             <p className="text-gray-500 text-sm">Create and organize your notes</p>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="relative w-64">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <Input 
-                                    placeholder="Search notes..." 
-                                    value={searchQuery} 
-                                    onChange={e => setSearchQuery(e.target.value)}
-                                    className="pl-9"
-                                />
-                            </div>
-                            <Button onClick={() => openNewNote()} className="bg-purple-600 hover:bg-purple-700">
-                                <Plus className="w-4 h-4 mr-2" /> New Note
-                            </Button>
-                        </div>
+                        <Button onClick={() => openNewNote()} className="bg-purple-600 hover:bg-purple-700">
+                            <Plus className="w-4 h-4 mr-2" /> New Note
+                        </Button>
                     </div>
 
                     {/* Quick Start Templates */}
