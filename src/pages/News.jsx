@@ -68,16 +68,14 @@ const NewsCard = ({ article, index }) => {
                 <p className="text-gray-600 text-sm line-clamp-3 mb-4">
                     {article.summary}
                 </p>
-                {article.url && (
-                    <a
-                        href={article.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-medium"
-                    >
-                        Read more <ExternalLink className="w-3 h-3" />
-                    </a>
-                )}
+                <a
+                    href={`https://www.google.com/search?q=${encodeURIComponent(article.title)}&tbm=nws`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-medium"
+                >
+                    Read more <ExternalLink className="w-3 h-3" />
+                </a>
             </div>
         </article>
     );
