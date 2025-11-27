@@ -347,13 +347,14 @@ export default function SpaceBattleGame({ onExit }) {
                 ctx.fill();
             });
 
-            // Draw galaxies/nebulae
+            // Draw galaxies/nebulae at 16% opacity
+            ctx.globalAlpha = 0.16;
             state.bgLayers.galaxies.forEach(galaxy => {
                 ctx.save();
                 ctx.translate(galaxy.x - state.viewAngle * galaxy.speed, galaxy.y);
                 ctx.rotate(galaxy.rotation);
                 const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, galaxy.width / 2);
-                gradient.addColorStop(0, galaxy.color);
+                gradient.addColorStop(0, galaxy.color.replace('0.3)', '1)'));
                 gradient.addColorStop(1, 'transparent');
                 ctx.fillStyle = gradient;
                 ctx.beginPath();
@@ -362,7 +363,7 @@ export default function SpaceBattleGame({ onExit }) {
                 ctx.restore();
             });
 
-            // Draw planets
+            // Draw planets at 16% opacity
             state.bgLayers.planets.forEach(planet => {
                 const px = planet.x - state.viewAngle * planet.speed;
                 ctx.save();
@@ -394,6 +395,7 @@ export default function SpaceBattleGame({ onExit }) {
 
                 ctx.restore();
             });
+            ctx.globalAlpha = 1;
 
             // Far mountains (slowest parallax)
             ctx.fillStyle = '#1a2235';
@@ -440,9 +442,9 @@ export default function SpaceBattleGame({ onExit }) {
                 ctx.stroke();
             }
 
-            // Vertical lines converging to horizon (vanishing point) - animated
+            // Vertical lines converging to horizon (vanishing point) - animated moving toward player
             for (let i = -10; i <= 10; i++) {
-                const baseX = centerX + i * 150 - (state.viewAngle % 150) - state.floorOffset;
+                const baseX = centerX + i * 150 - (state.viewAngle % 150);
                 ctx.beginPath();
                 ctx.moveTo(baseX, horizon);
                 const endX = centerX + (baseX - centerX) * 4;
@@ -450,17 +452,36 @@ export default function SpaceBattleGame({ onExit }) {
                 ctx.stroke();
             }
 
-            // Additional animated floor markers for movement effect
-            ctx.fillStyle = 'rgba(100, 150, 200, 0.15)';
-            for (let row = 0; row < 8; row++) {
-                const rowY = horizon + (row + 1) * (canvas.height - horizon) / 8;
-                const scale = (rowY - horizon) / (canvas.height - horizon);
-                const markerSpacing = 80 * (1 + scale * 2);
-                const offset = (state.floorOffset * scale * 2) % markerSpacing;
+            // Horizontal lines moving toward player (forward motion effect)
+            const numHorizontalLines = 15;
+            for (let i = 0; i < numHorizontalLines; i++) {
+                // Lines start at horizon and move toward bottom (toward player)
+                const baseProgress = (i / numHorizontalLines + state.floorOffset / 500) % 1;
+                const perspectiveY = horizon + Math.pow(baseProgress, 1.5) * (canvas.height - horizon);
 
-                for (let col = -10; col <= 10; col++) {
-                    const markerX = centerX + col * markerSpacing - offset - state.viewAngle * scale;
-                    const markerSize = 4 + scale * 6;
+                if (perspectiveY > horizon && perspectiveY < canvas.height) {
+                    ctx.strokeStyle = `rgba(100, 150, 200, ${0.05 + baseProgress * 0.1})`;
+                    ctx.beginPath();
+                    ctx.moveTo(0, perspectiveY);
+                    ctx.lineTo(canvas.width, perspectiveY);
+                    ctx.stroke();
+                }
+            }
+
+            // Additional animated floor markers moving toward player
+            ctx.fillStyle = 'rgba(100, 150, 200, 0.15)';
+            for (let row = 0; row < 12; row++) {
+                // Calculate row position with forward animation
+                const rowProgress = ((row / 12) + state.floorOffset / 300) % 1;
+                const rowY = horizon + Math.pow(rowProgress, 1.5) * (canvas.height - horizon);
+                const scale = rowProgress;
+                const markerSpacing = 60 + scale * 120;
+
+                for (let col = -8; col <= 8; col++) {
+                    const markerX = centerX + col * markerSpacing - state.viewAngle * scale;
+                    const markerSize = 2 + scale * 8;
+                    const alpha = 0.1 + scale * 0.2;
+                    ctx.fillStyle = `rgba(100, 150, 200, ${alpha})`;
                     ctx.beginPath();
                     ctx.arc(markerX, rowY, markerSize, 0, Math.PI * 2);
                     ctx.fill();
