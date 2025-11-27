@@ -768,201 +768,88 @@ export default function SpaceBattleGame({ onExit }) {
         );
     }
 
-    // Menu screen - dark tactical UI matching the image
+    // Menu screen - light theme matching WordShooter
     return (
-        <div className="fixed inset-0 bg-[#0a0f1a] z-[9999] overflow-auto p-8">
-            <Button onClick={onExit} className="absolute top-4 right-4 bg-red-600 hover:bg-red-700">
-                <X className="w-4 h-4" />
+        <div className="fixed inset-0 bg-gray-50 z-[9999] overflow-auto p-8">
+            <Button onClick={onExit} variant="ghost" className="absolute top-4 right-4 text-gray-500 hover:text-red-500 hover:bg-red-50">
+                <X className="w-5 h-5" />
             </Button>
 
-            <div className="max-w-6xl mx-auto">
-                {/* Header with topic buttons */}
-                <div className="flex gap-3 mb-8">
-                    <Button className="bg-cyan-500 hover:bg-cyan-600 text-black font-medium px-6">
-                        Topic Selection
-                    </Button>
-                    {TABS.slice(0, 3).map(tab => (
-                        <Button key={tab.id} onClick={() => setActiveCategory(tab.id)}
-                            className={`px-4 ${activeCategory === tab.id ? 'bg-gray-700' : 'bg-gray-800 hover:bg-gray-700'} text-gray-300`}>
-                            {tab.label}
-                        </Button>
-                    ))}
+            <div className="max-w-4xl mx-auto">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <div className="text-5xl mb-3">🎯</div>
+                    <h1 className="text-4xl font-black text-gray-900 mb-2">SPACE BATTLE</h1>
+                    <p className="text-gray-500">FPS Combat Learning Game</p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-8">
-                    {/* Left column - Search and Awards */}
-                    <div className="space-y-6">
-                        <div className="relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-                            <Input placeholder="Search or enter topic..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                {/* Search bar */}
+                <div className="bg-white rounded-2xl border border-purple-200 p-4 mb-6 shadow-sm">
+                    <div className="flex gap-3">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <Input placeholder="Search decks or enter custom topic..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={(e) => { if (e.key === 'Enter' && searchQuery.trim()) startGame('custom'); }}
-                                className="pl-12 h-12 bg-[#1a2235] border-gray-700 text-white placeholder:text-gray-500" />
+                                className="pl-12 h-12 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 rounded-xl" />
                         </div>
-
-                        <div>
-                            <h3 className="text-cyan-400 font-mono text-sm mb-2">Awards</h3>
-                            <p className="text-gray-400 text-sm mb-4">Medals to be won</p>
-                            <div className="flex gap-4">
-                                <div className="text-center">
-                                    <div className="w-12 h-16 border-2 border-cyan-500/30 rounded flex items-center justify-center mb-1">
-                                        <svg viewBox="0 0 24 32" className="w-8 h-10 text-cyan-400">
-                                            <path d="M12 2 L14 12 L12 14 L10 12 Z" fill="currentColor"/>
-                                            <circle cx="12" cy="22" r="6" fill="none" stroke="currentColor" strokeWidth="1"/>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="w-12 h-16 border-2 border-cyan-500/30 rounded flex items-center justify-center mb-1">
-                                        <svg viewBox="0 0 24 32" className="w-8 h-10 text-gray-400">
-                                            <path d="M12 2 L14 10 L12 12 L10 10 Z" fill="currentColor"/>
-                                            <circle cx="12" cy="20" r="7" fill="none" stroke="currentColor" strokeWidth="1"/>
-                                            <path d="M12 13 L14 18 L12 20 L10 18 Z" fill="currentColor"/>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Center column - Main game view with crosshair */}
-                    <div className="relative">
-                        {/* Mountains silhouette */}
-                        <div className="h-32 bg-gradient-to-b from-[#1a2744] to-[#2d3a52] rounded-t-lg overflow-hidden relative">
-                            <svg viewBox="0 0 400 100" className="w-full h-full absolute bottom-0">
-                                <path d="M0 100 L50 60 L100 80 L150 40 L200 70 L250 50 L300 75 L350 55 L400 100 Z" fill="#252d40"/>
-                                <path d="M0 100 L30 70 L80 85 L130 55 L180 80 L230 60 L280 85 L330 65 L400 100 Z" fill="#2d3a52"/>
-                            </svg>
-                            {/* Helicopter silhouette */}
-                            <div className="absolute top-4 left-20">
-                                <svg viewBox="0 0 40 20" className="w-10 h-5 text-gray-600">
-                                    <ellipse cx="20" cy="12" rx="12" ry="5" fill="currentColor"/>
-                                    <rect x="30" y="10" width="8" height="3" fill="currentColor"/>
-                                    <line x1="8" y1="8" x2="32" y2="8" stroke="currentColor" strokeWidth="1"/>
-                                </svg>
-                            </div>
-                            {/* Parachute */}
-                            <div className="absolute top-8 right-16">
-                                <svg viewBox="0 0 20 25" className="w-5 h-6 text-emerald-500">
-                                    <path d="M10 0 C 0 0 0 12 10 12 C 20 12 20 0 10 0" fill="currentColor"/>
-                                    <line x1="10" y1="12" x2="10" y2="20" stroke="currentColor" strokeWidth="1"/>
-                                </svg>
-                            </div>
-                        </div>
-
-                        {/* Ground with crosshair */}
-                        <div className="h-48 bg-gradient-to-b from-[#2d3a52] to-[#1a2235] relative overflow-hidden">
-                            {/* Grid lines */}
-                            <div className="absolute inset-0 opacity-10">
-                                {[...Array(10)].map((_, i) => (
-                                    <div key={i} className="absolute w-full h-px bg-cyan-400" style={{ top: `${i * 10 + 20}%` }}/>
-                                ))}
-                            </div>
-                            
-                            {/* Crosshair */}
-                            <div className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2">
-                                <div className="relative w-20 h-20">
-                                    <div className="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2 border-cyan-400"/>
-                                    <div className="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2 border-cyan-400"/>
-                                    <div className="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2 border-cyan-400"/>
-                                    <div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-cyan-400"/>
-                                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-red-500"/>
-                                </div>
-                            </div>
-
-                            {/* Distance markers */}
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-end gap-1">
-                                {[...Array(21)].map((_, i) => (
-                                    <div key={i} className={`w-0.5 ${i === 10 ? 'h-4 bg-cyan-400' : i % 5 === 0 ? 'h-3 bg-gray-500' : 'h-2 bg-gray-600'}`}/>
-                                ))}
-                            </div>
-                            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex justify-between w-48 text-gray-500 text-xs font-mono">
-                                <span>10</span>
-                                <span>10</span>
-                            </div>
-
-                            {/* Tank silhouette */}
-                            <div className="absolute bottom-8 right-8">
-                                <svg viewBox="0 0 60 30" className="w-16 h-8 text-gray-600">
-                                    <rect x="5" y="15" width="50" height="12" rx="2" fill="currentColor"/>
-                                    <rect x="15" y="8" width="20" height="10" rx="1" fill="currentColor"/>
-                                    <rect x="30" y="5" width="15" height="5" fill="currentColor"/>
-                                    <ellipse cx="10" cy="25" rx="6" ry="4" fill="#1a2235"/>
-                                    <ellipse cx="50" cy="25" rx="6" ry="4" fill="#1a2235"/>
-                                    <line x1="55" y1="20" x2="60" y2="18" stroke="currentColor" strokeWidth="2"/>
-                                </svg>
-                            </div>
-                        </div>
-
-                        {/* Start button */}
                         <Button onClick={() => searchQuery.trim() ? startGame('custom') : startGame(generatedTopics[activeCategory]?.[0])} 
                             disabled={loading}
-                            className="w-full mt-4 h-14 text-lg font-bold bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700">
-                            <Play className="w-5 h-5 mr-2" /> Start Battle
+                            className="h-12 px-6 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl">
+                            <Play className="w-4 h-4 mr-2" /> Start Game
                         </Button>
-                    </div>
-
-                    {/* Right column - Compass and Score */}
-                    <div className="space-y-6">
-                        <div className="flex gap-4 justify-end">
-                            {/* Compass */}
-                            <div className="w-24 h-24 rounded-full border-2 border-gray-600 bg-[#1a2235] flex items-center justify-center relative">
-                                <div className="absolute top-2 text-cyan-400 text-xs">N</div>
-                                <div className="absolute bottom-2 text-gray-500 text-xs">S</div>
-                                <div className="absolute left-2 text-gray-500 text-xs">W</div>
-                                <div className="absolute right-2 text-gray-500 text-xs">E</div>
-                                <svg viewBox="0 0 40 40" className="w-12 h-12">
-                                    <path d="M20 5 L23 20 L20 25 L17 20 Z" fill="#fff"/>
-                                    <circle cx="20" cy="20" r="3" fill="#00ffff"/>
-                                </svg>
-                            </div>
-
-                            {/* Score gauge */}
-                            <div className="w-24 h-24 rounded-full border-2 border-gray-600 bg-[#1a2235] flex items-center justify-center relative">
-                                <div className="text-center">
-                                    <p className="text-gray-400 text-[8px]">Exam Score</p>
-                                    <p className="text-green-400 text-xl font-bold">68<span className="text-gray-500 text-sm">/100</span></p>
-                                </div>
-                                {/* Gauge indicators */}
-                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
-                                    <div className="w-1 h-2 bg-red-500"/>
-                                    <div className="w-1 h-2 bg-yellow-500"/>
-                                    <div className="w-1 h-2 bg-green-500"/>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Topics list */}
-                        <div className="space-y-3">
-                            {loadingTopics ? (
-                                <div className="text-center py-8">
-                                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-cyan-400" />
-                                    <p className="text-gray-500 text-sm">Loading topics...</p>
-                                </div>
-                            ) : (
-                                filteredTopics(generatedTopics[activeCategory] || []).slice(0, 6).map((topic, i) => (
-                                    <Button key={topic.id || i} onClick={() => startGame(topic)}
-                                        className="w-full justify-start text-left h-auto py-3 px-4 bg-[#1a2235] hover:bg-[#252d40] border border-gray-700 text-gray-300">
-                                        <div>
-                                            <p className="font-medium text-sm">{topic.label}</p>
-                                            <p className="text-xs text-gray-500 line-clamp-1">{topic.description}</p>
-                                        </div>
-                                    </Button>
-                                ))
-                            )}
-                        </div>
                     </div>
                 </div>
 
-                {/* Feature cards at bottom */}
-                <div className="grid grid-cols-3 gap-6 mt-8">
+                {/* Categories and Topics */}
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6 shadow-sm">
+                    {/* Category tabs */}
+                    <div className="flex gap-2 mb-6">
+                        {TABS.map(tab => (
+                            <Button key={tab.id} onClick={() => setActiveCategory(tab.id)}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                                    activeCategory === tab.id 
+                                        ? 'bg-emerald-500 text-white' 
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}>
+                                {tab.label}
+                            </Button>
+                        ))}
+                    </div>
+
+                    {/* Topics grid */}
+                    {loadingTopics ? (
+                        <div className="text-center py-12">
+                            <Loader2 className="w-10 h-10 animate-spin mx-auto mb-3 text-purple-500" />
+                            <p className="text-gray-500">Generating topics with AI...</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {filteredTopics(generatedTopics[activeCategory] || []).slice(0, 6).map((topic, i) => (
+                                <Button key={topic.id || i} onClick={() => startGame(topic)}
+                                    variant="outline"
+                                    className="h-auto py-4 px-4 bg-white hover:bg-purple-50 hover:border-purple-300 border-gray-200 text-left justify-start rounded-xl">
+                                    <div>
+                                        <p className="font-medium text-gray-900 text-sm">{topic.label}</p>
+                                        <p className="text-xs text-gray-500 line-clamp-1 mt-1">{topic.description}</p>
+                                    </div>
+                                </Button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Feature cards */}
+                <div className="grid grid-cols-3 gap-4">
                     {[
-                        { icon: Crosshair, title: 'FPS Combat', desc: 'First-person perspective with parallax depth', color: 'text-cyan-400' },
-                        { icon: Sparkles, title: 'Knowledge Quiz', desc: 'Answer questions after battle', color: 'text-yellow-400' },
-                        { icon: Trophy, title: 'Earn Awards', desc: 'Collect medals and achievements', color: 'text-amber-400' }
+                        { icon: Crosshair, title: 'FPS Combat', desc: 'First-person perspective with parallax depth', bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
+                        { icon: Sparkles, title: 'Knowledge Quiz', desc: 'Answer questions after battle', bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
+                        { icon: Trophy, title: 'Earn Awards', desc: 'Collect medals and achievements', bgColor: 'bg-emerald-100', iconColor: 'text-emerald-600' }
                     ].map((item, i) => (
-                        <div key={i} className="bg-[#1a2235] border border-gray-700 rounded-lg p-5 text-center">
-                            <item.icon className={`w-10 h-10 mx-auto mb-3 ${item.color}`} />
-                            <h3 className="text-white font-medium mb-1">{item.title}</h3>
+                        <div key={i} className="bg-white border border-gray-200 rounded-xl p-5 text-center shadow-sm">
+                            <div className={`w-12 h-12 ${item.bgColor} rounded-xl mx-auto mb-3 flex items-center justify-center`}>
+                                <item.icon className={`w-6 h-6 ${item.iconColor}`} />
+                            </div>
+                            <h3 className="text-gray-900 font-semibold mb-1">{item.title}</h3>
                             <p className="text-gray-500 text-sm">{item.desc}</p>
                         </div>
                     ))}
