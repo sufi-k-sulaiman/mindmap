@@ -15,21 +15,19 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, 
 
 const NAV_ITEMS = [
     { id: 'overview', label: 'Overview', icon: Eye },
-    { id: 'invest', label: 'Invest', icon: DollarSign },
+    { id: 'moat', label: 'MOAT Analysis', icon: Shield },
     { id: 'valuation', label: 'Valuation', icon: BarChart3 },
     { id: 'simulator', label: 'Simulator', icon: Target },
     { id: 'dcf', label: 'DCF Calculator', icon: Activity },
     { id: 'bullbear', label: 'Bull/Bear Case', icon: TrendingUp },
     { id: 'fundamentals', label: 'Fundamentals', icon: LineChart },
     { id: 'financials', label: 'Financials', icon: Activity },
-    { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'technicals', label: 'Technicals', icon: TrendingUp },
     { id: 'sentiment', label: 'Sentiment', icon: Brain },
-    { id: 'ai-insights', label: 'AI Insights', icon: Sparkles },
-    { id: 'risk', label: 'Risk', icon: AlertTriangle },
-    { id: 'news', label: 'News', icon: FileText },
+    { id: 'risk', label: 'Risk & Macro', icon: AlertTriangle },
     { id: 'dividends', label: 'Dividends', icon: Percent },
     { id: 'peers', label: 'Peers', icon: Users },
+    { id: 'reports', label: 'Reports', icon: FileText },
 ];
 
 const CHART_COLORS = ['#8B5CF6', '#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#EC4899'];
@@ -432,6 +430,15 @@ export default function StockDetailModal({ stock, isOpen, onClose }) {
 
         switch (activeNav) {
             case 'overview':
+                const priceData = data.priceHistory || Array.from({ length: 36 }, (_, i) => ({
+                    month: `M${i + 1}`,
+                    price: stock.price * (0.7 + Math.random() * 0.6)
+                }));
+                const startPrice = priceData[0]?.price || stock.price * 0.8;
+                const highPrice = Math.max(...priceData.map(p => p.price));
+                const lowPrice = Math.min(...priceData.map(p => p.price));
+                const currentPrice = stock.price;
+                
                 return (
                     <div className="space-y-6">
                         {/* Company Overview */}
@@ -452,9 +459,7 @@ export default function StockDetailModal({ stock, isOpen, onClose }) {
                                     </p>
                                 </div>
                             </div>
-                            
                             <p className="text-gray-600 mb-4">{data.description || `${stock.name} is a leading company in the ${stock.sector} sector.`}</p>
-                            
                             <div className="flex items-center gap-3">
                                 <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-medium">
                                     {stock.aiRating >= 80 ? 'Strong Buy' : stock.aiRating >= 60 ? 'Buy' : 'Hold'}
@@ -463,91 +468,212 @@ export default function StockDetailModal({ stock, isOpen, onClose }) {
                             </div>
                         </div>
 
-                        {/* Price History Chart */}
+                        {/* 36-Month Price History Chart with Hover Events */}
                         <div className="bg-white rounded-2xl border border-gray-200 p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
                                     <LineChart className="w-5 h-5 text-purple-600" />
-                                    <h3 className="font-semibold text-gray-900">Price History</h3>
+                                    <h3 className="font-semibold text-gray-900">36-Month Price History</h3>
                                 </div>
-                                <span className="text-sm text-gray-500 flex items-center gap-1">
-                                    <Sparkles className="w-4 h-4 text-purple-600" /> AI-generated analysis
-                                </span>
+                                <span className="text-sm text-gray-500">Hover for details</span>
                             </div>
-
-                            <div className="h-64">
+                            <div className="h-72">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart data={data.priceHistory || stock.history?.map((p, i) => ({ month: `M${i+1}`, price: p })) || []}>
+                                    <AreaChart data={priceData}>
                                         <defs>
-                                            <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <linearGradient id="priceGradientOverview" x1="0" y1="0" x2="0" y2="1">
                                                 <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
                                                 <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
                                             </linearGradient>
                                         </defs>
-                                        <XAxis dataKey="month" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
-                                        <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
-                                        <Tooltip contentStyle={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }} />
-                                        <Area type="monotone" dataKey="price" stroke="#8B5CF6" strokeWidth={2} fill="url(#priceGradient)" />
+                                        <XAxis dataKey="month" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} interval={5} />
+                                        <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v.toFixed(0)}`} domain={['auto', 'auto']} />
+                                        <Tooltip 
+                                            contentStyle={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px' }}
+                                            formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Price']}
+                                            labelFormatter={(label) => `Month: ${label}`}
+                                        />
+                                        <Area type="monotone" dataKey="price" stroke="#8B5CF6" strokeWidth={2} fill="url(#priceGradientOverview)" 
+                                            activeDot={{ r: 6, fill: '#8B5CF6', stroke: '#fff', strokeWidth: 2 }} />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
-
                             <div className="grid grid-cols-4 gap-3 mt-4">
-                                <PriceStatCard label="52W Low" value={(stock.price * 0.7).toFixed(2)} color="#EF4444" />
-                                <PriceStatCard label="52W High" value={(stock.price * 1.3).toFixed(2)} color="#10B981" />
-                                <PriceStatCard label="Avg Price" value={(stock.price * 0.95).toFixed(2)} color="#6B7280" />
-                                <PriceStatCard label="Current" value={stock.price?.toFixed(2)} color="#8B5CF6" />
+                                <div className="bg-blue-50 rounded-xl p-3 text-center">
+                                    <p className="text-xs text-gray-500 mb-1">Starting Point</p>
+                                    <p className="text-lg font-bold text-blue-600">${startPrice.toFixed(2)}</p>
+                                </div>
+                                <div className="bg-green-50 rounded-xl p-3 text-center">
+                                    <p className="text-xs text-gray-500 mb-1">High Point</p>
+                                    <p className="text-lg font-bold text-green-600">${highPrice.toFixed(2)}</p>
+                                </div>
+                                <div className="bg-red-50 rounded-xl p-3 text-center">
+                                    <p className="text-xs text-gray-500 mb-1">Low Point</p>
+                                    <p className="text-lg font-bold text-red-600">${lowPrice.toFixed(2)}</p>
+                                </div>
+                                <div className="bg-purple-50 rounded-xl p-3 text-center">
+                                    <p className="text-xs text-gray-500 mb-1">Current Position</p>
+                                    <p className="text-lg font-bold text-purple-600">${currentPrice.toFixed(2)}</p>
+                                </div>
                             </div>
                         </div>
 
-                        {/* MOAT Analysis & ROE */}
+                        {/* Quick Metrics Grid */}
+                        <div className="grid grid-cols-4 gap-4">
+                            <div className="bg-white rounded-2xl border border-gray-200 p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Shield className="w-4 h-4 text-purple-600" />
+                                    <span className="text-sm text-gray-600">Competitive Position</span>
+                                </div>
+                                <p className="text-2xl font-bold text-gray-900">{stock.moat >= 70 ? 'Strong' : stock.moat >= 50 ? 'Moderate' : 'Limited'}</p>
+                                <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div className="h-full bg-purple-600 rounded-full" style={{ width: `${stock.moat}%` }} />
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-2xl border border-gray-200 p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Sparkles className="w-4 h-4 text-green-600" />
+                                    <span className="text-sm text-gray-600">Equity Returns</span>
+                                </div>
+                                <p className="text-2xl font-bold text-green-600">{stock.roe}%</p>
+                                <p className="text-xs text-gray-500 mt-1">{stock.roe >= 20 ? 'Efficient' : 'Average'}</p>
+                            </div>
+                            <div className="bg-white rounded-2xl border border-gray-200 p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                                    <span className="text-sm text-gray-600">Z-Score Risk</span>
+                                </div>
+                                <p className={`text-2xl font-bold ${stock.zscore >= 3 ? 'text-green-600' : stock.zscore >= 1.8 ? 'text-yellow-600' : 'text-red-600'}`}>{stock.zscore?.toFixed(2)}</p>
+                                <p className="text-xs text-gray-500 mt-1">{stock.zscore >= 3 ? 'Safe Zone' : stock.zscore >= 1.8 ? 'Grey Zone' : 'Risk Zone'}</p>
+                            </div>
+                            <div className="bg-white rounded-2xl border border-gray-200 p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Target className="w-4 h-4 text-blue-600" />
+                                    <span className="text-sm text-gray-600">Margin of Safety</span>
+                                </div>
+                                <p className={`text-2xl font-bold ${(data.marginOfSafety || 8) > 15 ? 'text-green-600' : 'text-yellow-600'}`}>{data.marginOfSafety || 8}%</p>
+                                <p className="text-xs text-gray-500 mt-1">{(data.marginOfSafety || 8) > 15 ? 'Attractive' : 'Limited'}</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            
+            case 'moat':
+                const moatRadarData = [
+                    { subject: 'Brand', A: data.moatBreakdown?.brandPower || 73, fullMark: 100 },
+                    { subject: 'Switching', A: data.moatBreakdown?.switchingCosts || 87, fullMark: 100 },
+                    { subject: 'Network', A: data.moatBreakdown?.networkEffects || 65, fullMark: 100 },
+                    { subject: 'Cost', A: data.moatBreakdown?.costAdvantages || 45, fullMark: 100 },
+                    { subject: 'Scale', A: 68, fullMark: 100 },
+                    { subject: 'Regulation', A: 55, fullMark: 100 },
+                ];
+                return (
+                    <div className="space-y-6">
                         <div className="grid grid-cols-2 gap-6">
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-2">
                                         <Shield className="w-5 h-5 text-purple-600" />
-                                        <h3 className="font-semibold text-gray-900">MOAT Analysis</h3>
+                                        <h3 className="font-semibold text-gray-900">MOAT Score</h3>
                                     </div>
                                     <span className="text-3xl font-bold text-purple-600">{stock.moat}<span className="text-lg text-gray-400">/100</span></span>
                                 </div>
-                                <div className="space-y-3">
-                                    <MoatBar label="Brand Power" value={data.moatBreakdown?.brandPower || 73} />
-                                    <MoatBar label="Switching Costs" value={data.moatBreakdown?.switchingCosts || 87} color="#10B981" />
-                                    <MoatBar label="Network Effects" value={data.moatBreakdown?.networkEffects || 65} />
-                                    <MoatBar label="Cost Advantages" value={data.moatBreakdown?.costAdvantages || 45} color="#F59E0B" />
-                                    <MoatBar label="Intangibles" value={data.moatBreakdown?.intangibles || 62} />
+                                <div className="h-56">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <RadarChart data={moatRadarData}>
+                                            <PolarGrid />
+                                            <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11 }} />
+                                            <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9 }} />
+                                            <Radar name="Score" dataKey="A" stroke="#8B5CF6" fill="#8B5CF6" fillOpacity={0.4} />
+                                        </RadarChart>
+                                    </ResponsiveContainer>
                                 </div>
                             </div>
-
-                            <div className="space-y-6">
-                                <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <Sparkles className="w-5 h-5 text-green-600" />
-                                                <h3 className="font-semibold text-gray-900">Return on Equity</h3>
-                                            </div>
-                                            <p className="text-sm text-gray-600">ROE of {stock.roe}% indicates efficient use of equity</p>
-                                            <span className={`inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full text-xs font-medium ${stock.roe >= 20 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                                                <Star className="w-3 h-3" /> {stock.roe >= 20 ? 'Excellent' : 'Good'}
-                                            </span>
-                                        </div>
-                                        <span className="text-4xl font-bold text-green-600">{stock.roe}<span className="text-xl">%</span></span>
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <h3 className="font-semibold text-gray-900 mb-4">Competitive Advantages</h3>
+                                <div className="space-y-3">
+                                    <MoatBar label="Brand Strength" value={data.moatBreakdown?.brandPower || 73} />
+                                    <MoatBar label="Switching Difficulty" value={data.moatBreakdown?.switchingCosts || 87} color="#10B981" />
+                                    <MoatBar label="Network Effect" value={data.moatBreakdown?.networkEffects || 65} />
+                                    <MoatBar label="Cost Advantage" value={data.moatBreakdown?.costAdvantages || 45} color="#F59E0B" />
+                                    <MoatBar label="Scale Advantage" value={68} color="#3B82F6" />
+                                    <MoatBar label="Regulatory Moat" value={55} color="#EC4899" />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-6">
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Sparkles className="w-5 h-5 text-green-600" />
+                                    <h3 className="font-semibold text-gray-900">Return on Equity</h3>
+                                </div>
+                                <div className="text-center mb-4">
+                                    <span className="text-5xl font-bold text-green-600">{stock.roe}%</span>
+                                </div>
+                                <p className="text-sm text-gray-600 text-center">{stock.roe >= 20 ? 'Strong financial efficiency' : 'Average efficiency'}</p>
+                                <div className="mt-4 h-48">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={[
+                                            { name: 'ROE', value: stock.roe, fill: '#10B981' },
+                                            { name: 'ROA', value: stock.roa || 12, fill: '#3B82F6' },
+                                            { name: 'ROIC', value: stock.roic || 18, fill: '#8B5CF6' }
+                                        ]}>
+                                            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                                            <YAxis tickFormatter={(v) => `${v}%`} tick={{ fontSize: 10 }} />
+                                            <Tooltip formatter={(v) => `${v}%`} />
+                                            <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                                                {[0, 1, 2].map((_, i) => <Cell key={i} fill={['#10B981', '#3B82F6', '#8B5CF6'][i]} />)}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                                    <h3 className="font-semibold text-gray-900">Altman Z-Score</h3>
+                                </div>
+                                <div className="text-center mb-4">
+                                    <span className={`text-5xl font-bold ${stock.zscore >= 3 ? 'text-green-600' : stock.zscore >= 1.8 ? 'text-yellow-600' : 'text-red-600'}`}>
+                                        {stock.zscore?.toFixed(2)}
+                                    </span>
+                                </div>
+                                <div className="space-y-2 mt-4">
+                                    <div className="flex items-center justify-between p-2 rounded bg-green-50">
+                                        <span className="text-sm">Safe Zone (&gt;3.0)</span>
+                                        <span className="text-sm font-medium text-green-600">Low Risk</span>
+                                    </div>
+                                    <div className="flex items-center justify-between p-2 rounded bg-yellow-50">
+                                        <span className="text-sm">Grey Zone (1.8-3.0)</span>
+                                        <span className="text-sm font-medium text-yellow-600">Monitor</span>
+                                    </div>
+                                    <div className="flex items-center justify-between p-2 rounded bg-red-50">
+                                        <span className="text-sm">Distress Zone (&lt;1.8)</span>
+                                        <span className="text-sm font-medium text-red-600">High Risk</span>
                                     </div>
                                 </div>
-
-                                <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                                                <h3 className="font-semibold text-gray-900">Altman Z-Score</h3>
-                                            </div>
-                                            <p className="text-sm text-gray-600">
-                                                {stock.zscore >= 3 ? 'Low bankruptcy risk' : 'Monitor closely'}
-                                            </p>
-                                        </div>
-                                        <span className={`text-4xl font-bold ${stock.zscore >= 3 ? 'text-green-600' : 'text-yellow-600'}`}>{stock.zscore?.toFixed(2)}</span>
+                                <div className="mt-4 h-3 bg-gradient-to-r from-red-400 via-yellow-400 to-green-400 rounded-full relative">
+                                    <div className="absolute -top-1 w-4 h-4 bg-white border-2 border-purple-600 rounded-full" 
+                                        style={{ left: `${Math.min(Math.max((stock.zscore / 5) * 100, 0), 100)}%`, transform: 'translateX(-50%)' }} />
+                                </div>
+                            </div>
+                            
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <h3 className="font-semibold text-gray-900 mb-4">Investment Thesis</h3>
+                                <div className="space-y-3">
+                                    <p className="text-sm text-gray-600">{data.thesis || `${stock.name} demonstrates a solid competitive position with ${stock.moat >= 70 ? 'strong' : 'moderate'} moat characteristics.`}</p>
+                                    <div className="pt-3 border-t border-gray-100">
+                                        <p className="text-xs text-gray-500 mb-2">Full Analysis Available</p>
+                                        <ul className="space-y-1.5">
+                                            {(data.advantages || ['Strong brand recognition', 'High switching costs', 'Network effects present']).map((adv, i) => (
+                                                <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                                                    {adv}
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
