@@ -47,15 +47,21 @@ export default function Settings() {
         document.documentElement.classList.remove('dark', 'hybrid');
         if (theme === 'hybrid') {
             document.documentElement.classList.add('hybrid');
+            document.documentElement.style.setProperty('--bg-color', '#d1d5db');
             document.body.style.backgroundColor = '#d1d5db';
             document.body.style.color = '#1f2937';
+            // Also update any gray-50 backgrounds
+            document.querySelectorAll('.bg-gray-50').forEach(el => {
+                el.style.backgroundColor = '#d1d5db';
+            });
         } else {
+            document.documentElement.style.setProperty('--bg-color', '#ffffff');
             document.body.style.backgroundColor = '#ffffff';
             document.body.style.color = '#000000';
+            document.querySelectorAll('.bg-gray-50').forEach(el => {
+                el.style.backgroundColor = '';
+            });
         }
-        
-        // Force re-render by triggering a small DOM change
-        document.body.offsetHeight;
 
         document.documentElement.style.filter = blackWhiteMode ? 'grayscale(100%)' : 'none';
 

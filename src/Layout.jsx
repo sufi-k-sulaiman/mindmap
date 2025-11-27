@@ -48,9 +48,11 @@ export default function Layout({ children, currentPageName }) {
     document.documentElement.classList.remove('dark', 'hybrid');
     if (savedTheme === 'hybrid') {
       document.documentElement.classList.add('hybrid');
+      document.documentElement.style.setProperty('--bg-color', '#d1d5db');
       document.body.style.backgroundColor = '#d1d5db';
       document.body.style.color = '#1f2937';
     } else {
+      document.documentElement.style.setProperty('--bg-color', '#ffffff');
       document.body.style.backgroundColor = '#ffffff';
       document.body.style.color = '#000000';
     }

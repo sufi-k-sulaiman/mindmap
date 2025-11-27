@@ -25,10 +25,16 @@ export default function LearnMoreModal({ keyword, isOpen, onClose }) {
     useEffect(() => {
         if (isOpen && keyword) {
             fetchData();
-            generateImage();
             fetchDocuments();
         }
     }, [isOpen, keyword]);
+
+    // Generate image after data is loaded using overview text
+    useEffect(() => {
+        if (data?.overview?.description && keyword) {
+            generateImage(data.overview.description);
+        }
+    }, [data?.overview?.description]);
 
     const fetchDocuments = async () => {
         setDocumentsLoading(true);
@@ -75,13 +81,14 @@ For each document, provide the actual URL where it can be found.`,
         }
     };
 
-    const generateImage = async () => {
+    const generateImage = async (overviewText) => {
         setImageLoading(true);
         setGeneratedImage(null);
         try {
-            const result = await base44.integrations.Core.GenerateImage({
-                prompt: `Beautiful lifestyle and nature photography representing "${keyword.name}". Earth elements, natural landscapes, serene outdoor scenes, organic textures, sustainable living aesthetic. High quality, editorial style photography.`
-            });
+            const prompt = overviewText 
+                ? `Visual representation of: ${overviewText.substring(0, 300)}. Professional, high quality illustration or photography.`
+                : `Beautiful visual representing "${keyword.name}". Professional, high quality illustration or photography.`;
+            const result = await base44.integrations.Core.GenerateImage({ prompt });
             setGeneratedImage(result?.url);
         } catch (error) {
             console.error('Failed to generate image:', error);
@@ -180,7 +187,7 @@ For each document, provide the actual URL where it can be found.`,
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-y-auto">
+            <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-y-auto" style={{ zIndex: 9999 }}>
                 <div className="flex flex-col h-full">
                     {/* Header */}
                     <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white">
@@ -508,35 +515,35 @@ For each document, provide the actual URL where it can be found.`,
                                                         href={doc.url} 
                                                         target="_blank" 
                                                         rel="noopener noreferrer"
-                                                        className="block bg-white rounded-xl border p-5 hover:shadow-md hover:border-purple-200 transition-all group"
+                                                        className="block bg-white rounded-xl border p-4 hover:shadow-md hover:border-purple-200 transition-all group"
                                                     >
-                                                        <div className="flex items-start gap-4">
-                                                            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 group-hover:from-purple-500 group-hover:to-indigo-600 transition-all">
-                                                                <FileText className="w-6 h-6 text-white" />
+                                                        <div className="flex items-start gap-3">
+                                                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 group-hover:from-purple-500 group-hover:to-indigo-600 transition-all">
+                                                                <FileText className="w-5 h-5 text-white" />
                                                             </div>
-                                                            <div className="flex-1 min-w-0">
-                                                                <div className="flex items-start justify-between gap-2">
+                                                            <div className="flex-1 min-w-0 overflow-hidden">
+                                                                <div className="flex items-start justify-between gap-2 flex-wrap">
                                                                     <div className="min-w-0 flex-1">
-                                                                        <h4 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors flex items-center gap-2">
-                                                                            <span className="truncate">{doc.title}</span>
-                                                                            <ExternalLink className="w-4 h-4 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                        <h4 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors text-sm line-clamp-1">
+                                                                            {doc.title}
+                                                                            <ExternalLink className="w-3 h-3 inline-block ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                                                                         </h4>
-                                                                        <p className="text-sm text-gray-500">{doc.author} • {doc.year}</p>
+                                                                        <p className="text-xs text-gray-500 truncate">{doc.author} • {doc.year}</p>
                                                                     </div>
-                                                                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                                                                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
+                                                                    <div className="flex gap-1 flex-shrink-0">
+                                                                        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs whitespace-nowrap">
                                                                             {doc.type}
                                                                         </span>
                                                                         {doc.source && (
-                                                                            <span className="px-2 py-0.5 bg-purple-50 text-purple-600 rounded text-xs">
+                                                                            <span className="px-2 py-0.5 bg-purple-50 text-purple-600 rounded text-xs whitespace-nowrap">
                                                                                 {doc.source}
                                                                             </span>
                                                                         )}
                                                                     </div>
                                                                 </div>
-                                                                <p className="text-gray-600 text-sm mt-2 line-clamp-2">{doc.description}</p>
+                                                                <p className="text-gray-600 text-xs mt-1.5 line-clamp-2">{doc.description}</p>
                                                                 {doc.url && (
-                                                                    <p className="text-xs text-blue-500 mt-2 truncate">{doc.url}</p>
+                                                                    <p className="text-xs text-blue-500 mt-1.5 truncate">{doc.url}</p>
                                                                 )}
                                                             </div>
                                                         </div>
