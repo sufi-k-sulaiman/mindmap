@@ -839,6 +839,13 @@ export default function Markets() {
 
     useEffect(() => { setStocks(STOCK_DATA.map(generateStockData)); }, []);
 
+    // Listen for header search changes
+    useEffect(() => {
+        const handleHeaderSearch = (e) => setSearchQuery(e.detail || '');
+        window.addEventListener('headerSearchChange', handleHeaderSearch);
+        return () => window.removeEventListener('headerSearchChange', handleHeaderSearch);
+    }, []);
+
     const refreshStocks = () => setStocks(STOCK_DATA.map(generateStockData));
     const handleStockClick = (stock) => { setSelectedStock(stock); setShowStockModal(true); };
 

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { LOGO_URL, menuItems } from '../NavigationConfig';
 
 const PAGES_WITHOUT_SEARCH = ['Qwirey', 'MindMap', 'Learning'];
+const PAGES_WITH_FILTER_SEARCH = ['Markets'];
 
 export default function Header({ title, sidebarOpen, setSidebarOpen, children, currentPage }) {
     const [searchQuery, setSearchQuery] = useState('');
@@ -15,6 +16,14 @@ export default function Header({ title, sidebarOpen, setSidebarOpen, children, c
     const searchRef = useRef(null);
 
     const hideSearch = PAGES_WITHOUT_SEARCH.includes(currentPage);
+    const isFilterSearch = PAGES_WITH_FILTER_SEARCH.includes(currentPage);
+
+    // Dispatch search query for filter pages
+    useEffect(() => {
+        if (isFilterSearch) {
+            window.dispatchEvent(new CustomEvent('headerSearchChange', { detail: searchQuery }));
+        }
+    }, [searchQuery, isFilterSearch]);
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -49,7 +58,7 @@ export default function Header({ title, sidebarOpen, setSidebarOpen, children, c
 
     const handleSearch = (e) => {
         e.preventDefault();
-        if (searchQuery.trim()) {
+        if (searchQuery.trim() && !isFilterSearch) {
             setShowSuggestions(false);
             navigate(createPageUrl('Search') + `?q=${encodeURIComponent(searchQuery.trim())}`);
         }
