@@ -12,7 +12,6 @@ export default function PageLayout({ children, activePage }) {
         }
         return true;
     });
-    const [theme, setTheme] = useState('light');
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -20,30 +19,8 @@ export default function PageLayout({ children, activePage }) {
         }
     }, [sidebarOpen]);
 
-    useEffect(() => {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        setTheme(savedTheme);
-        
-        // Listen for theme changes
-        const handleStorage = () => {
-            setTheme(localStorage.getItem('theme') || 'light');
-        };
-        window.addEventListener('storage', handleStorage);
-        
-        // Poll for changes (for same-tab updates)
-        const interval = setInterval(() => {
-            const current = localStorage.getItem('theme') || 'light';
-            if (current !== theme) setTheme(current);
-        }, 100);
-        
-        return () => {
-            window.removeEventListener('storage', handleStorage);
-            clearInterval(interval);
-        };
-    }, [theme]);
-
     return (
-        <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'inherit' }}>
+        <div className="min-h-screen bg-gray-50 flex flex-col">
             <Toaster position="bottom-right" />
             <Header 
                 title={activePage} 
