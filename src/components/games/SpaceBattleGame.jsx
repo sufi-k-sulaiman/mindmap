@@ -248,6 +248,15 @@ export default function SpaceBattleGame({ onExit }) {
                 setScreen('quiz');
                 return;
             }
+            
+            // Check level completion
+            if (state.levelScore >= state.levelTarget && !state.levelComplete) {
+                state.levelComplete = true;
+                setGameScore(state.score);
+                setLevelComplete(true);
+                setScreen('quiz');
+                return;
+            }
 
             const centerX = canvas.width / 2;
             const horizon = canvas.height * 0.45;
