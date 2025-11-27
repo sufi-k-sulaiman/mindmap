@@ -3,7 +3,24 @@ import { base44 } from '@/api/base44Client';
 import { Search, Loader2, FileText, Lightbulb, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { menuItems } from '@/components/NavigationConfig';
+import { Globe, Sparkles, BarChart3, Gamepad2, Settings, Radio, Brain, FileText, GraduationCap, ListTodo, StickyNote, Lightbulb as LightbulbIcon, ScrollText } from 'lucide-react';
+
+const menuItems = [
+    { label: 'Home', icon: Globe, href: createPageUrl('Home') },
+    { label: 'Qwirey', icon: Sparkles, href: createPageUrl('Qwirey') },
+    { label: 'MindMap', icon: Brain, href: createPageUrl('MindMap') },
+    { label: 'SearchPods', icon: Radio, href: createPageUrl('SearchPods') },
+    { label: 'Markets', icon: BarChart3, href: createPageUrl('Markets') },
+    { label: 'Learning', icon: GraduationCap, href: createPageUrl('Learning') },
+    { label: 'Geospatial', icon: Globe, href: createPageUrl('Geospatial') },
+    { label: 'Intelligence', icon: LightbulbIcon, href: createPageUrl('Intelligence') },
+    { label: 'Resume Builder', icon: FileText, href: createPageUrl('ResumeBuilder') },
+    { label: 'Tasks', icon: ListTodo, href: createPageUrl('Tasks') },
+    { label: 'Notes', icon: StickyNote, href: createPageUrl('Notes') },
+    { label: 'Games', icon: Gamepad2, href: createPageUrl('Games') },
+    { label: 'Terms of Use', icon: ScrollText, href: createPageUrl('TermsOfUse') },
+    { label: 'Settings', icon: Settings, href: createPageUrl('Settings') },
+];
 
 export default function SearchPage() {
     const urlParams = new URLSearchParams(window.location.search);
