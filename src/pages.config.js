@@ -13,6 +13,9 @@ import Notes from './pages/Notes';
 import Comms from './pages/Comms';
 import Games from './pages/Games';
 import Geospatial from './pages/Geospatial';
+import AIHub from './pages/AIHub';
+import Tasks from './pages/Tasks';
+import MindMap from './pages/MindMap';
 import __Layout from './Layout.jsx';
 
 
@@ -32,6 +35,9 @@ export const PAGES = {
     "Comms": Comms,
     "Games": Games,
     "Geospatial": Geospatial,
+    "AIHub": AIHub,
+    "Tasks": Tasks,
+    "MindMap": MindMap,
 }
 
 export const pagesConfig = {
