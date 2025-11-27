@@ -316,8 +316,10 @@ function getIslandTypeIndex(index) {
     return hash;
 }
 
-export default function IslandSVG({ index, color, completed, progress = 0 }) {
-    const islandType = ISLAND_TYPES[getIslandTypeIndex(index)];
+export default function IslandSVG({ index, color, completed, progress = 0, variant = 0 }) {
+    // Mix variant with index for more unique combinations
+    const typeIndex = (getIslandTypeIndex(index) + variant) % ISLAND_TYPES.length;
+    const islandType = ISLAND_TYPES[typeIndex];
     const IslandComponent = IslandDesigns[islandType];
     
     return (
