@@ -80,23 +80,7 @@ export default function PageLayout({ children, activePage, onSearch, searchPlace
             {/* Header - fixed height */}
             <header className={`sticky top-0 z-50 border-b shadow-sm h-[72px] ${getHeaderClasses()}`}>
                 <div className="flex items-center justify-between px-4 h-full">
-                    <div className="flex items-center gap-4">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setSidebarOpen(!sidebarOpen)}
-                            className="hover:bg-gray-100 md:hidden"
-                        >
-                            <Menu className="w-5 h-5 text-purple-600" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setSidebarOpen(!sidebarOpen)}
-                            className="hover:bg-gray-100 hidden md:flex"
-                        >
-                            {sidebarOpen ? <ChevronLeft className="w-5 h-5 text-purple-600" /> : <Menu className="w-5 h-5 text-purple-600" />}
-                        </Button>
+                    <div className="flex items-center gap-2">
                         <Link to={createPageUrl('Home')} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                             {!hideIcons && <img src={LOGO_URL} alt="1cPublishing" className="h-10 w-10 object-contain" />}
                             <div className="hidden md:block">
@@ -130,7 +114,16 @@ export default function PageLayout({ children, activePage, onSearch, searchPlace
                         <div className="flex-1 max-w-xl mx-4 md:mx-8 h-14" />
                     )}
 
-                    <div className="w-10 md:w-20" />
+                    {/* Mobile menu button on header right side */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                        className="hover:bg-gray-100 md:hidden"
+                    >
+                        <Menu className="w-5 h-5 text-purple-600" />
+                    </Button>
+                    <div className="w-10 hidden md:block" />
                 </div>
             </header>
 
@@ -145,7 +138,18 @@ export default function PageLayout({ children, activePage, onSearch, searchPlace
 
                 {/* Sidebar */}
                 <aside className={`${sidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full md:translate-x-0'} transition-all duration-300 overflow-hidden border-r flex-shrink-0 fixed md:relative z-50 md:z-auto h-[calc(100vh-72px)] md:h-auto ${getSidebarClasses()}`}>
-                    <nav className="px-4 py-6 space-y-1">
+                    {/* Menu toggle at top right of sidebar */}
+                    <div className="flex justify-end p-2 border-b border-gray-200">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setSidebarOpen(!sidebarOpen)}
+                            className="hover:bg-gray-100"
+                        >
+                            {sidebarOpen ? <ChevronLeft className="w-5 h-5 text-purple-600" /> : <Menu className="w-5 h-5 text-purple-600" />}
+                        </Button>
+                    </div>
+                    <nav className="px-4 py-4 space-y-1">
                         {menuItems.map((item, index) => (
                             <Link
                                 key={index}
