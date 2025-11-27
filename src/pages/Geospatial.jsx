@@ -298,8 +298,8 @@ export default function Geospatial() {
                         {/* Main Grid */}
                         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                             <div className="space-y-4">
-                                <div className="bg-slate-900 rounded-xl border border-slate-700 p-3">
-                                    <h3 className="font-semibold text-cyan-300 text-sm mb-3">Regions</h3>
+                                <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
+                                    <h3 className="font-semibold text-gray-900 text-sm mb-3">Regions</h3>
                                     <RegionSelector selectedRegion={selectedRegion} onSelectRegion={setSelectedRegion} countryData={countryData} activeDomain={activeDomain} />
                                 </div>
                             </div>
@@ -341,8 +341,8 @@ export default function Geospatial() {
                         </div>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <AIScenarios activeDomain={activeDomain} domainInfo={domainInfo} />
-                            <div className="bg-slate-900 rounded-xl border border-slate-700 p-4">
-                                <h3 className="text-cyan-400 font-semibold mb-4">Active Scenario: {scenarioFramework}</h3>
+                            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+                                <h3 className="text-purple-600 font-semibold mb-4">Active Scenario: {scenarioFramework}</h3>
                                 <div className="grid grid-cols-2 gap-4">
                                     <MetricDisplay label="Probability" value="67%" />
                                     <MetricDisplay label="Impact" value="High" />
@@ -361,8 +361,8 @@ export default function Geospatial() {
                         </div>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <PredictiveAnalytics activeDomain={activeDomain} domainInfo={domainInfo} countryData={countryData} selectedRegion={selectedRegion} />
-                            <div className="bg-slate-900 rounded-xl border border-slate-700 p-4">
-                                <h3 className="text-cyan-400 font-semibold mb-4">Anomaly: {anomalyDetection}</h3>
+                            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+                                <h3 className="text-purple-600 font-semibold mb-4">Anomaly: {anomalyDetection}</h3>
                                 <div className="grid grid-cols-2 gap-4">
                                     <MetricDisplay label="Detection Rate" value="24%" />
                                     <MetricDisplay label="Accuracy" value="82%" />
