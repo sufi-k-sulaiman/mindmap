@@ -829,6 +829,8 @@ function generateStockData(stockInfo) {
     return { ...stockInfo, price: Math.round(basePrice * 100) / 100, change: Math.round(change * 100) / 100, volume: `${(Math.random() * 50 + 5).toFixed(1)}M`, moat, sgr, roe, roic: roe - 2 + Math.floor(Math.random() * 5), roa: Math.floor(roe * 0.6), eps: Math.round((1 + Math.random() * 15) * 100) / 100, pe, peg: Math.round((pe / sgr) * 100) / 100, fcf: Math.floor(Math.random() * 5000) + 500, eva: 40 + Math.floor(Math.random() * 50), zscore: Math.round(zscore * 100) / 100, dividend: Math.round(Math.random() * 4 * 100) / 100, beta: Math.round((0.7 + Math.random() * 0.8) * 100) / 100, aiRating: 55 + Math.floor(Math.random() * 40), history };
 }
 
+// Stock Markets
+
 export default function Markets() {
     const [stocks, setStocks] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');

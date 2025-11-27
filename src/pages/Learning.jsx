@@ -200,8 +200,8 @@ export default function Learning() {
                             {currentRank.icon}
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-white">Learning Explorer</h1>
-                            <p className="text-purple-200 text-sm">Interactive learning paths & skill development</p>
+                            <h1 className="text-xl font-bold text-white">Learning Archipelago</h1>
+                            <p className="text-purple-200 text-sm">Learning Archipelago</p>
                         </div>
                     </div>
 

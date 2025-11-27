@@ -272,8 +272,8 @@ Provide:
                                 <Brain className="w-7 h-7" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold">Generative Intelligence Platform</h1>
-                                <p className="text-white/80 text-sm">AI-powered forecasting, scenario planning & decision support</p>
+                                <h1 className="text-2xl font-bold">Generative Intelligence</h1>
+                                <p className="text-white/80 text-sm">Generative Intelligence</p>
                             </div>
                         </div>
                         <div className="flex gap-6">

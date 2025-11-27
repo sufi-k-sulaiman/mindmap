@@ -137,7 +137,7 @@ export default function Settings() {
     return (
         <div className="p-4 md:p-8 max-w-3xl mx-auto">
             <h1 className="text-2xl font-bold text-gray-800 mb-1">Settings</h1>
-            <p className="text-gray-500 mb-8">Customize your experience</p>
+            <p className="text-gray-500 mb-8">Preferences</p>
 
             {/* Theme */}
             <div className="mb-8">

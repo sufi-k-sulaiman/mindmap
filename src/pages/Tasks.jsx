@@ -113,7 +113,7 @@ const TasksPage = () => {
                     <ListTodo className="w-8 h-8 text-purple-600" />
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800">Tasks</h1>
-                        <p className="text-sm text-gray-500">Task management</p>
+                        <p className="text-sm text-gray-500">Task Management</p>
                     </div>
                 </div>
           <Button onClick={() => handleOpenModal()} className="bg-purple-600 hover:bg-purple-700">

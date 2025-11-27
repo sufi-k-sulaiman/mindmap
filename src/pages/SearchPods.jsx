@@ -368,7 +368,7 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
                         </div>
                         <div>
                             <span className="text-gray-900 font-bold text-lg">SearchPods</span>
-                            <p className="text-xs text-gray-500">AI-Generated Audio</p>
+                            <p className="text-xs text-gray-500">Generative Podcast</p>
                         </div>
                     </div>
                 </div>

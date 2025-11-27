@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Gamepad2, Rocket, Target } from 'lucide-react';
 
-import WordShooter from '../components/games/WordShooter';
-import SpaceBattleGame from '../components/games/SpaceBattleGame';
+import WordShooter from '@/components/games/WordShooter';
+import SpaceBattleGame from '@/components/games/SpaceBattleGame';
 import { Button } from '@/components/ui/button';
 
 export default function Games() {
@@ -24,7 +24,7 @@ export default function Games() {
                         <Gamepad2 className="w-10 h-10 text-purple-600" />
                         <h1 className="text-4xl font-bold text-gray-900">Game Arcade</h1>
                     </div>
-                    <p className="text-gray-500">Learn while you play!</p>
+                    <p className="text-gray-500">Gamified Learning</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
