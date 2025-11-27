@@ -6,12 +6,12 @@ export const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/obj
 
 export const menuItems = [
     { icon: Sparkles, label: "AI Hub", href: createPageUrl('AIHub') },
-    { icon: Lightbulb, label: "Intelligence", href: createPageUrl('Intelligence') },
-    { icon: Globe, label: "Geospatial", href: createPageUrl('Geospatial') },
     { icon: Radio, label: "SearchPods", href: createPageUrl('SearchPods') },
     { icon: Brain, label: "MindMap", href: createPageUrl('MindMap') },
     { icon: FileText, label: "Resume Builder", href: createPageUrl('ResumeBuilder') },
     { icon: BarChart3, label: "Markets", href: createPageUrl('Markets') },
+    { icon: Lightbulb, label: "Intelligence", href: createPageUrl('Intelligence') },
+    { icon: Globe, label: "Geospatial", href: createPageUrl('Geospatial') },
     { icon: GraduationCap, label: "Learning", href: createPageUrl('Learning') },
     { icon: ListTodo, label: "Tasks", href: createPageUrl('Tasks') },
     { icon: StickyNote, label: "Notes", href: createPageUrl('Notes') },
