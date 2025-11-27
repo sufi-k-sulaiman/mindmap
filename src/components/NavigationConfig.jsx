@@ -1,10 +1,11 @@
 
-import { Sparkles, Radio, Brain, Settings, FileText, BarChart3, GraduationCap, ListTodo, Lightbulb, StickyNote, Gamepad2 } from 'lucide-react';
+import { Sparkles, Radio, Brain, Settings, FileText, BarChart3, GraduationCap, ListTodo, Lightbulb, StickyNote, Gamepad2, Globe } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 
 export const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/868a98750_1cPublishing-logo.png";
 
 export const menuItems = [
+    { icon: Globe, label: "Geospatial", href: createPageUrl('Geospatial') },
     { icon: Sparkles, label: "AI Hub", href: createPageUrl('AIHub') },
     { icon: Radio, label: "SearchPods", href: createPageUrl('SearchPods') },
     { icon: Brain, label: "MindMap", href: createPageUrl('MindMap') },

@@ -1,10 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Sparkles, Radio, Settings, Brain, FileText, BarChart3, GraduationCap, ListTodo, Lightbulb, StickyNote, MessageCircle, Gamepad2 } from "lucide-react";
+import { Sparkles, Radio, Settings, Brain, FileText, BarChart3, GraduationCap, ListTodo, Lightbulb, StickyNote, MessageCircle, Gamepad2, Globe } from "lucide-react";
 
 
 const pages = [
+    { 
+        name: 'Geospatial', 
+        href: createPageUrl('Geospatial'), 
+        icon: Globe, 
+        description: 'Global data intelligence across 18 domains',
+        color: 'from-indigo-600 to-purple-600'
+    },
     { 
         name: 'AI Hub', 
         href: createPageUrl('AIHub'), 

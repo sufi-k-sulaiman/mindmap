@@ -15,6 +15,7 @@ import Intelligence from './pages/Intelligence';
 import Notes from './pages/Notes';
 import Comms from './pages/Comms';
 import Games from './pages/Games';
+import Geospatial from './pages/Geospatial';
 import __Layout from './Layout.jsx';
 
 
@@ -36,6 +37,7 @@ export const PAGES = {
     "Notes": Notes,
     "Comms": Comms,
     "Games": Games,
+    "Geospatial": Geospatial,
 }
 
 export const pagesConfig = {
