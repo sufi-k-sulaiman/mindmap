@@ -36,9 +36,9 @@ const NewsCard = ({ article, index }) => {
                     <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
                         <div className="flex flex-col items-center gap-2">
                             <img 
-                                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/1cplogo.png" 
-                                alt="1cPublishing" 
-                                className="w-12 h-12 object-contain opacity-30 animate-pulse"
+                                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/622024f26_image-loading-logo.png" 
+                                alt="Loading" 
+                                className="w-8 h-8 object-contain opacity-50 animate-pulse"
                             />
                             <span className="text-xs text-gray-400">Loading...</span>
                         </div>
