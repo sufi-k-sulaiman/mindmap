@@ -12,7 +12,7 @@ const menuItems = [
     { label: 'Markets', icon: BarChart3, href: createPageUrl('Markets') },
     { label: 'Learning', icon: GraduationCap, href: createPageUrl('Learning') },
     { label: 'Geospatial', icon: Globe, href: createPageUrl('Geospatial') },
-    { label: 'Intelligence', icon: LightbulbIcon, href: createPageUrl('Intelligence') },
+    { label: 'Intelligence', icon: Lightbulb, href: createPageUrl('Intelligence') },
     { label: 'Resume Builder', icon: FileText, href: createPageUrl('ResumeBuilder') },
     { label: 'Tasks', icon: ListTodo, href: createPageUrl('Tasks') },
     { label: 'Notes', icon: StickyNote, href: createPageUrl('Notes') },
