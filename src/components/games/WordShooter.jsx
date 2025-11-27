@@ -258,7 +258,7 @@ export default function WordShooter({ onExit }) {
         const line1 = words.slice(0, 4).join(' ');
         const line2 = words.slice(4, 8).join(' ');
         const baseBonus = 100 * (state.combo + 1);
-        state.floatingTexts.push({ x: asteroid.x, y: asteroid.y, vy: -1.5, text: line1.toUpperCase(), text2: line2.toUpperCase(), life: 180, maxLife: 180, color: '#a855f7', bonus: baseBonus, size: 20 });
+        state.floatingTexts.push({ x: asteroid.x, y: asteroid.y, vy: -0.8, text: line1.toUpperCase(), text2: line2.toUpperCase(), life: 300, maxLife: 300, color: '#a855f7', bonus: baseBonus, size: 20 });
         state.combo++;
         state.score += baseBonus;
         state.wordsCompleted++;
@@ -354,7 +354,10 @@ export default function WordShooter({ onExit }) {
       const moveSpeed = 8;
       if (keys.arrowleft || keys.a) state.playerX -= moveSpeed;
       if (keys.arrowright || keys.d) state.playerX += moveSpeed;
+      if (keys.arrowup || keys.w) state.playerY -= moveSpeed;
+      if (keys.arrowdown || keys.s) state.playerY += moveSpeed;
       state.playerX = Math.max(40, Math.min(w - 40, state.playerX));
+      state.playerY = Math.max(h * 0.5, Math.min(h - 50, state.playerY));
       
       drawShip();
       
