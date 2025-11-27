@@ -191,89 +191,58 @@ export default function Learning() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-purple-50">
-            {/* Hero Header - white/light themed */}
-            <div className="bg-white border-b border-gray-200 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                        {/* User Profile & Stats */}
-                        <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl" style={{ backgroundColor: `${THEME.primary}15` }}>
-                                {currentRank.icon}
-                            </div>
-                            <div>
-                                <h1 className="text-xl font-bold text-gray-900">Learning Explorer</h1>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <span 
-                                        className="px-3 py-1 rounded-full text-xs font-medium text-white"
-                                        style={{ backgroundColor: currentRank.color }}
-                                    >
-                                        {currentRank.name}
-                                    </span>
-                                    {nextRank && (
-                                        <span className="text-gray-500 text-sm">
-                                            {xpToNextRank} XP to {nextRank.name}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
+            {/* Hero Banner - gradient style like Intelligence */}
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl mx-4 md:mx-8 mt-4 p-6 shadow-lg">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    {/* Title & Rank */}
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-3xl">
+                            {currentRank.icon}
                         </div>
-
-                        {/* Stats Cards */}
-                        <div className="flex flex-wrap gap-2">
-                            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
-                                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.accent }}>
-                                    <Zap className="w-4 h-4 text-white" />
-                                </div>
-                                <div>
-                                    <p className="text-lg font-bold text-gray-900">{totalXP.toLocaleString()}</p>
-                                    <p className="text-xs text-gray-500">Total XP</p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
-                                <div className="w-9 h-9 rounded-lg bg-orange-500 flex items-center justify-center">
-                                    <Flame className="w-4 h-4 text-white" />
-                                </div>
-                                <div>
-                                    <p className="text-lg font-bold text-gray-900">{streak}</p>
-                                    <p className="text-xs text-gray-500">Day Streak</p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
-                                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.success }}>
-                                    <Trophy className="w-4 h-4 text-white" />
-                                </div>
-                                <div>
-                                    <p className="text-lg font-bold text-gray-900">{completedCourses}</p>
-                                    <p className="text-xs text-gray-500">Completed</p>
-                                </div>
-                            </div>
-                            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
-                                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.primary }}>
-                                    <Award className="w-4 h-4 text-white" />
-                                </div>
-                                <div>
-                                    <p className="text-lg font-bold text-gray-900">{certificates}</p>
-                                    <p className="text-xs text-gray-500">Certificates</p>
-                                </div>
-                            </div>
+                        <div>
+                            <h1 className="text-xl font-bold text-white">Learning Explorer</h1>
+                            <p className="text-purple-200 text-sm">Interactive learning paths & skill development</p>
                         </div>
                     </div>
 
-                    {/* XP Progress Bar */}
-                    {nextRank && (
-                        <div className="mt-4 max-w-7xl mx-auto px-4 md:px-8 pb-4">
-                            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div 
-                                    className="h-full rounded-full transition-all"
-                                    style={{ 
-                                        width: `${((totalXP - currentRank.minXP) / (nextRank.minXP - currentRank.minXP)) * 100}%`,
-                                        background: `linear-gradient(90deg, ${THEME.accent}, #F97316)`
-                                    }}
-                                />
-                            </div>
+                    {/* Stats */}
+                    <div className="flex flex-wrap gap-6">
+                        <div className="text-center">
+                            <p className="text-2xl font-bold text-white">{totalXP.toLocaleString()}</p>
+                            <p className="text-xs text-purple-200">Total XP</p>
                         </div>
-                    )}
+                        <div className="text-center">
+                            <p className="text-2xl font-bold text-white">{streak}</p>
+                            <p className="text-xs text-purple-200">Day Streak</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-2xl font-bold text-white">{completedCourses}</p>
+                            <p className="text-xs text-purple-200">Completed</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-2xl font-bold text-white">{certificates}</p>
+                            <p className="text-xs text-purple-200">Certificates</p>
+                        </div>
+                    </div>
                 </div>
+
+                {/* XP Progress Bar */}
+                {nextRank && (
+                    <div className="mt-4">
+                        <div className="flex justify-between text-xs text-purple-200 mb-1">
+                            <span>{currentRank.name}</span>
+                            <span>{xpToNextRank} XP to {nextRank.name}</span>
+                        </div>
+                        <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                            <div 
+                                className="h-full rounded-full transition-all bg-white/80"
+                                style={{ 
+                                    width: `${((totalXP - currentRank.minXP) / (nextRank.minXP - currentRank.minXP)) * 100}%`
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Subject Selector - Centered prominent search */}

@@ -865,26 +865,7 @@ export default function Markets() {
         <div className="p-4 md:p-6">
             <div className="mb-4"><StockTicker stocks={topMovers} /></div>
 
-            <div className="flex flex-wrap items-center gap-4 mb-6">
-                <div className="relative flex-1 max-w-xl">
-                    <input 
-                        type="text"
-                        value={searchQuery} 
-                        onChange={(e) => setSearchQuery(e.target.value)} 
-                        placeholder="Search anything..." 
-                        className="w-full h-12 pl-5 pr-14 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:border-purple-300 focus:ring-2 focus:ring-purple-100 outline-none transition-all text-gray-700 placeholder:text-gray-400"
-                    />
-                    <button
-                        type="button"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center transition-colors"
-                    >
-                        <Search className="w-4 h-4 text-white" />
-                    </button>
-                </div>
-                <button onClick={refreshStocks} className="w-10 h-10 rounded-full border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-colors">
-                    <RefreshCw className="w-4 h-4 text-gray-600" />
-                </button>
-            </div>
+
 
             <div className="flex flex-wrap gap-2 mb-4">
                 {PRESET_FILTERS.map(preset => (<button key={preset.id} onClick={() => setActivePreset(preset.id)} className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${activePreset === preset.id ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300'}`}><preset.icon className="w-4 h-4" />{preset.label}</button>))}
@@ -893,6 +874,9 @@ export default function Markets() {
             <div className="flex items-center gap-2 flex-wrap">
                 <FilterChips filters={filters} setFilters={setFilters} filterOptions={FILTER_OPTIONS} sectors={sectors} />
                 <span className="px-4 py-2 rounded-full border border-purple-300 bg-white text-purple-600 text-sm font-medium">{stocks.length} stocks</span>
+                <button onClick={refreshStocks} className="w-10 h-10 rounded-full border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-colors">
+                    <RefreshCw className="w-4 h-4 text-gray-600" />
+                </button>
             </div>
 
             <div className="flex items-center justify-between mb-4 mt-6">
