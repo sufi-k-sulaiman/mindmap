@@ -178,9 +178,6 @@ The URL must be a direct link to the article page, not a search results page.`,
                 <div className="bg-gradient-to-r from-red-600 to-orange-600 rounded-2xl p-6 mb-6 text-white">
                     <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
-                                <Newspaper className="w-7 h-7" />
-                            </div>
                             <div>
                                 <h1 className="text-2xl md:text-3xl font-bold">News</h1>
                                 <p className="text-white/80">AI-Powered News Aggregator</p>

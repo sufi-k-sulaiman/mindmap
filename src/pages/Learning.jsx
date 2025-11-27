@@ -196,9 +196,6 @@ export default function Learning() {
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                     {/* Title & Rank */}
                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-3xl">
-                            {currentRank.icon}
-                        </div>
                         <div>
                             <h1 className="text-xl font-bold text-white">Learning Archipelago</h1>
                             <p className="text-purple-200 text-sm">Learning Archipelago</p>

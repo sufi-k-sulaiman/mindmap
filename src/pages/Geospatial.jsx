@@ -301,9 +301,6 @@ Provide comprehensive analysis:
                 <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 mb-6 text-white">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
-                                <Globe className="w-7 h-7" />
-                            </div>
                             <div>
                                 <h1 className="text-2xl font-bold">Geospatial Analysis</h1>
                                 <p className="text-white/80 text-sm">Geospatial Analysis</p>

@@ -198,7 +198,6 @@ export default function Notes() {
                 <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
                     <div className="p-4 border-b border-gray-100">
                         <h1 className="text-xl font-bold text-purple-600 flex items-center gap-2 mb-4">
-                            <FileText className="w-6 h-6" />
                             AI Generative Notes
                         </h1>
                         <Button onClick={() => openNewNote()} className="w-full bg-purple-600 hover:bg-purple-700 mb-3">
