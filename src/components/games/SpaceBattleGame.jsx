@@ -353,36 +353,61 @@ export default function SpaceBattleGame({ onExit }) {
                 ctx.save();
                 ctx.translate(screenX, screenY);
 
+                // Draw alien icons
+                const alienColors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#8b5cf6'];
+                ctx.fillStyle = alienColors[Math.floor(enemy.x + enemy.z * 100) % alienColors.length];
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = ctx.fillStyle;
+                
                 if (enemy.type === 'tank') {
-                    // Tank body
-                    ctx.fillStyle = '#3d5c3d';
-                    ctx.fillRect(-size/2, -size/4, size, size/2);
-                    // Tank turret
-                    ctx.fillStyle = '#4a6b4a';
-                    ctx.fillRect(-size/4, -size/2, size/2, size/3);
-                    // Tank barrel
-                    ctx.fillStyle = '#2d4a2d';
-                    ctx.fillRect(-size/12, -size/2 - size/4, size/6, size/3);
-                    // Tank tracks
-                    ctx.fillStyle = '#1a2a1a';
-                    ctx.fillRect(-size/2 - 5, -size/4, 8, size/2);
-                    ctx.fillRect(size/2 - 3, -size/4, 8, size/2);
-                } else {
-                    // Helicopter body
-                    ctx.fillStyle = '#4a5568';
+                    // Bug alien - draw a bug shape
                     ctx.beginPath();
-                    ctx.ellipse(0, 0, size/2, size/4, 0, 0, Math.PI * 2);
+                    ctx.ellipse(0, 0, size/2, size/3, 0, 0, Math.PI * 2);
                     ctx.fill();
-                    // Tail
-                    ctx.fillRect(size/3, -size/12, size/2, size/6);
-                    // Rotor
-                    ctx.strokeStyle = '#718096';
-                    ctx.lineWidth = 2;
+                    // Antennae
+                    ctx.strokeStyle = ctx.fillStyle;
+                    ctx.lineWidth = 3;
                     ctx.beginPath();
-                    ctx.moveTo(-size/2, -size/4);
-                    ctx.lineTo(size/2, -size/4);
+                    ctx.moveTo(-size/4, -size/3);
+                    ctx.lineTo(-size/3, -size/2);
+                    ctx.moveTo(size/4, -size/3);
+                    ctx.lineTo(size/3, -size/2);
                     ctx.stroke();
+                    // Eyes
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.arc(-size/6, -size/8, size/10, 0, Math.PI * 2);
+                    ctx.arc(size/6, -size/8, size/10, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath();
+                    ctx.arc(-size/6, -size/8, size/20, 0, Math.PI * 2);
+                    ctx.arc(size/6, -size/8, size/20, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    // Ghost alien - draw a ghost shape
+                    ctx.beginPath();
+                    ctx.arc(0, -size/6, size/3, Math.PI, 0, false);
+                    ctx.lineTo(size/3, size/4);
+                    ctx.lineTo(size/6, size/8);
+                    ctx.lineTo(0, size/4);
+                    ctx.lineTo(-size/6, size/8);
+                    ctx.lineTo(-size/3, size/4);
+                    ctx.closePath();
+                    ctx.fill();
+                    // Eyes
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.arc(-size/8, -size/6, size/10, 0, Math.PI * 2);
+                    ctx.arc(size/8, -size/6, size/10, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath();
+                    ctx.arc(-size/8, -size/6, size/20, 0, Math.PI * 2);
+                    ctx.arc(size/8, -size/6, size/20, 0, Math.PI * 2);
+                    ctx.fill();
                 }
+                ctx.shadowBlur = 0;
 
                 ctx.restore();
 
