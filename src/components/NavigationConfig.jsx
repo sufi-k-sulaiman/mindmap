@@ -28,6 +28,7 @@ export const NAVIGATION_ITEMS = menuItems.map(item => ({
 
 export const footerLinks = [
     { label: 'Terms of Use', href: '/TermsOfUse' },
+    { label: 'Privacy Policy', href: '/PrivacyPolicy' },
     { label: 'Cookie Policy', href: '/CookiePolicyPage' },
     { label: 'Contact Us', href: '/ContactUs' },
 ];

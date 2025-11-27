@@ -20,6 +20,7 @@ import Search from './pages/Search';
 import TermsOfUse from './pages/TermsOfUse';
 import ContactUs from './pages/ContactUs';
 import CookiePolicyPage from './pages/CookiePolicyPage';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import __Layout from './Layout.jsx';
 
 
@@ -46,6 +47,7 @@ export const PAGES = {
     "TermsOfUse": TermsOfUse,
     "ContactUs": ContactUs,
     "CookiePolicyPage": CookiePolicyPage,
+    "PrivacyPolicy": PrivacyPolicy,
 }
 
 export const pagesConfig = {
