@@ -19,6 +19,7 @@ import TermsOfUse from './pages/TermsOfUse';
 import ContactUs from './pages/ContactUs';
 import CookiePolicyPage from './pages/CookiePolicyPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import Search from './pages/Search';
 import __Layout from './Layout.jsx';
 
 
@@ -44,6 +45,7 @@ export const PAGES = {
     "ContactUs": ContactUs,
     "CookiePolicyPage": CookiePolicyPage,
     "PrivacyPolicy": PrivacyPolicy,
+    "Search": Search,
 }
 
 export const pagesConfig = {
