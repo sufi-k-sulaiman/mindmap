@@ -187,6 +187,7 @@ The URL must be a direct link to the article page, not a search results page.`,
 
     return (
         <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+            <style>{pulseAnimation}</style>
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-red-600 to-orange-600 rounded-2xl p-6 mb-6 text-white">
