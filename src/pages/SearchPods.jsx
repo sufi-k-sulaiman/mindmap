@@ -358,15 +358,17 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
     };
 
     return (
-        <div className="min-h-screen bg-[#121318] text-white p-4 md:p-8">
-            <div className="max-w-7xl mx-auto space-y-8">
-                
-                {/* Search Bar */}
-                <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0">
-                        <Radio className="w-8 h-8 text-emerald-400" />
+        <div className="min-h-screen bg-[#121318] text-white pb-24">
+            {/* Fixed Header with Search */}
+            <div className="sticky top-0 z-40 bg-[#121318]/95 backdrop-blur-sm px-4 md:px-6 py-4">
+                <div className="max-w-7xl mx-auto flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
+                            <Radio className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="text-white font-bold text-lg hidden md:block">wirey</span>
                     </div>
-                    <form onSubmit={handleSearch} className="flex-1 relative">
+                    <form onSubmit={handleSearch} className="flex-1 max-w-2xl mx-auto relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                         <Input
                             value={searchQuery}
@@ -379,6 +381,9 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
                         </button>
                     </form>
                 </div>
+            </div>
+
+            <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 space-y-8">
 
                 {/* Trending Section */}
                 <div className="bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 rounded-2xl border border-emerald-500/20 p-6">
@@ -481,7 +486,7 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
                                             {categoryData[cat.id].subtopics.slice(0, 3).map((sub, i) => (
                                                 <button
                                                     key={i}
-                                                    onClick={() => playEpisode({ title: sub, category: cat.name })}
+                                                    onClick={(e) => { e.stopPropagation(); playEpisode({ title: sub, category: cat.name }); }}
                                                     className="px-3 py-1 rounded-full text-xs bg-white/10 text-white/60 hover:bg-emerald-500/20 hover:text-emerald-400 transition-all"
                                                 >
                                                     {sub}
@@ -500,9 +505,17 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
                                             onClick={() => playEpisode({ ...ep, category: cat.name })}
                                             className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-emerald-500/10 cursor-pointer group transition-all"
                                         >
-                                            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                                                <Radio className="w-4 h-4 text-white/50 group-hover:hidden" />
-                                                <Play className="w-4 h-4 text-emerald-400 hidden group-hover:block" fill="currentColor" />
+                                            <div className="w-10 h-10 rounded-lg bg-white/10 overflow-hidden flex items-center justify-center flex-shrink-0">
+                                                <img 
+                                                    src={`https://images.unsplash.com/photo-${1500000000000 + i * 1000}?w=80&h=80&fit=crop`}
+                                                    alt=""
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                                />
+                                                <div className="hidden w-full h-full items-center justify-center" style={{ display: 'flex' }}>
+                                                    <Radio className="w-4 h-4 text-white/50 group-hover:hidden" />
+                                                    <Play className="w-4 h-4 text-emerald-400 hidden group-hover:block" fill="currentColor" />
+                                                </div>
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h4 className="text-white text-sm font-medium truncate">{ep.title}</h4>
@@ -529,6 +542,24 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
                         </div>
                     ))}
                 </div>
+            </main>
+
+            {/* Bottom Navigation */}
+            <div className="fixed bottom-0 left-0 right-0 bg-[#1a1b21] border-t border-white/10 z-50">
+                <div className="max-w-md mx-auto flex items-center justify-around py-3">
+                    <button className="flex flex-col items-center gap-1 text-emerald-400">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                        <span className="text-xs">Home</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 text-white/50 hover:text-white">
+                        <Search className="w-5 h-5" />
+                        <span className="text-xs">Explore</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 text-white/50 hover:text-white">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        <span className="text-xs">Library</span>
+                    </button>
+                </div>
             </div>
 
             {/* Player Modal */}
@@ -546,61 +577,44 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
 
                         {/* Album Art */}
                         <div className="flex justify-center mb-6">
-                            <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-2xl shadow-emerald-500/20">
+                            <div className="relative w-56 h-56 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-2xl shadow-emerald-500/30 overflow-hidden">
                                 {isGenerating ? (
-                                    <Loader2 className="w-16 h-16 text-white/80 animate-spin" />
+                                    <div className="flex flex-col items-center gap-3">
+                                        <Loader2 className="w-12 h-12 text-white/80 animate-spin" />
+                                        <span className="text-white/60 text-sm">{generationStep}</span>
+                                    </div>
                                 ) : (
-                                    <Radio className="w-20 h-20 text-white/80" />
+                                    <>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                                        <Radio className="w-16 h-16 text-white/80" />
+                                        {isPlaying && (
+                                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+                                                <AnimatedBars isPlaying={true} color="#ffffff" />
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         </div>
 
                         {/* Title */}
-                        <div className="text-center mb-6">
-                            <h2 className="text-white text-xl font-bold mb-1">{currentEpisode?.title}</h2>
+                        <div className="text-center mb-4">
+                            <h2 className="text-white text-xl font-bold mb-1 line-clamp-2">{currentEpisode?.title}</h2>
                             <p className="text-emerald-400 text-sm">{currentEpisode?.category}</p>
                         </div>
 
-                        {/* Generation Status */}
-                        {isGenerating && (
-                            <div className="flex items-center justify-center gap-3 py-4">
-                                <Loader2 className="w-5 h-5 animate-spin text-emerald-400" />
-                                <span className="text-white/60">{generationStep}</span>
-                            </div>
-                        )}
-
                         {/* Captions */}
-                        <div className="bg-white/5 rounded-xl p-4 mb-6 min-h-[80px] border border-white/10">
-                            <div className="flex items-start gap-2">
-                                {isPlaying && (
-                                    <div className="flex gap-1 mt-1">
-                                        <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                        <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                        <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                                    </div>
-                                )}
-                                <p className="flex-1 text-center text-white/80 leading-relaxed text-sm">
+                        {!isGenerating && (
+                            <div className="bg-white/5 rounded-xl p-4 mb-6 min-h-[60px] border border-white/10">
+                                <p className="text-center text-white/80 leading-relaxed text-sm">
                                     {currentCaption}
                                 </p>
                             </div>
-                        </div>
-
-                        {/* Volume Control */}
-                        <div className="flex items-center gap-3 mb-4">
-                            <button onClick={() => setIsMuted(!isMuted)} className="text-white/50 hover:text-white">
-                                {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                            </button>
-                            <Slider
-                                value={[isMuted ? 0 : volume]}
-                                max={100}
-                                onValueChange={([v]) => { setVolume(v); setIsMuted(false); }}
-                                className="flex-1"
-                            />
-                        </div>
+                        )}
 
                         {/* Progress */}
                         <div className="mb-6">
-                            <Slider value={[currentTime]} max={duration || 100} className="w-full" />
+                            <Progress value={(currentTime / (duration || 1)) * 100} className="h-1 bg-white/10" />
                             <div className="flex justify-between text-xs text-white/40 mt-2">
                                 <span>{formatTime(currentTime)}</span>
                                 <span>{formatTime(duration)}</span>
@@ -608,14 +622,14 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
                         </div>
 
                         {/* Controls */}
-                        <div className="flex items-center justify-center gap-8">
-                            <button className="text-white/40 hover:text-white">
+                        <div className="flex items-center justify-center gap-6">
+                            <button className="text-white/40 hover:text-white p-2">
                                 <SkipBack className="w-6 h-6" />
                             </button>
                             <button
                                 onClick={togglePlay}
                                 disabled={isGenerating}
-                                className="w-16 h-16 rounded-full bg-emerald-500 hover:bg-emerald-600 flex items-center justify-center text-white disabled:opacity-50 transition-all"
+                                className="w-16 h-16 rounded-full bg-emerald-500 hover:bg-emerald-600 flex items-center justify-center text-white disabled:opacity-50 transition-all shadow-lg shadow-emerald-500/30"
                             >
                                 {isPlaying ? (
                                     <Pause className="w-7 h-7" />
@@ -623,26 +637,39 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
                                     <Play className="w-7 h-7 ml-1" fill="currentColor" />
                                 )}
                             </button>
-                            <button className="text-white/40 hover:text-white">
+                            <button className="text-white/40 hover:text-white p-2">
                                 <SkipForward className="w-6 h-6" />
                             </button>
                         </div>
 
-                        {/* Speed Controls */}
-                        <div className="flex justify-center gap-2 mt-6">
-                            {[0.5, 1, 1.5, 2].map((speed) => (
-                                <button
-                                    key={speed}
-                                    onClick={() => setPlaybackSpeed(speed)}
-                                    className={`px-3 py-1 rounded-lg text-sm transition-all ${
-                                        playbackSpeed === speed
-                                            ? 'bg-emerald-500 text-white'
-                                            : 'text-white/50 hover:bg-white/10'
-                                    }`}
-                                >
-                                    {speed}x
+                        {/* Speed & Volume */}
+                        <div className="flex items-center justify-between mt-6 gap-4">
+                            <div className="flex items-center gap-2">
+                                <button onClick={() => setIsMuted(!isMuted)} className="text-white/50 hover:text-white">
+                                    {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                                 </button>
-                            ))}
+                                <Slider
+                                    value={[isMuted ? 0 : volume]}
+                                    max={100}
+                                    onValueChange={([v]) => { setVolume(v); setIsMuted(false); }}
+                                    className="w-20"
+                                />
+                            </div>
+                            <div className="flex gap-1">
+                                {[0.5, 1, 1.5, 2].map((speed) => (
+                                    <button
+                                        key={speed}
+                                        onClick={() => setPlaybackSpeed(speed)}
+                                        className={`px-2 py-1 rounded text-xs transition-all ${
+                                            playbackSpeed === speed
+                                                ? 'bg-emerald-500 text-white'
+                                                : 'text-white/50 hover:bg-white/10'
+                                        }`}
+                                    >
+                                        {speed}x
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         {/* Voice Selection */}
