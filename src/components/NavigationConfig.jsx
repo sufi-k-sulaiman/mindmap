@@ -27,8 +27,8 @@ export const NAVIGATION_ITEMS = menuItems.map(item => ({
 }));
 
 export const footerLinks = [
-    { label: 'Terms of Use', href: '/TermsOfUse' },
-    { label: 'Privacy Policy', href: '/PrivacyPolicy' },
-    { label: 'Cookie Policy', href: '/CookiePolicyPage' },
-    { label: 'Contact Us', href: '/ContactUs' },
+    { label: 'Terms of Use', href: createPageUrl('TermsOfUse') },
+    { label: 'Privacy Policy', href: createPageUrl('PrivacyPolicy') },
+    { label: 'Cookie Policy', href: createPageUrl('CookiePolicyPage') },
+    { label: 'Contact Us', href: createPageUrl('ContactUs') },
 ];
