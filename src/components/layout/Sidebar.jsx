@@ -3,6 +3,13 @@ import { Link } from 'react-router-dom';
 import { menuItems } from '../NavigationConfig';
 
 export default function Sidebar({ isOpen, activePage, onClose }) {
+    // Only close on mobile when clicking overlay or a menu item
+    const handleMobileClose = () => {
+        if (window.innerWidth < 768) {
+            onClose();
+        }
+    };
+
     return (
         <>
             {isOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={onClose} />}
@@ -12,7 +19,7 @@ export default function Sidebar({ isOpen, activePage, onClose }) {
                         <Link
                             key={index}
                             to={item.href}
-                            onClick={onClose}
+                            onClick={handleMobileClose}
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                                 item.label === activePage
                                     ? 'bg-purple-100 text-purple-700'
