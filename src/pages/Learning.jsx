@@ -2,14 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { 
     GraduationCap, Trophy, Zap, Star, Flame, Target, Award,
-    Loader2, RefreshCw, Sparkles
+    Loader2, RefreshCw, Sparkles, Search, Check,
+    Telescope, Mountain, Waves, Cloud, TreePine, Bug, Flower2, 
+    Microscope, Dna, Brain, Pill, Smile, Heart, Activity, 
+    Stethoscope, Footprints, Dumbbell, Building, HardHat, Cog,
+    FlaskConical, Rocket, Factory, Leaf, Monitor, Code, Database,
+    Bot, HardDrive, BarChart3, Network, TrendingUp, Landmark, 
+    Users, Skull, BookOpen, Lightbulb, Scale, Languages, BookText,
+    PenTool, Palette, Music, Film
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
-import SubjectSelector from '@/components/learning/SubjectSelector';
 import LearningIslandCard from '@/components/learning/LearningIslandCard';
 import CourseModal from '@/components/learning/CourseModal';
-import { SUBJECTS } from '@/components/learning/SubjectData';
+import { SUBJECTS, CATEGORIES } from '@/components/learning/SubjectData';
+
+const ICON_MAP = {
+    Telescope, Mountain, Waves, Cloud, TreePine, Bug, Flower2, 
+    Microscope, Dna, Brain, Pill, Smile, Heart, Activity, 
+    Stethoscope, Footprints, Dumbbell, Building, HardHat, Cog,
+    FlaskConical, Rocket, Factory, Leaf, Monitor, Code, Database,
+    Bot, HardDrive, BarChart3, Network, TrendingUp, Landmark, 
+    Users, Skull, BookOpen, Lightbulb, Scale, Languages, BookText,
+    PenTool, Palette, Music, Film
+};
 
 // App theme colors
 const THEME = {
@@ -35,12 +51,37 @@ export default function Learning() {
     const [selectedTopic, setSelectedTopic] = useState(null);
     const [showCourseModal, setShowCourseModal] = useState(false);
     const [userProgress, setUserProgress] = useState({});
+    const [searchQuery, setSearchQuery] = useState('');
+    const [activeCategory, setActiveCategory] = useState(null);
     
     // Gamification state
     const [totalXP, setTotalXP] = useState(1250);
     const [streak, setStreak] = useState(7);
     const [completedCourses, setCompletedCourses] = useState(3);
     const [certificates, setCertificates] = useState(1);
+
+    // Filter subjects based on search and category
+    const filteredSubjects = SUBJECTS.filter(subject => {
+        const matchesSearch = subject.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                             subject.category.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesCategory = !activeCategory || subject.category === activeCategory;
+        return matchesSearch && matchesCategory;
+    });
+
+    const groupedSubjects = filteredSubjects.reduce((acc, subject) => {
+        if (!acc[subject.category]) acc[subject.category] = [];
+        acc[subject.category].push(subject);
+        return acc;
+    }, {});
+
+    const toggleSubject = (subject) => {
+        const isSelected = selectedSubjects.some(s => s.id === subject.id);
+        if (isSelected) {
+            setSelectedSubjects(selectedSubjects.filter(s => s.id !== subject.id));
+        } else {
+            setSelectedSubjects([...selectedSubjects, subject]);
+        }
+    };
 
     const currentRank = RANKS.filter(r => totalXP >= r.minXP).pop() || RANKS[0];
     const nextRank = RANKS.find(r => r.minXP > totalXP);
@@ -235,29 +276,103 @@ export default function Learning() {
                 </div>
             </div>
 
-            {/* Subject Selector */}
-            <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
+            {/* Subject Selector - Centered prominent search */}
+            <div className="max-w-4xl mx-auto px-4 md:px-8 py-8">
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div className="flex flex-col md:flex-row md:items-center gap-4">
-                        <div className="flex-1">
-                            <h2 className="text-lg font-semibold text-gray-800 mb-1">
-                                <Sparkles className="w-5 h-5 inline mr-2" style={{ color: THEME.primary }} />
-                                Select Your Learning Path
-                            </h2>
-                            <p className="text-sm text-gray-500">Choose subjects to generate personalized learning islands</p>
+                    {/* Search Bar */}
+                    <div className="max-w-2xl mx-auto mb-6">
+                        <div className="relative">
+                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search subjects..."
+                                className="w-full h-14 pl-14 pr-6 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:border-purple-300 focus:ring-2 focus:ring-purple-100 outline-none transition-all text-gray-700 placeholder:text-gray-400 text-lg"
+                            />
                         </div>
-                        <SubjectSelector 
-                            selectedSubjects={selectedSubjects}
-                            onSelectionChange={setSelectedSubjects}
-                        />
+                    </div>
+
+                    {/* Category tabs */}
+                    <div className="flex gap-2 overflow-x-auto pb-4 mb-4 border-b border-gray-100">
+                        <button
+                            onClick={() => setActiveCategory(null)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                                !activeCategory ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                        >
+                            All
+                        </button>
+                        {CATEGORIES.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                                    activeCategory === cat ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:bg-gray-100'
+                                }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Subjects list */}
+                    <div className="max-h-[400px] overflow-y-auto">
+                        {Object.entries(groupedSubjects).map(([category, subjects]) => (
+                            <div key={category} className="mb-6">
+                                <div className="text-sm font-semibold text-purple-600 px-2 mb-3">{category}</div>
+                                <div className="space-y-1">
+                                    {subjects.map(subject => {
+                                        const isSelected = selectedSubjects.some(s => s.id === subject.id);
+                                        const IconComponent = ICON_MAP[subject.icon] || GraduationCap;
+                                        return (
+                                            <button
+                                                key={subject.id}
+                                                onClick={() => toggleSubject(subject)}
+                                                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-colors ${
+                                                    isSelected ? 'bg-purple-50 border border-purple-200' : 'hover:bg-gray-50'
+                                                }`}
+                                            >
+                                                <div 
+                                                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                                                    style={{ backgroundColor: `${subject.color}20` }}
+                                                >
+                                                    <IconComponent 
+                                                        className="w-5 h-5"
+                                                        style={{ color: subject.color }}
+                                                    />
+                                                </div>
+                                                <span className="flex-1 text-left text-sm font-medium text-gray-700">
+                                                    {subject.name}
+                                                </span>
+                                                {isSelected && (
+                                                    <Check className="w-5 h-5 text-purple-600" />
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                        {filteredSubjects.length === 0 && (
+                            <div className="text-center py-8 text-gray-500">
+                                No subjects found matching "{searchQuery}"
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Generate Button */}
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                        <div className="text-sm text-gray-500">
+                            {selectedSubjects.length} subject{selectedSubjects.length !== 1 ? 's' : ''} selected
+                        </div>
                         <Button 
-                            variant="outline" 
-                            size="sm"
                             onClick={generateSubTopics}
                             disabled={loadingTopics || selectedSubjects.length === 0}
+                            className="bg-purple-600 hover:bg-purple-700"
                         >
                             <RefreshCw className={`w-4 h-4 mr-2 ${loadingTopics ? 'animate-spin' : ''}`} />
-                            Refresh
+                            Generate Learning Islands
                         </Button>
                     </div>
                 </div>
