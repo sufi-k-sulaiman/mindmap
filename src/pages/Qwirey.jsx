@@ -186,30 +186,19 @@ export default function Qwirey() {
     const handleSubmit = async (followUpPrompt) => {
         const currentPrompt = typeof followUpPrompt === 'string' ? followUpPrompt : prompt;
         if (!currentPrompt.trim() && !fileContent) return;
-        
+
         setLoading(true);
         setResult(null);
 
-        const fullPrompt = fileContent 
-            ? `Referencing the following document content:
-
----
-${fileContent}
----
-
-Answer the user's question: ${prompt}`
-            : prompt;
+        const fullPrompt = fileContent
+            ? `Referencing the following document content:\n\n---\n${fileContent}\n---\n\nAnswer the user's question: ${currentPrompt}`
+            : currentPrompt;
 
         try {
             if (selectedModel === 'qwirey') {
                 const [textResponse, imagesResponse, webDataResponse] = await Promise.all([
                     base44.integrations.Core.InvokeLLM({
-                        prompt: `You are Qwirey, an advanced AI assistant by 1cPublishing. Provide a comprehensive, helpful response.
-                        
-${webUrl ? `Reference URL: ${webUrl}\n` : ''}
-User query: ${fullPrompt}
-
-Also suggest 3 follow-up questions the user might want to ask.`,
+                        prompt: `You are Qwirey, an advanced AI assistant by 1cPublishing. Provide a comprehensive, helpful response.\n\n${webUrl ? `Reference URL: ${webUrl}\n` : ''}User query: ${fullPrompt}\n\nAlso suggest 3 follow-up questions the user might want to ask.`,
                         add_context_from_internet: true,
                         response_json_schema: {
                             type: "object",
@@ -221,7 +210,7 @@ Also suggest 3 follow-up questions the user might want to ask.`,
                         }
                     }),
                     base44.integrations.Core.InvokeLLM({
-                        prompt: `Generate 4 detailed image prompts related to: "${prompt}". Each should be suitable for AI image generation.`,
+                        prompt: `Generate 4 detailed image prompts related to: "${currentPrompt}". Each should be suitable for AI image generation.`,
                         response_json_schema: {
                             type: "object",
                             properties: {
@@ -230,7 +219,7 @@ Also suggest 3 follow-up questions the user might want to ask.`,
                         }
                     }),
                     base44.integrations.Core.InvokeLLM({
-                        prompt: `For the topic "${prompt}", generate realistic chart data if relevant (statistics, comparisons, trends). Return hasChartData: false if not applicable.`,
+                        prompt: `For the topic "${currentPrompt}", generate realistic chart data if relevant (statistics, comparisons, trends). Return hasChartData: false if not applicable.`,
                         add_context_from_internet: true,
                         response_json_schema: {
                             type: "object",
@@ -302,7 +291,7 @@ Also suggest 3 follow-up questions the user might want to ask.`,
         setTimeout(() => setCopied(false), 2000);
     };
 
-        const handleFollowUp = (question) => {
+    const handleFollowUp = (question) => {
         setPrompt(question);
         setResult(null);
         handleSubmit(question);
@@ -405,7 +394,7 @@ Also suggest 3 follow-up questions the user might want to ask.`,
                         </button>
                         
                         <button
-                            onClick={handleSubmit}
+                            onClick={() => handleSubmit()}
                             disabled={loading || (!prompt.trim() && !fileContent)}
                             className="p-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all ml-1"
                             title="Send"
