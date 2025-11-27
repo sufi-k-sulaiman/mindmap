@@ -2,11 +2,14 @@ import React, { useState, useMemo } from 'react';
 import { 
     Globe, Building2, Scale, Shield, Users, DollarSign, Heart, GraduationCap, 
     Home, Palette, TrendingUp, Percent, Ship, Briefcase, HardHat, Wrench,
-    Plane, Package, Pickaxe, MapPin, BarChart3, Search, RefreshCw, Eye, Map
+    Plane, Package, Pickaxe, MapPin, BarChart3, Search, RefreshCw, Eye, Map,
+    Brain, Sparkles, Target, Activity, Layers, Database, AlertTriangle, Zap,
+    ChevronDown, Check
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import InteractiveMap from '../components/geospatial/InteractiveMap';
 import DynamicFrameworks from '../components/geospatial/DynamicFrameworks';
@@ -42,6 +45,27 @@ const REGIONS = [
     { id: 'latin-america', name: 'Latin America', countries: ['Brazil', 'Argentina', 'Chile', 'Colombia'] },
     { id: 'middle-east', name: 'Middle East', countries: ['UAE', 'Saudi Arabia', 'Israel', 'Qatar'] },
     { id: 'africa', name: 'Africa', countries: ['South Africa', 'Nigeria', 'Kenya', 'Egypt'] },
+];
+
+const SCENARIO_FRAMEWORKS = [
+    'Counterfactual Analysis',
+    'Thought Experiment',
+    'Possible World Model',
+    'Speculative Vignette',
+    'Conjectural Paradigm',
+    'Notional Case Study',
+    'Prospective Tableau',
+    'Envisaged Contingency',
+    'Uchronia',
+    'Phantasmatic Projection'
+];
+
+const ANOMALY_DETECTION = [
+    'Heteroclite Patterns',
+    'Aberration Detection',
+    'Parergon Analysis',
+    'Ectopia Mapping',
+    'Apophasis Framework'
 ];
 
 const generateMetricData = () => ({
@@ -99,13 +123,13 @@ const RegionSelector = ({ selectedRegion, onSelectRegion, countryData, activeDom
             {regions.map(region => (
                 <button key={region.id} onClick={() => onSelectRegion(region.id)}
                     className={`w-full p-2 rounded-lg text-left transition-all flex items-center justify-between ${
-                        selectedRegion === region.id ? 'bg-indigo-50 border border-indigo-500' : 'bg-gray-50 hover:bg-gray-100 border border-transparent'
+                        selectedRegion === region.id ? 'bg-cyan-900/50 border border-cyan-400' : 'bg-slate-800/50 hover:bg-slate-700/50 border border-transparent'
                     }`}>
                     <div className="flex items-center gap-2">
-                        <MapPin className="w-3 h-3 text-gray-400" />
-                        <span className="font-medium text-xs">{region.name}</span>
+                        <MapPin className="w-3 h-3 text-cyan-400" />
+                        <span className="font-medium text-xs text-cyan-300">{region.name}</span>
                     </div>
-                    <span className="text-sm font-bold text-indigo-600">{Math.round(region.avgMetric)}</span>
+                    <span className="text-sm font-bold text-cyan-400">{Math.round(region.avgMetric)}</span>
                 </button>
             ))}
         </div>
@@ -118,14 +142,14 @@ const CountryTable = ({ countryData, activeDomain, selectedRegion }) => {
     const domainInfo = DOMAINS.find(d => d.id === activeDomain);
 
     return (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <div className="p-3 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900 text-sm">Rankings</h3>
-                <span className="text-xs text-gray-500">{filteredData.length} countries</span>
+        <div className="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+            <div className="p-3 border-b border-slate-700 flex items-center justify-between">
+                <h3 className="font-semibold text-cyan-300 text-sm">Rankings</h3>
+                <span className="text-xs text-slate-400">{filteredData.length} countries</span>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full">
-                    <thead className="bg-gray-50 text-[10px] text-gray-500 uppercase">
+                    <thead className="bg-slate-800 text-[10px] text-slate-400 uppercase">
                         <tr>
                             <th className="px-3 py-2 text-left">#</th>
                             <th className="px-3 py-2 text-left">Country</th>
@@ -133,7 +157,7 @@ const CountryTable = ({ countryData, activeDomain, selectedRegion }) => {
                             <th className="px-3 py-2 text-right">Change</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 text-sm">
+                    <tbody className="divide-y divide-slate-700 text-sm">
                         {filteredData
                             .sort((a, b) => (b.metrics?.[activeDomain]?.current || 0) - (a.metrics?.[activeDomain]?.current || 0))
                             .slice(0, 8)
@@ -141,13 +165,13 @@ const CountryTable = ({ countryData, activeDomain, selectedRegion }) => {
                                 const metric = row.metrics?.[activeDomain];
                                 const change = metric?.change || 0;
                                 return (
-                                    <tr key={row.country} className="hover:bg-gray-50">
+                                    <tr key={row.country} className="hover:bg-slate-800/50">
                                         <td className="px-3 py-2">
-                                            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${i < 3 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'}`}>{i + 1}</span>
+                                            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${i < 3 ? 'bg-cyan-500/20 text-cyan-400' : 'bg-slate-700 text-slate-400'}`}>{i + 1}</span>
                                         </td>
-                                        <td className="px-3 py-2 font-medium text-gray-900">{row.country}</td>
-                                        <td className="px-3 py-2 text-right font-semibold" style={{ color: domainInfo?.color }}>{metric?.current || 0}</td>
-                                        <td className={`px-3 py-2 text-right text-xs font-medium ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                        <td className="px-3 py-2 font-medium text-white">{row.country}</td>
+                                        <td className="px-3 py-2 text-right font-semibold text-cyan-400">{metric?.current || 0}</td>
+                                        <td className={`px-3 py-2 text-right text-xs font-medium ${change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                             {change >= 0 ? '+' : ''}{change}%
                                         </td>
                                     </tr>
@@ -160,12 +184,40 @@ const CountryTable = ({ countryData, activeDomain, selectedRegion }) => {
     );
 };
 
+const FrameworkSelector = ({ label, value, onChange, options, color = 'cyan' }) => (
+    <div className="bg-slate-900 rounded-xl border border-slate-700 p-4">
+        <label className="text-cyan-400 font-semibold text-sm mb-3 block">{label}</label>
+        <Select value={value} onValueChange={onChange}>
+            <SelectTrigger className="w-full bg-slate-800 border-slate-600 text-white">
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-900 border-slate-700">
+                {options.map(opt => (
+                    <SelectItem key={opt} value={opt} className="text-cyan-300 focus:bg-purple-600 focus:text-white">
+                        {opt}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
+    </div>
+);
+
+const MetricDisplay = ({ label, value, subtitle }) => (
+    <div className="bg-slate-800/50 rounded-xl p-4 text-center">
+        <div className="text-4xl font-bold text-white mb-1">{value}</div>
+        <div className="text-cyan-400 text-sm font-medium">{label}</div>
+        {subtitle && <div className="text-slate-400 text-xs mt-1">{subtitle}</div>}
+    </div>
+);
+
 export default function Geospatial() {
     const [activeDomain, setActiveDomain] = useState('governance');
     const [selectedRegion, setSelectedRegion] = useState('north-america');
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState('overview');
+    const [activeTab, setActiveTab] = useState('dashboard');
     const [selectedCountry, setSelectedCountry] = useState(null);
+    const [scenarioFramework, setScenarioFramework] = useState('Envisaged Contingency');
+    const [anomalyDetection, setAnomalyDetection] = useState('Heteroclite Patterns');
     
     const countryData = useMemo(() => generateCountryData(), []);
     const selectedCountryData = countryData.find(c => c.region === REGIONS.find(r => r.id === selectedRegion)?.name);
@@ -177,37 +229,53 @@ export default function Geospatial() {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
+        <div className="min-h-screen bg-slate-950 p-4 md:p-6">
             <div className="max-w-7xl mx-auto space-y-4">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center">
                             <Globe className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-gray-900">Geospatial Intelligence</h1>
-                            <p className="text-xs text-gray-500">18 domains • 6 regions • 25 countries</p>
+                            <h1 className="text-xl font-bold text-white">Geospatial Intelligence</h1>
+                            <p className="text-xs text-slate-400">18 domains • 6 regions • 25 countries</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." className="pl-9 w-48 h-9 text-sm" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search..." className="pl-9 w-48 h-9 text-sm bg-slate-800 border-slate-700 text-white placeholder:text-slate-500" />
                         </div>
-                        <Button variant="outline" size="sm"><RefreshCw className="w-4 h-4" /></Button>
+                        <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800"><RefreshCw className="w-4 h-4" /></Button>
                     </div>
                 </div>
 
-                {/* Tabs */}
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <TabsList className="bg-white border border-gray-200">
-                        <TabsTrigger value="overview" className="gap-1 text-xs"><Eye className="w-3 h-3" /> Overview</TabsTrigger>
-                        <TabsTrigger value="map" className="gap-1 text-xs"><Map className="w-3 h-3" /> Map</TabsTrigger>
-                        <TabsTrigger value="analysis" className="gap-1 text-xs"><BarChart3 className="w-3 h-3" /> Analysis</TabsTrigger>
+                {/* Main Tabs */}
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+                    <TabsList className="bg-slate-900 border border-slate-700 p-1">
+                        <TabsTrigger value="dashboard" className="gap-1.5 text-xs data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-slate-400">
+                            <Eye className="w-3.5 h-3.5" /> Dashboard
+                        </TabsTrigger>
+                        <TabsTrigger value="map" className="gap-1.5 text-xs data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-slate-400">
+                            <Map className="w-3.5 h-3.5" /> Geospatial Map
+                        </TabsTrigger>
+                        <TabsTrigger value="frameworks" className="gap-1.5 text-xs data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-slate-400">
+                            <Target className="w-3.5 h-3.5" /> Frameworks
+                        </TabsTrigger>
+                        <TabsTrigger value="scenarios" className="gap-1.5 text-xs data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-slate-400">
+                            <Sparkles className="w-3.5 h-3.5" /> AI Scenarios
+                        </TabsTrigger>
+                        <TabsTrigger value="predictive" className="gap-1.5 text-xs data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-slate-400">
+                            <Brain className="w-3.5 h-3.5" /> Predictive
+                        </TabsTrigger>
+                        <TabsTrigger value="spatial" className="gap-1.5 text-xs data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-slate-400">
+                            <Layers className="w-3.5 h-3.5" /> Spatial Query
+                        </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="overview" className="mt-4 space-y-4">
+                    {/* Dashboard Tab */}
+                    <TabsContent value="dashboard" className="space-y-4">
                         {/* Domain Grid */}
                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-2">
                             {filteredDomains.map(domain => (
@@ -215,47 +283,105 @@ export default function Geospatial() {
                             ))}
                         </div>
 
+                        {/* Framework Selectors */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FrameworkSelector label="Scenario Framework" value={scenarioFramework} onChange={setScenarioFramework} options={SCENARIO_FRAMEWORKS} />
+                            <FrameworkSelector label="Anomaly Detection" value={anomalyDetection} onChange={setAnomalyDetection} options={ANOMALY_DETECTION} />
+                        </div>
+
+                        {/* Metrics Row */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <MetricDisplay label="Detection Rate" value="24%" subtitle="Anomaly threshold" />
+                            <MetricDisplay label="Confidence" value="82%" subtitle="Model accuracy" />
+                            <MetricDisplay label="Coverage" value="96%" subtitle="Data completeness" />
+                            <MetricDisplay label="Alerts" value="12" subtitle="Active warnings" />
+                        </div>
+
                         {/* Main Grid */}
                         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                            {/* Left Column */}
                             <div className="space-y-4">
-                                <div className="bg-white rounded-xl border border-gray-200 p-3">
-                                    <h3 className="font-semibold text-gray-900 text-sm mb-3">Regions</h3>
+                                <div className="bg-slate-900 rounded-xl border border-slate-700 p-3">
+                                    <h3 className="font-semibold text-cyan-300 text-sm mb-3">Regions</h3>
                                     <RegionSelector selectedRegion={selectedRegion} onSelectRegion={setSelectedRegion} countryData={countryData} activeDomain={activeDomain} />
                                 </div>
-                                <SpatialQuery activeDomain={activeDomain} />
                             </div>
-                            
-                            {/* Center - Map */}
                             <div className="lg:col-span-2">
                                 <InteractiveMap countryData={countryData} activeDomain={activeDomain} selectedRegion={selectedRegion} onSelectCountry={setSelectedCountry} />
                             </div>
-
-                            {/* Right Column */}
-                            <div className="space-y-4">
-                                <AIScenarios activeDomain={activeDomain} domainInfo={domainInfo} />
-                                <PredictiveAnalytics activeDomain={activeDomain} domainInfo={domainInfo} countryData={countryData} selectedRegion={selectedRegion} />
+                            <div>
+                                <CountryTable countryData={countryData} activeDomain={activeDomain} selectedRegion={selectedRegion} />
                             </div>
                         </div>
 
-                        {/* Bottom Row */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            <DynamicFrameworks activeDomain={activeDomain} countryData={countryData} selectedRegion={selectedRegion} domainInfo={domainInfo} />
-                            <CountryTable countryData={countryData} activeDomain={activeDomain} selectedRegion={selectedRegion} />
-                        </div>
+                        {/* Strategic Analysis */}
+                        <DynamicFrameworks activeDomain={activeDomain} countryData={countryData} selectedRegion={selectedRegion} domainInfo={domainInfo} />
                     </TabsContent>
 
-                    <TabsContent value="map" className="mt-4">
+                    {/* Map Tab */}
+                    <TabsContent value="map" className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <FrameworkSelector label="Scenario Framework" value={scenarioFramework} onChange={setScenarioFramework} options={SCENARIO_FRAMEWORKS} />
+                            <FrameworkSelector label="Anomaly Detection" value={anomalyDetection} onChange={setAnomalyDetection} options={ANOMALY_DETECTION} />
+                        </div>
                         <InteractiveMap countryData={countryData} activeDomain={activeDomain} selectedRegion={selectedRegion} onSelectCountry={setSelectedCountry} />
                     </TabsContent>
 
-                    <TabsContent value="analysis" className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <div className="lg:col-span-2">
-                            <DynamicFrameworks activeDomain={activeDomain} countryData={countryData} selectedRegion={selectedRegion} domainInfo={domainInfo} />
+                    {/* Frameworks Tab */}
+                    <TabsContent value="frameworks" className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FrameworkSelector label="Scenario Framework" value={scenarioFramework} onChange={setScenarioFramework} options={SCENARIO_FRAMEWORKS} />
+                            <FrameworkSelector label="Anomaly Detection" value={anomalyDetection} onChange={setAnomalyDetection} options={ANOMALY_DETECTION} />
                         </div>
-                        <div className="space-y-4">
+                        <DynamicFrameworks activeDomain={activeDomain} countryData={countryData} selectedRegion={selectedRegion} domainInfo={domainInfo} />
+                    </TabsContent>
+
+                    {/* AI Scenarios Tab */}
+                    <TabsContent value="scenarios" className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FrameworkSelector label="Scenario Framework" value={scenarioFramework} onChange={setScenarioFramework} options={SCENARIO_FRAMEWORKS} />
+                            <FrameworkSelector label="Anomaly Detection" value={anomalyDetection} onChange={setAnomalyDetection} options={ANOMALY_DETECTION} />
+                        </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <AIScenarios activeDomain={activeDomain} domainInfo={domainInfo} />
+                            <div className="bg-slate-900 rounded-xl border border-slate-700 p-4">
+                                <h3 className="text-cyan-400 font-semibold mb-4">Active Scenario: {scenarioFramework}</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <MetricDisplay label="Probability" value="67%" />
+                                    <MetricDisplay label="Impact" value="High" />
+                                    <MetricDisplay label="Timeline" value="Q2 2025" />
+                                    <MetricDisplay label="Confidence" value="78%" />
+                                </div>
+                            </div>
+                        </div>
+                    </TabsContent>
+
+                    {/* Predictive Tab */}
+                    <TabsContent value="predictive" className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FrameworkSelector label="Scenario Framework" value={scenarioFramework} onChange={setScenarioFramework} options={SCENARIO_FRAMEWORKS} />
+                            <FrameworkSelector label="Anomaly Detection" value={anomalyDetection} onChange={setAnomalyDetection} options={ANOMALY_DETECTION} />
+                        </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <PredictiveAnalytics activeDomain={activeDomain} domainInfo={domainInfo} countryData={countryData} selectedRegion={selectedRegion} />
+                            <div className="bg-slate-900 rounded-xl border border-slate-700 p-4">
+                                <h3 className="text-cyan-400 font-semibold mb-4">Anomaly: {anomalyDetection}</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <MetricDisplay label="Detection Rate" value="24%" />
+                                    <MetricDisplay label="Accuracy" value="82%" />
+                                    <MetricDisplay label="False Positives" value="3%" />
+                                    <MetricDisplay label="Patterns Found" value="47" />
+                                </div>
+                            </div>
+                        </div>
+                    </TabsContent>
+
+                    {/* Spatial Query Tab */}
+                    <TabsContent value="spatial" className="space-y-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                            <SpatialQuery activeDomain={activeDomain} />
+                            <div className="lg:col-span-2">
+                                <InteractiveMap countryData={countryData} activeDomain={activeDomain} selectedRegion={selectedRegion} onSelectCountry={setSelectedCountry} />
+                            </div>
                         </div>
                     </TabsContent>
                 </Tabs>
