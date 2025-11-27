@@ -776,12 +776,14 @@ export default function MindMapPage() {
                 </div>
             </div>
 
-            {/* Learn More Modal */}
-            <LearnMoreModal
-                keyword={selectedKeyword}
-                isOpen={showModal}
-                onClose={() => setShowModal(false)}
-            />
+            {/* Learn More Modal - rendered in portal to work in fullscreen */}
+            {showModal && (
+                <LearnMoreModal
+                    keyword={selectedKeyword}
+                    isOpen={showModal}
+                    onClose={() => setShowModal(false)}
+                />
+            )}
         </div>
     );
 }

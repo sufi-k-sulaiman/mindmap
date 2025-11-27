@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { base44 } from '@/api/base44Client';
@@ -187,7 +187,9 @@ For each document, provide the actual URL where it can be found.`,
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-y-auto" style={{ zIndex: 9999 }}>
+            <DialogPortal container={document.body}>
+                <DialogOverlay className="fixed inset-0 bg-black/50" style={{ zIndex: 99998 }} />
+                <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-5xl w-[95vw] max-h-[90vh] p-0 overflow-y-auto bg-white rounded-xl shadow-xl" style={{ zIndex: 99999 }}>
                 <div className="flex flex-col h-full">
                     {/* Header */}
                     <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white">
@@ -562,6 +564,7 @@ For each document, provide the actual URL where it can be found.`,
                     </Tabs>
                 </div>
             </DialogContent>
+            </DialogPortal>
         </Dialog>
     );
 }
