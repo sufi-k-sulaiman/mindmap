@@ -35,10 +35,15 @@ export default function LearningIslandCard({ topic, index, progress = 0, onExplo
             onMouseLeave={() => setHovered(false)}
             onClick={() => !locked && onExplore(topic)}
         >
-            {/* XP Badge */}
-            <div className="absolute -top-1 -right-1 z-20 flex items-center gap-1 px-2 py-0.5 bg-amber-400 rounded-full text-xs font-bold text-amber-900">
-                <Zap className="w-3 h-3" />
-                {xpReward} XP
+            {/* XP Badge with Play and Graduation Cap */}
+            <div className="absolute -top-1 -right-1 z-20 flex items-center gap-1.5">
+                <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-400 rounded-full text-xs font-bold text-amber-900">
+                    <GraduationCap className="w-3 h-3" />
+                    {xpReward} XP
+                </div>
+                <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center shadow-md">
+                    <Play className="w-3 h-3 text-white ml-0.5" fill="currentColor" />
+                </div>
             </div>
             
             {/* Priority number */}
@@ -102,14 +107,7 @@ export default function LearningIslandCard({ topic, index, progress = 0, onExplo
                 )}
             </div>
             
-            {/* Hover play button */}
-            {hovered && !locked && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg animate-pulse">
-                        <Play className="w-6 h-6 text-purple-600 ml-1" fill="currentColor" />
-                    </div>
-                </div>
-            )}
+
         </div>
     );
 }
