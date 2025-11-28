@@ -59,197 +59,510 @@ export default function Geospatial() {
     const loadDynamicData = async () => {
         setDataLoading(true);
         const countriesStr = selectedCountries.join(', ');
-        const categoryName = activeCategory === 'all' ? 'all categories' : CATEGORIES.find(c => c.id === activeCategory)?.name || activeCategory;
         
         try {
             const response = await base44.integrations.Core.InvokeLLM({
-                prompt: `Generate comprehensive geospatial infrastructure and resources data for ${countriesStr}. Focus on ${categoryName}.
+                prompt: `Generate infrastructure and resources data for ${countriesStr}. Return realistic statistics.
 
-Provide realistic data in JSON format with these sections:
-1. summary: Brief analysis summary for these countries
-2. keyInsights: Array of 4 key insights
-3. transportData: Array of 6 objects with {type, count, capacity, condition, investment}
-4. transportStats: Array of 4 objects with {title, value, unit} for highway km, railways km, airports count, seaports count
-5. energyData: Array of 6 objects with {source, capacity, share, growth, plants}
-6. energyStats: Array of 4 objects with {title, value, unit} for power plants, grid capacity GW, renewable %, pipelines km
-7. telecomData: Array of 5 objects with {type, count, coverage, investment, growth}
-8. telecomStats: Array of 4 objects with {title, value, unit} for 5G towers, fiber km, data centers, satellites
-9. waterData: Array of 5 objects with {type, count, capacity, condition, age}
-10. waterStats: Array of 4 objects with {title, value, unit} for dams, reservoirs, treatment plants, pipeline km
-11. resourcesData: Array of 6 objects with {resource, reserves, production, value, rank}
-12. resourceStats: Array of 4 objects with {title, value, unit} for oil reserves, gas reserves, coal, shale
-13. mineralsData: Array of 6 objects with {mineral, reserves, production, globalRank, value}
-14. mineralStats: Array of 4 objects with {title, value, unit} for iron, copper, gold, rare earth
-15. financialData: Array of 5 objects with {asset, value, change, type}
-16. financialStats: Array of 4 objects with {title, value, unit} for gold reserves, foreign reserves, pension, banking assets
-17. industrialData: Array of 5 objects with {sector, count, employment, output, growth}
-18. industrialStats: Array of 4 objects with {title, value, unit} for manufacturing plants, tech hubs, industrial parks, R&D centers
-19. educationData: Array of 5 objects with {level, institutions, enrollment, teachers, spending}
-20. educationStats: Array of 4 objects with {title, value, unit} for schools, universities, colleges, spending
-21. healthcareData: Array of 5 objects with {facility, count, capacity, staff, spending}
-22. healthcareStats: Array of 4 objects with {title, value, unit} for hospitals, beds, pharmacies, spending
-23. trendData: Array of 12 objects with {period, infrastructure, energy, digital} for monthly trends
-24. countryComparison: Array comparing selected countries with {country, infrastructure, resources, digital} scores 0-100
-25. publicFacilitiesData: Array of 6 objects with {type, count, capacity, condition, funding}
-26. publicFacilitiesStats: Array of 4 objects with {title, value, unit} for schools, hospitals, fire stations, police
-27. defenseData: Array of 5 objects with {type, count, personnel, status, budget}
-28. defenseStats: Array of 4 objects with {title, value, unit} for bases, naval, air force, budget
-29. agriculturalData: Array of 5 objects with {resource, amount, utilization, output, globalRank}
-30. agriculturalStats: Array of 4 objects with {title, value, unit} for arable land, forests, freshwater, marine EEZ
-31. humanCapitalData: Array of 5 objects with {metric, value, growth, globalRank}
-32. humanCapitalStats: Array of 4 objects with {title, value, unit} for population, labor force, STEM grads, skilled workers
-33. intellectualData: Array of 5 objects with {category, count, annual, value, globalShare}
-34. intellectualStats: Array of 4 objects with {title, value, unit} for patents, research unis, Nobel laureates, R&D
-35. strategicReservesData: Array of 5 objects with {reserve, capacity, current, value, days}
-36. strategicStats: Array of 4 objects with {title, value, unit} for petroleum, defense stockpile, food, medical
-37. digitalAssetsData: Array of 5 objects with {asset, count, capacity, investment, growth}
-38. digitalStats: Array of 4 objects with {title, value, unit} for data centers, cloud regions, AI clusters, cyber
-39. governanceData: Array of 5 objects with {institution, count, personnel, budget, efficiency}
-40. governanceStats: Array of 4 objects with {title, value, unit} for courts, agencies, regulatory, local gov
-41. lawEnforcementData: Array of 5 objects with {agency, personnel, budget, jurisdiction, clearRate}
-42. lawEnforcementStats: Array of 4 objects with {title, value, unit} for federal, local, border, intel
-43. financialInfraData: Array of 5 objects with {type, count, assets, coverage, rating}
-44. financialInfraStats: Array of 4 objects with {title, value, unit} for banks, exchanges, insurance, market cap
-45. tradeNetworksData: Array of 5 objects with {network, count, volume, value, globalRank}
-46. tradeStats: Array of 4 objects with {title, value, unit} for ports, trade volume, FTAs, logistics
-47. laborMarketData: Array of 5 objects with {metric, value, change, rate}
-48. laborStats: Array of 4 objects with {title, value, unit} for employment, tech jobs, gig workers, unemployment
-49. socialSafetyData: Array of 5 objects with {program, beneficiaries, annual, coverage, fundStatus}
-50. socialSafetyStats: Array of 4 objects with {title, value, unit} for social security, medicare, medicaid, SNAP
-51. diplomaticData: Array of 5 objects with {type, count, personnel, regions, budget}
-52. diplomaticStats: Array of 4 objects with {title, value, unit} for embassies, consulates, alliances, missions
-53. geopoliticalData: Array of 5 objects with {asset, size, value, rank, control}
-54. geopoliticalStats: Array of 4 objects with {title, value, unit} for EEZ, airspace, satellites, maritime
-55. softPowerData: Array of 5 objects with {category, value, reach, rank, growth}
-56. softPowerStats: Array of 4 objects with {title, value, unit} for cultural exports, students, media, tourism
-57. climateResilienceData: Array of 5 objects with {system, count, capacity, investment, condition}
-58. climateStats: Array of 4 objects with {title, value, unit} for flood control, wildfire, shelters, FEMA
-59. protectedAreasData: Array of 5 objects with {type, count, area, visitors, budget}
-60. protectedStats: Array of 4 objects with {title, value, unit} for parks, forests, refuges, marine
-61. renewablePotentialData: Array of 5 objects with {source, potential, installed, utilization, growth}
-62. renewableStats: Array of 4 objects with {title, value, unit} for solar, wind, hydro, geothermal
-
-Make all data realistic and proportional to each country's actual size and development level. Use actual known statistics where possible.`,
+Return JSON with ALL these arrays (4-6 items each with specified fields):
+- summary: string, keyInsights: array of 4 strings
+- transportData: [{type, count, capacity, condition, investment}], transportStats: [{title, value, unit}]
+- energyData: [{source, capacity, share, growth, plants}], energyStats: [{title, value, unit}]
+- telecomData: [{type, count, coverage, investment, growth}], telecomStats: [{title, value, unit}]
+- waterData: [{type, count, capacity, condition, age}], waterStats: [{title, value, unit}]
+- resourcesData: [{resource, reserves, production, value, rank}], resourceStats: [{title, value, unit}]
+- mineralsData: [{mineral, reserves, production, globalRank, value}], mineralStats: [{title, value, unit}]
+- financialData: [{asset, value, change, type}], financialStats: [{title, value, unit}]
+- industrialData: [{sector, count, employment, output, growth}], industrialStats: [{title, value, unit}]
+- educationData: [{level, institutions, enrollment, teachers, spending}], educationStats: [{title, value, unit}]
+- healthcareData: [{facility, count, capacity, staff, spending}], healthcareStats: [{title, value, unit}]
+- publicFacilitiesData: [{type, count, capacity, condition, funding}], publicFacilitiesStats: [{title, value, unit}]
+- defenseData: [{type, count, personnel, status, budget}], defenseStats: [{title, value, unit}]
+- agriculturalData: [{resource, amount, utilization, output, globalRank}], agriculturalStats: [{title, value, unit}]
+- humanCapitalData: [{metric, value, growth, globalRank}], humanCapitalStats: [{title, value, unit}]
+- intellectualData: [{category, count, annual, value, globalShare}], intellectualStats: [{title, value, unit}]
+- strategicReservesData: [{reserve, capacity, current, value, days}], strategicStats: [{title, value, unit}]
+- digitalAssetsData: [{asset, count, capacity, investment, growth}], digitalStats: [{title, value, unit}]
+- governanceData: [{institution, count, personnel, budget, efficiency}], governanceStats: [{title, value, unit}]
+- lawEnforcementData: [{agency, personnel, budget, jurisdiction, clearRate}], lawEnforcementStats: [{title, value, unit}]
+- financialInfraData: [{type, count, assets, coverage, rating}], financialInfraStats: [{title, value, unit}]
+- tradeNetworksData: [{network, count, volume, value, globalRank}], tradeStats: [{title, value, unit}]
+- laborMarketData: [{metric, value, change, rate}], laborStats: [{title, value, unit}]
+- socialSafetyData: [{program, beneficiaries, annual, coverage, fundStatus}], socialSafetyStats: [{title, value, unit}]
+- diplomaticData: [{type, count, personnel, regions, budget}], diplomaticStats: [{title, value, unit}]
+- geopoliticalData: [{asset, size, value, rank, control}], geopoliticalStats: [{title, value, unit}]
+- softPowerData: [{category, value, reach, rank, growth}], softPowerStats: [{title, value, unit}]
+- climateResilienceData: [{system, count, capacity, investment, condition}], climateStats: [{title, value, unit}]
+- protectedAreasData: [{type, count, area, visitors, budget}], protectedStats: [{title, value, unit}]
+- renewablePotentialData: [{source, potential, installed, utilization, growth}], renewableStats: [{title, value, unit}]
+- trendData: 12 objects [{period, infrastructure, energy, digital}] with numeric values 50-95
+- countryComparison: [{country, infrastructure, resources, digital}] scores 50-95 for each selected country`,
                 add_context_from_internet: true,
                 response_json_schema: {
                     type: "object",
                     properties: {
                         summary: { type: "string" },
                         keyInsights: { type: "array", items: { type: "string" } },
-                        transportData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, capacity: { type: "string" }, condition: { type: "string" }, investment: { type: "string" } } } },
-                        transportStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        energyData: { type: "array", items: { type: "object", properties: { source: { type: "string" }, capacity: { type: "string" }, share: { type: "string" }, growth: { type: "string" }, plants: { type: "string" } } } },
-                        energyStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        telecomData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, coverage: { type: "string" }, investment: { type: "string" }, growth: { type: "string" } } } },
-                        telecomStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        waterData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, capacity: { type: "string" }, condition: { type: "string" }, age: { type: "string" } } } },
-                        waterStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        resourcesData: { type: "array", items: { type: "object", properties: { resource: { type: "string" }, reserves: { type: "string" }, production: { type: "string" }, value: { type: "string" }, rank: { type: "string" } } } },
-                        resourceStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        mineralsData: { type: "array", items: { type: "object", properties: { mineral: { type: "string" }, reserves: { type: "string" }, production: { type: "string" }, globalRank: { type: "string" }, value: { type: "string" } } } },
-                        mineralStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        financialData: { type: "array", items: { type: "object", properties: { asset: { type: "string" }, value: { type: "string" }, change: { type: "string" }, type: { type: "string" } } } },
-                        financialStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        industrialData: { type: "array", items: { type: "object", properties: { sector: { type: "string" }, count: { type: "string" }, employment: { type: "string" }, output: { type: "string" }, growth: { type: "string" } } } },
-                        industrialStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        educationData: { type: "array", items: { type: "object", properties: { level: { type: "string" }, institutions: { type: "string" }, enrollment: { type: "string" }, teachers: { type: "string" }, spending: { type: "string" } } } },
-                        educationStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        healthcareData: { type: "array", items: { type: "object", properties: { facility: { type: "string" }, count: { type: "string" }, capacity: { type: "string" }, staff: { type: "string" }, spending: { type: "string" } } } },
-                        healthcareStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        trendData: { type: "array", items: { type: "object", properties: { period: { type: "string" }, infrastructure: { type: "number" }, energy: { type: "number" }, digital: { type: "number" } } } },
-                        countryComparison: { type: "array", items: { type: "object", properties: { country: { type: "string" }, infrastructure: { type: "number" }, resources: { type: "number" }, digital: { type: "number" } } } },
-                        publicFacilitiesData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, capacity: { type: "string" }, condition: { type: "string" }, funding: { type: "string" } } } },
-                        publicFacilitiesStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        defenseData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, personnel: { type: "string" }, status: { type: "string" }, budget: { type: "string" } } } },
-                        defenseStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        agriculturalData: { type: "array", items: { type: "object", properties: { resource: { type: "string" }, amount: { type: "string" }, utilization: { type: "string" }, output: { type: "string" }, globalRank: { type: "string" } } } },
-                        agriculturalStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        humanCapitalData: { type: "array", items: { type: "object", properties: { metric: { type: "string" }, value: { type: "string" }, growth: { type: "string" }, globalRank: { type: "string" } } } },
-                        humanCapitalStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        intellectualData: { type: "array", items: { type: "object", properties: { category: { type: "string" }, count: { type: "string" }, annual: { type: "string" }, value: { type: "string" }, globalShare: { type: "string" } } } },
-                        intellectualStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        strategicReservesData: { type: "array", items: { type: "object", properties: { reserve: { type: "string" }, capacity: { type: "string" }, current: { type: "string" }, value: { type: "string" }, days: { type: "string" } } } },
-                        strategicStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        digitalAssetsData: { type: "array", items: { type: "object", properties: { asset: { type: "string" }, count: { type: "string" }, capacity: { type: "string" }, investment: { type: "string" }, growth: { type: "string" } } } },
-                        digitalStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        governanceData: { type: "array", items: { type: "object", properties: { institution: { type: "string" }, count: { type: "string" }, personnel: { type: "string" }, budget: { type: "string" }, efficiency: { type: "string" } } } },
-                        governanceStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        lawEnforcementData: { type: "array", items: { type: "object", properties: { agency: { type: "string" }, personnel: { type: "string" }, budget: { type: "string" }, jurisdiction: { type: "string" }, clearRate: { type: "string" } } } },
-                        lawEnforcementStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        financialInfraData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, assets: { type: "string" }, coverage: { type: "string" }, rating: { type: "string" } } } },
-                        financialInfraStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        tradeNetworksData: { type: "array", items: { type: "object", properties: { network: { type: "string" }, count: { type: "string" }, volume: { type: "string" }, value: { type: "string" }, globalRank: { type: "string" } } } },
-                        tradeStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        laborMarketData: { type: "array", items: { type: "object", properties: { metric: { type: "string" }, value: { type: "string" }, change: { type: "string" }, rate: { type: "string" } } } },
-                        laborStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        socialSafetyData: { type: "array", items: { type: "object", properties: { program: { type: "string" }, beneficiaries: { type: "string" }, annual: { type: "string" }, coverage: { type: "string" }, fundStatus: { type: "string" } } } },
-                        socialSafetyStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        diplomaticData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, personnel: { type: "string" }, regions: { type: "string" }, budget: { type: "string" } } } },
-                        diplomaticStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        geopoliticalData: { type: "array", items: { type: "object", properties: { asset: { type: "string" }, size: { type: "string" }, value: { type: "string" }, rank: { type: "string" }, control: { type: "string" } } } },
-                        geopoliticalStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        softPowerData: { type: "array", items: { type: "object", properties: { category: { type: "string" }, value: { type: "string" }, reach: { type: "string" }, rank: { type: "string" }, growth: { type: "string" } } } },
-                        softPowerStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        climateResilienceData: { type: "array", items: { type: "object", properties: { system: { type: "string" }, count: { type: "string" }, capacity: { type: "string" }, investment: { type: "string" }, condition: { type: "string" } } } },
-                        climateStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        protectedAreasData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, area: { type: "string" }, visitors: { type: "string" }, budget: { type: "string" } } } },
-                        protectedStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
-                        renewablePotentialData: { type: "array", items: { type: "object", properties: { source: { type: "string" }, potential: { type: "string" }, installed: { type: "string" }, utilization: { type: "string" }, growth: { type: "string" } } } },
-                        renewableStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } }
+                        transportData: { type: "array", items: { type: "object" } },
+                        transportStats: { type: "array", items: { type: "object" } },
+                        energyData: { type: "array", items: { type: "object" } },
+                        energyStats: { type: "array", items: { type: "object" } },
+                        telecomData: { type: "array", items: { type: "object" } },
+                        telecomStats: { type: "array", items: { type: "object" } },
+                        waterData: { type: "array", items: { type: "object" } },
+                        waterStats: { type: "array", items: { type: "object" } },
+                        resourcesData: { type: "array", items: { type: "object" } },
+                        resourceStats: { type: "array", items: { type: "object" } },
+                        mineralsData: { type: "array", items: { type: "object" } },
+                        mineralStats: { type: "array", items: { type: "object" } },
+                        financialData: { type: "array", items: { type: "object" } },
+                        financialStats: { type: "array", items: { type: "object" } },
+                        industrialData: { type: "array", items: { type: "object" } },
+                        industrialStats: { type: "array", items: { type: "object" } },
+                        educationData: { type: "array", items: { type: "object" } },
+                        educationStats: { type: "array", items: { type: "object" } },
+                        healthcareData: { type: "array", items: { type: "object" } },
+                        healthcareStats: { type: "array", items: { type: "object" } },
+                        publicFacilitiesData: { type: "array", items: { type: "object" } },
+                        publicFacilitiesStats: { type: "array", items: { type: "object" } },
+                        defenseData: { type: "array", items: { type: "object" } },
+                        defenseStats: { type: "array", items: { type: "object" } },
+                        agriculturalData: { type: "array", items: { type: "object" } },
+                        agriculturalStats: { type: "array", items: { type: "object" } },
+                        humanCapitalData: { type: "array", items: { type: "object" } },
+                        humanCapitalStats: { type: "array", items: { type: "object" } },
+                        intellectualData: { type: "array", items: { type: "object" } },
+                        intellectualStats: { type: "array", items: { type: "object" } },
+                        strategicReservesData: { type: "array", items: { type: "object" } },
+                        strategicStats: { type: "array", items: { type: "object" } },
+                        digitalAssetsData: { type: "array", items: { type: "object" } },
+                        digitalStats: { type: "array", items: { type: "object" } },
+                        governanceData: { type: "array", items: { type: "object" } },
+                        governanceStats: { type: "array", items: { type: "object" } },
+                        lawEnforcementData: { type: "array", items: { type: "object" } },
+                        lawEnforcementStats: { type: "array", items: { type: "object" } },
+                        financialInfraData: { type: "array", items: { type: "object" } },
+                        financialInfraStats: { type: "array", items: { type: "object" } },
+                        tradeNetworksData: { type: "array", items: { type: "object" } },
+                        tradeStats: { type: "array", items: { type: "object" } },
+                        laborMarketData: { type: "array", items: { type: "object" } },
+                        laborStats: { type: "array", items: { type: "object" } },
+                        socialSafetyData: { type: "array", items: { type: "object" } },
+                        socialSafetyStats: { type: "array", items: { type: "object" } },
+                        diplomaticData: { type: "array", items: { type: "object" } },
+                        diplomaticStats: { type: "array", items: { type: "object" } },
+                        geopoliticalData: { type: "array", items: { type: "object" } },
+                        geopoliticalStats: { type: "array", items: { type: "object" } },
+                        softPowerData: { type: "array", items: { type: "object" } },
+                        softPowerStats: { type: "array", items: { type: "object" } },
+                        climateResilienceData: { type: "array", items: { type: "object" } },
+                        climateStats: { type: "array", items: { type: "object" } },
+                        protectedAreasData: { type: "array", items: { type: "object" } },
+                        protectedStats: { type: "array", items: { type: "object" } },
+                        renewablePotentialData: { type: "array", items: { type: "object" } },
+                        renewableStats: { type: "array", items: { type: "object" } },
+                        trendData: { type: "array", items: { type: "object" } },
+                        countryComparison: { type: "array", items: { type: "object" } }
                     }
                 }
             });
 
-            setDynamicData(response);
-            setAnalysisData({ summary: response.summary, keyInsights: response.keyInsights });
+            // Merge with fallback to ensure all fields exist
+            const fallback = generateFallbackData();
+            const merged = { ...fallback, ...response };
+            
+            // Ensure all arrays exist
+            Object.keys(fallback).forEach(key => {
+                if (!merged[key] || (Array.isArray(merged[key]) && merged[key].length === 0)) {
+                    merged[key] = fallback[key];
+                }
+            });
+
+            setDynamicData(merged);
+            setAnalysisData({ summary: merged.summary, keyInsights: merged.keyInsights });
         } catch (error) {
             console.error('Failed to load dynamic data:', error);
-            // Generate fallback data
             setDynamicData(generateFallbackData());
         } finally {
             setDataLoading(false);
         }
     };
 
-    const generateFallbackData = () => ({
-        summary: `Infrastructure analysis for ${selectedCountries.join(', ')} showing key metrics and development indicators.`,
-        keyInsights: [
-            'Transportation networks show varying levels of development',
-            'Energy infrastructure modernization ongoing',
-            'Digital connectivity expanding rapidly',
-            'Water infrastructure requires investment'
-        ],
-        transportData: [
-            { type: 'Highways', count: '50,000+ km', capacity: 'High', condition: 'Good', investment: '$50B' },
-            { type: 'Railways', count: '25,000 km', capacity: 'Medium', condition: 'Fair', investment: '$30B' },
-            { type: 'Airports', count: '200+', capacity: 'High', condition: 'Good', investment: '$45B' },
-            { type: 'Seaports', count: '50+', capacity: 'High', condition: 'Good', investment: '$25B' }
-        ],
-        energyData: [
-            { source: 'Natural Gas', capacity: '200 GW', share: '35%', growth: '+4%', plants: '500' },
-            { source: 'Coal', capacity: '150 GW', share: '25%', growth: '-5%', plants: '200' },
-            { source: 'Nuclear', capacity: '50 GW', share: '15%', growth: '+2%', plants: '30' },
-            { source: 'Solar', capacity: '80 GW', share: '12%', growth: '+20%', plants: '10,000+' },
-            { source: 'Wind', capacity: '60 GW', share: '10%', growth: '+15%', plants: '5,000+' }
-        ],
-        telecomData: [
-            { type: '5G Networks', count: '100,000+', coverage: '75%', investment: '$80B', growth: '+40%' },
-            { type: 'Fiber Optic', count: '500,000 km', coverage: '60%', investment: '$50B', growth: '+15%' },
-            { type: 'Data Centers', count: '500+', coverage: 'National', investment: '$40B', growth: '+25%' }
-        ],
-        trendData: Array.from({ length: 12 }, (_, i) => ({
-            period: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i],
-            infrastructure: Math.round(60 + Math.random() * 25),
-            energy: Math.round(55 + Math.random() * 30),
-            digital: Math.round(65 + Math.random() * 25)
-        })),
-        countryComparison: selectedCountries.map(country => ({
-            country,
-            infrastructure: Math.round(50 + Math.random() * 45),
-            resources: Math.round(45 + Math.random() * 50),
-            digital: Math.round(55 + Math.random() * 40)
-        }))
-    });
+    const generateFallbackData = () => {
+        const countries = selectedCountries.join(', ');
+        return {
+            summary: `Comprehensive infrastructure analysis for ${countries} showing key development metrics and investment opportunities.`,
+            keyInsights: [
+                `Transportation networks in ${countries} show strong development`,
+                'Energy infrastructure modernization ongoing with renewable focus',
+                'Digital connectivity expanding rapidly across regions',
+                'Strategic resources provide competitive advantages'
+            ],
+            transportData: [
+                { type: 'Highways', count: '150,000+ km', capacity: 'High', condition: 'Good', investment: '$120B' },
+                { type: 'Railways', count: '80,000 km', capacity: 'High', condition: 'Good', investment: '$85B' },
+                { type: 'Airports', count: '500+', capacity: 'High', condition: 'Excellent', investment: '$95B' },
+                { type: 'Seaports', count: '120+', capacity: 'High', condition: 'Good', investment: '$45B' },
+                { type: 'Bridges', count: '100,000+', capacity: 'Medium', condition: 'Fair', investment: '$35B' }
+            ],
+            transportStats: [
+                { title: 'Highway Network', value: '150,000', unit: 'km' },
+                { title: 'Railway Lines', value: '80,000', unit: 'km' },
+                { title: 'Airports', value: '500+', unit: 'facilities' },
+                { title: 'Seaports', value: '120', unit: 'major' }
+            ],
+            energyData: [
+                { source: 'Coal', capacity: '400 GW', share: '45%', growth: '-3%', plants: '2,500' },
+                { source: 'Natural Gas', capacity: '150 GW', share: '18%', growth: '+5%', plants: '800' },
+                { source: 'Hydro', capacity: '120 GW', share: '15%', growth: '+2%', plants: '500' },
+                { source: 'Nuclear', capacity: '55 GW', share: '8%', growth: '+8%', plants: '55' },
+                { source: 'Solar', capacity: '80 GW', share: '9%', growth: '+25%', plants: '15,000+' },
+                { source: 'Wind', capacity: '40 GW', share: '5%', growth: '+18%', plants: '8,000+' }
+            ],
+            energyStats: [
+                { title: 'Power Plants', value: '25,000+', unit: 'facilities' },
+                { title: 'Grid Capacity', value: '850', unit: 'GW' },
+                { title: 'Renewable Share', value: '32', unit: '%' },
+                { title: 'Pipelines', value: '200,000', unit: 'km' }
+            ],
+            telecomData: [
+                { type: '5G Base Stations', count: '2.3M', coverage: '95%', investment: '$180B', growth: '+35%' },
+                { type: 'Fiber Optic', count: '5.8M km', coverage: '85%', investment: '$120B', growth: '+12%' },
+                { type: 'Data Centers', count: '2,800', coverage: 'National', investment: '$95B', growth: '+28%' },
+                { type: 'Satellites', count: '650+', coverage: 'Global', investment: '$45B', growth: '+22%' }
+            ],
+            telecomStats: [
+                { title: '5G Towers', value: '2.3M', unit: 'active' },
+                { title: 'Fiber Network', value: '5.8M', unit: 'km' },
+                { title: 'Data Centers', value: '2,800', unit: 'facilities' },
+                { title: 'Satellites', value: '650+', unit: 'active' }
+            ],
+            waterData: [
+                { type: 'Major Dams', count: '98,000', capacity: '850 km³', condition: 'Good', age: '35 yrs' },
+                { type: 'Reservoirs', count: '85,000', capacity: '680 km³', condition: 'Good', age: '28 yrs' },
+                { type: 'Treatment Plants', count: '45,000', capacity: '120B L/day', condition: 'Fair', age: '22 yrs' },
+                { type: 'Desalination', count: '180', capacity: '8B L/day', condition: 'Excellent', age: '8 yrs' }
+            ],
+            waterStats: [
+                { title: 'Dams', value: '98,000', unit: 'total' },
+                { title: 'Reservoirs', value: '85,000', unit: 'capacity' },
+                { title: 'Treatment Plants', value: '45,000', unit: 'facilities' },
+                { title: 'Pipeline Network', value: '1.2M', unit: 'km' }
+            ],
+            resourcesData: [
+                { resource: 'Crude Oil', reserves: '25B barrels', production: '5M bpd', value: '$180B/yr', rank: '#5' },
+                { resource: 'Natural Gas', reserves: '280 Tcf', production: '12 Tcf/yr', value: '$85B/yr', rank: '#3' },
+                { resource: 'Coal', reserves: '150B tonnes', production: '4B t/yr', value: '$120B/yr', rank: '#1' },
+                { resource: 'Rare Earth', reserves: '44M tonnes', production: '140K t/yr', value: '$8B/yr', rank: '#1' }
+            ],
+            resourceStats: [
+                { title: 'Oil Reserves', value: '25B', unit: 'barrels' },
+                { title: 'Gas Reserves', value: '280', unit: 'Tcf' },
+                { title: 'Coal Reserves', value: '150B', unit: 'tonnes' },
+                { title: 'Rare Earth', value: '44M', unit: 'tonnes' }
+            ],
+            mineralsData: [
+                { mineral: 'Iron Ore', reserves: '20B tonnes', production: '880M t/yr', globalRank: '#1', value: '$95B' },
+                { mineral: 'Copper', reserves: '30M tonnes', production: '1.8M t/yr', globalRank: '#2', value: '$18B' },
+                { mineral: 'Gold', reserves: '2,000 tonnes', production: '380 t/yr', globalRank: '#1', value: '$25B' },
+                { mineral: 'Aluminum', reserves: '830M tonnes', production: '38M t/yr', globalRank: '#1', value: '$65B' }
+            ],
+            mineralStats: [
+                { title: 'Iron Ore', value: '20B', unit: 'tonnes' },
+                { title: 'Copper', value: '30M', unit: 'tonnes' },
+                { title: 'Gold', value: '2,000', unit: 'tonnes' },
+                { title: 'Rare Earth', value: '44M', unit: 'tonnes' }
+            ],
+            financialData: [
+                { asset: 'Foreign Reserves', value: '$3.2T', change: '+2.5%', type: 'Liquid' },
+                { asset: 'Gold Reserves', value: '$180B', change: '+4.2%', type: 'Commodity' },
+                { asset: 'Sovereign Wealth', value: '$1.8T', change: '+8.5%', type: 'Investment' },
+                { asset: 'Banking Assets', value: '$52T', change: '+6.8%', type: 'Financial' }
+            ],
+            financialStats: [
+                { title: 'Foreign Reserves', value: '$3.2T', unit: '' },
+                { title: 'Gold Reserves', value: '2,100', unit: 'tonnes' },
+                { title: 'Pension Assets', value: '$8.5T', unit: '' },
+                { title: 'Banking Assets', value: '$52T', unit: '' }
+            ],
+            industrialData: [
+                { sector: 'Manufacturing', count: '380,000', employment: '112M', output: '$4.8T', growth: '+5.2%' },
+                { sector: 'Technology', count: '85,000', employment: '22M', output: '$1.8T', growth: '+12%' },
+                { sector: 'Automotive', count: '12,000', employment: '8M', output: '$890B', growth: '+4.5%' },
+                { sector: 'Pharmaceuticals', count: '8,500', employment: '2.8M', output: '$350B', growth: '+8.2%' }
+            ],
+            industrialStats: [
+                { title: 'Manufacturing', value: '380,000', unit: 'plants' },
+                { title: 'Tech Hubs', value: '85', unit: 'major' },
+                { title: 'Industrial Parks', value: '2,500', unit: '' },
+                { title: 'R&D Centers', value: '25,000+', unit: '' }
+            ],
+            educationData: [
+                { level: 'Primary', institutions: '520,000', enrollment: '110M', teachers: '6.2M', spending: '$180B' },
+                { level: 'Secondary', institutions: '85,000', enrollment: '95M', teachers: '5.8M', spending: '$145B' },
+                { level: 'Higher Education', institutions: '2,900', enrollment: '45M', teachers: '1.8M', spending: '$95B' },
+                { level: 'Vocational', institutions: '12,000', enrollment: '18M', teachers: '850K', spending: '$35B' }
+            ],
+            educationStats: [
+                { title: 'Schools', value: '605,000', unit: 'total' },
+                { title: 'Universities', value: '2,900', unit: '' },
+                { title: 'Enrollment', value: '268M', unit: 'students' },
+                { title: 'Ed Spending', value: '$455B', unit: '/year' }
+            ],
+            healthcareData: [
+                { facility: 'Hospitals', count: '35,000', capacity: '7.2M beds', staff: '12M', spending: '$980B' },
+                { facility: 'Clinics', count: '980,000', capacity: '2.5B visits/yr', staff: '8.5M', spending: '$320B' },
+                { facility: 'Pharmacies', count: '560,000', capacity: 'National', staff: '1.8M', spending: '$180B' },
+                { facility: 'Research Centers', count: '2,800', capacity: 'N/A', staff: '450K', spending: '$85B' }
+            ],
+            healthcareStats: [
+                { title: 'Hospitals', value: '35,000', unit: '' },
+                { title: 'Hospital Beds', value: '7.2M', unit: '' },
+                { title: 'Pharmacies', value: '560,000', unit: '' },
+                { title: 'Health Spending', value: '$1.5T', unit: '/year' }
+            ],
+            publicFacilitiesData: [
+                { type: 'Schools', count: '605,000', capacity: '268M students', condition: 'Good', funding: '$455B' },
+                { type: 'Hospitals', count: '35,000', capacity: '7.2M beds', condition: 'Good', funding: '$980B' },
+                { type: 'Fire Stations', count: '55,000', capacity: '1.8M personnel', condition: 'Good', funding: '$42B' },
+                { type: 'Police Stations', count: '85,000', capacity: '2.1M officers', condition: 'Fair', funding: '$125B' }
+            ],
+            publicFacilitiesStats: [
+                { title: 'Schools', value: '605,000', unit: '' },
+                { title: 'Hospitals', value: '35,000', unit: '' },
+                { title: 'Fire Stations', value: '55,000', unit: '' },
+                { title: 'Police Stations', value: '85,000', unit: '' }
+            ],
+            defenseData: [
+                { type: 'Military Bases', count: '2,200+', personnel: '2.1M', status: 'Active', budget: '$230B' },
+                { type: 'Naval Bases', count: '85', personnel: '350K', status: 'Active', budget: '$65B' },
+                { type: 'Air Bases', count: '150', personnel: '400K', status: 'Active', budget: '$85B' },
+                { type: 'Missile Sites', count: '200+', personnel: '45K', status: 'Operational', budget: '$45B' }
+            ],
+            defenseStats: [
+                { title: 'Military Bases', value: '2,200+', unit: '' },
+                { title: 'Naval Bases', value: '85', unit: 'major' },
+                { title: 'Air Bases', value: '150', unit: '' },
+                { title: 'Defense Budget', value: '$425B', unit: '/year' }
+            ],
+            agriculturalData: [
+                { resource: 'Arable Land', amount: '165M hectares', utilization: '95%', output: '$1.2T/yr', globalRank: '#3' },
+                { resource: 'Forests', amount: '220M hectares', utilization: '35%', output: '$85B/yr', globalRank: '#5' },
+                { resource: 'Freshwater', amount: '2,840 km³/yr', utilization: '22%', output: 'N/A', globalRank: '#6' },
+                { resource: 'Fisheries', amount: '18M sq km EEZ', utilization: '65%', output: '$35B/yr', globalRank: '#1' }
+            ],
+            agriculturalStats: [
+                { title: 'Arable Land', value: '165M', unit: 'hectares' },
+                { title: 'Forests', value: '220M', unit: 'hectares' },
+                { title: 'Freshwater', value: '2,840', unit: 'km³/yr' },
+                { title: 'Marine EEZ', value: '18M', unit: 'sq km' }
+            ],
+            humanCapitalData: [
+                { metric: 'Population', value: '1.4B', growth: '+0.1%/yr', globalRank: '#1' },
+                { metric: 'Labor Force', value: '785M', growth: '+0.5%/yr', globalRank: '#1' },
+                { metric: 'STEM Graduates', value: '4.7M/yr', growth: '+8%/yr', globalRank: '#1' },
+                { metric: 'Skilled Workers', value: '220M', growth: '+3.5%/yr', globalRank: '#1' }
+            ],
+            humanCapitalStats: [
+                { title: 'Population', value: '1.4B', unit: '' },
+                { title: 'Labor Force', value: '785M', unit: '' },
+                { title: 'STEM Grads', value: '4.7M', unit: '/year' },
+                { title: 'Skilled Workers', value: '220M', unit: '' }
+            ],
+            intellectualData: [
+                { category: 'Patents', count: '1.5M', annual: '+320K/yr', value: '$2.8T', globalShare: '32%' },
+                { category: 'Research Unis', count: '2,900', annual: '$68B R&D', value: 'N/A', globalShare: '18%' },
+                { category: 'Publications', count: '680K/yr', annual: '+8%', value: 'N/A', globalShare: '24%' },
+                { category: 'Tech Patents', count: '450K', annual: '+85K/yr', value: '$850B', globalShare: '28%' }
+            ],
+            intellectualStats: [
+                { title: 'Active Patents', value: '1.5M', unit: '' },
+                { title: 'Research Unis', value: '2,900', unit: '' },
+                { title: 'Publications', value: '680K', unit: '/year' },
+                { title: 'R&D Spending', value: '$540B', unit: '' }
+            ],
+            strategicReservesData: [
+                { reserve: 'Petroleum Reserve', capacity: '500M barrels', current: '380M (76%)', value: '$32B', days: '90 days' },
+                { reserve: 'Grain Reserves', capacity: '180M tonnes', current: '150M (83%)', value: '$45B', days: '120 days' },
+                { reserve: 'Rare Earth', capacity: '200K tonnes', current: '85K (42%)', value: '$12B', days: '365 days' },
+                { reserve: 'Medical Supplies', capacity: '$25B', current: '$18B (72%)', value: '$18B', days: '180 days' }
+            ],
+            strategicStats: [
+                { title: 'Petroleum', value: '380M', unit: 'barrels' },
+                { title: 'Grain Reserve', value: '150M', unit: 'tonnes' },
+                { title: 'Rare Earth', value: '85K', unit: 'tonnes' },
+                { title: 'Medical', value: '$18B', unit: '' }
+            ],
+            digitalAssetsData: [
+                { asset: 'Data Centers', count: '2,800', capacity: '8,500 MW', investment: '$95B', growth: '+28%' },
+                { asset: 'Cloud Regions', count: '45', capacity: 'National', investment: '$65B', growth: '+35%' },
+                { asset: 'AI Clusters', count: '280', capacity: '15 ExaFLOPS', investment: '$38B', growth: '+85%' },
+                { asset: 'Cyber Centers', count: '850', capacity: 'National', investment: '$22B', growth: '+18%' }
+            ],
+            digitalStats: [
+                { title: 'Data Centers', value: '2,800', unit: '' },
+                { title: 'Cloud Regions', value: '45', unit: '' },
+                { title: 'AI Clusters', value: '280', unit: '' },
+                { title: 'Cyber Centers', value: '850', unit: '' }
+            ],
+            governanceData: [
+                { institution: 'Courts', count: '3,500 districts', personnel: '450K', budget: '$28B', efficiency: '72%' },
+                { institution: 'Government Agencies', count: '85', personnel: '8.5M', budget: '$1.2T', efficiency: '68%' },
+                { institution: 'Local Government', count: '2,800+', personnel: '45M', budget: '$850B', efficiency: '65%' },
+                { institution: 'Regulatory Bodies', count: '120', personnel: '380K', budget: '$45B', efficiency: '74%' }
+            ],
+            governanceStats: [
+                { title: 'Courts', value: '3,500', unit: 'districts' },
+                { title: 'Agencies', value: '85', unit: 'federal' },
+                { title: 'Regulatory', value: '120', unit: 'bodies' },
+                { title: 'Local Govts', value: '2,800+', unit: '' }
+            ],
+            lawEnforcementData: [
+                { agency: 'National Police', personnel: '1.6M', budget: '$85B', jurisdiction: 'National', clearRate: '45%' },
+                { agency: 'Local Police', personnel: '2.8M', budget: '$120B', jurisdiction: 'Local', clearRate: '52%' },
+                { agency: 'Border Security', personnel: '350K', budget: '$28B', jurisdiction: 'Borders', clearRate: 'N/A' },
+                { agency: 'Intelligence', personnel: '180K', budget: '$45B', jurisdiction: 'National', clearRate: 'N/A' }
+            ],
+            lawEnforcementStats: [
+                { title: 'National Police', value: '1.6M', unit: '' },
+                { title: 'Local Police', value: '2.8M', unit: '' },
+                { title: 'Border Security', value: '350K', unit: '' },
+                { title: 'Intelligence', value: '180K+', unit: '' }
+            ],
+            financialInfraData: [
+                { type: 'Commercial Banks', count: '4,500', assets: '$52T', coverage: 'National', rating: 'A' },
+                { type: 'Stock Exchanges', count: '15', assets: '$18T mkt cap', coverage: 'National', rating: 'A+' },
+                { type: 'Insurance', count: '280', assets: '$3.8T', coverage: 'National', rating: 'A' },
+                { type: 'Investment Banks', count: '180', assets: '$2.5T', coverage: 'Global', rating: 'A' }
+            ],
+            financialInfraStats: [
+                { title: 'Banks', value: '4,500', unit: '' },
+                { title: 'Exchanges', value: '15', unit: 'major' },
+                { title: 'Insurance', value: '280', unit: 'companies' },
+                { title: 'Market Cap', value: '$18T', unit: '' }
+            ],
+            tradeNetworksData: [
+                { network: 'Container Ports', count: '850', volume: '250M TEU/yr', value: '$4.2T', globalRank: '#1' },
+                { network: 'Trade Zones', count: '180', volume: '$1.8T', value: 'N/A', globalRank: '#1' },
+                { network: 'Logistics Hubs', count: '2,500', volume: '12B tonnes/yr', value: '$2.8T', globalRank: '#1' },
+                { network: 'Trade Agreements', count: '25 FTAs', volume: '140 countries', value: '$5.5T', globalRank: '#1' }
+            ],
+            tradeStats: [
+                { title: 'Container Ports', value: '850', unit: '' },
+                { title: 'Trade Volume', value: '$6.3T', unit: '/year' },
+                { title: 'FTAs', value: '25', unit: 'agreements' },
+                { title: 'Logistics Hubs', value: '2,500', unit: '' }
+            ],
+            laborMarketData: [
+                { metric: 'Employment', value: '745M', change: '+8M/yr', rate: '94.8%' },
+                { metric: 'Manufacturing', value: '112M', change: '+2.5M/yr', rate: '15%' },
+                { metric: 'Services', value: '380M', change: '+12M/yr', rate: '51%' },
+                { metric: 'Technology', value: '22M', change: '+1.8M/yr', rate: '3%' }
+            ],
+            laborStats: [
+                { title: 'Employment', value: '745M', unit: '' },
+                { title: 'Tech Jobs', value: '22M', unit: '' },
+                { title: 'Services', value: '380M', unit: '' },
+                { title: 'Unemployment', value: '5.2%', unit: '' }
+            ],
+            socialSafetyData: [
+                { program: 'Pension System', beneficiaries: '285M', annual: '$580B', coverage: '95%', fundStatus: 'Stable' },
+                { program: 'Healthcare', beneficiaries: '1.4B', annual: '$980B', coverage: '95%', fundStatus: 'Funded' },
+                { program: 'Unemployment', beneficiaries: '38M', annual: '$65B', coverage: '85%', fundStatus: 'Funded' },
+                { program: 'Social Assistance', beneficiaries: '180M', annual: '$120B', coverage: '100%', fundStatus: 'Funded' }
+            ],
+            socialSafetyStats: [
+                { title: 'Pension', value: '285M', unit: 'beneficiaries' },
+                { title: 'Healthcare', value: '1.4B', unit: 'covered' },
+                { title: 'Unemployment', value: '38M', unit: 'beneficiaries' },
+                { title: 'Social Aid', value: '180M', unit: 'beneficiaries' }
+            ],
+            diplomaticData: [
+                { type: 'Embassies', count: '175', personnel: '15,000', regions: 'Global', budget: '$8.5B' },
+                { type: 'Consulates', count: '280', personnel: '12,000', regions: 'Global', budget: '$4.2B' },
+                { type: 'Trade Missions', count: '350', personnel: '8,500', regions: 'Global', budget: '$2.8B' },
+                { type: 'Alliances', count: '12', personnel: 'N/A', regions: 'Global', budget: 'N/A' }
+            ],
+            diplomaticStats: [
+                { title: 'Embassies', value: '175', unit: '' },
+                { title: 'Consulates', value: '280', unit: '' },
+                { title: 'Alliances', value: '12', unit: 'major' },
+                { title: 'Trade Missions', value: '350', unit: '' }
+            ],
+            geopoliticalData: [
+                { asset: 'EEZ', size: '18M km²', value: 'Incalculable', rank: '#3 globally', control: 'Full' },
+                { asset: 'Airspace', size: '9.6M km²', value: 'Incalculable', rank: '#3 globally', control: 'Full' },
+                { asset: 'Satellites', size: '650+', value: '$85B', rank: '#2 globally', control: 'Full' },
+                { asset: 'Maritime Routes', size: '8 major', value: '$8T flow', rank: 'Strategic', control: 'Strong' }
+            ],
+            geopoliticalStats: [
+                { title: 'EEZ', value: '18M', unit: 'km²' },
+                { title: 'Airspace', value: '9.6M', unit: 'km²' },
+                { title: 'Satellites', value: '650+', unit: '' },
+                { title: 'Maritime Routes', value: '8', unit: 'major' }
+            ],
+            softPowerData: [
+                { category: 'Cultural Exports', value: '$85B/yr', reach: 'Global', rank: '#2', growth: '+8.5%' },
+                { category: 'Intl Students', value: '950K', reach: 'Global', rank: '#3', growth: '+12%' },
+                { category: 'Media', value: '$320B/yr', reach: 'Global', rank: '#2', growth: '+6.8%' },
+                { category: 'Tourism', value: '145M visitors', reach: 'Global', rank: '#1', growth: '+18%' }
+            ],
+            softPowerStats: [
+                { title: 'Cultural Exports', value: '$85B', unit: '/year' },
+                { title: 'Intl Students', value: '950K', unit: '' },
+                { title: 'Media', value: '$320B', unit: '/year' },
+                { title: 'Tourism', value: '145M', unit: 'visitors' }
+            ],
+            climateResilienceData: [
+                { system: 'Flood Control', count: '8,500 systems', capacity: '2.5B people', investment: '$85B', condition: 'Good' },
+                { system: 'Drought Management', count: '2,800', capacity: 'National', investment: '$32B', condition: 'Fair' },
+                { system: 'Storm Shelters', count: '15,000', capacity: '45M people', investment: '$18B', condition: 'Good' },
+                { system: 'Early Warning', count: '850 stations', capacity: 'National', investment: '$8.5B', condition: 'Excellent' }
+            ],
+            climateStats: [
+                { title: 'Flood Control', value: '8,500', unit: 'systems' },
+                { title: 'Drought Mgmt', value: '2,800', unit: '' },
+                { title: 'Shelters', value: '15,000', unit: '' },
+                { title: 'Warning Systems', value: '850', unit: 'stations' }
+            ],
+            protectedAreasData: [
+                { type: 'National Parks', count: '580', area: '150M hectares', visitors: '850M/yr', budget: '$12B' },
+                { type: 'Nature Reserves', count: '2,750', area: '180M hectares', visitors: '120M/yr', budget: '$8.5B' },
+                { type: 'Marine Protected', count: '280', area: '8.5M km²', visitors: '45M/yr', budget: '$2.8B' },
+                { type: 'Forests', count: '1,200', area: '220M hectares', visitors: '280M/yr', budget: '$15B' }
+            ],
+            protectedStats: [
+                { title: 'National Parks', value: '580', unit: '' },
+                { title: 'Nature Reserves', value: '2,750', unit: '' },
+                { title: 'Marine Areas', value: '280', unit: '' },
+                { title: 'Protected Forests', value: '1,200', unit: '' }
+            ],
+            renewablePotentialData: [
+                { source: 'Solar', potential: '2,400 GW', installed: '450 GW', utilization: '18.7%', growth: '+28%' },
+                { source: 'Wind', potential: '1,200 GW', installed: '380 GW', utilization: '31.6%', growth: '+22%' },
+                { source: 'Hydro', potential: '500 GW', installed: '420 GW', utilization: '84%', growth: '+2%' },
+                { source: 'Geothermal', potential: '45 GW', installed: '8 GW', utilization: '17.7%', growth: '+8%' }
+            ],
+            renewableStats: [
+                { title: 'Solar', value: '450', unit: 'GW' },
+                { title: 'Wind', value: '380', unit: 'GW' },
+                { title: 'Hydro', value: '420', unit: 'GW' },
+                { title: 'Geothermal', value: '8', unit: 'GW' }
+            ],
+            trendData: Array.from({ length: 12 }, (_, i) => ({
+                period: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i],
+                infrastructure: Math.round(65 + Math.random() * 25),
+                energy: Math.round(60 + Math.random() * 28),
+                digital: Math.round(70 + Math.random() * 22)
+            })),
+            countryComparison: selectedCountries.map(country => ({
+                country,
+                infrastructure: Math.round(55 + Math.random() * 40),
+                resources: Math.round(50 + Math.random() * 45),
+                digital: Math.round(60 + Math.random() * 35)
+            }))
+        };
+    };
 
     // Generate comprehensive data
     const infrastructureData = {
