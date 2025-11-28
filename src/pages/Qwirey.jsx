@@ -335,9 +335,18 @@ export default function Qwirey() {
                 const responses = await Promise.all(apiCalls);
                 const textResponse = responses[0];
 
-                // Only generate images for dynamic format
+                // Process responses based on format
                 let generatedImages = [];
+                let chartData = null;
+                let dashboardData = null;
+                let tabledData = null;
+                let reviewsData = null;
+
                 if (responseFormat === 'dynamic') {
+                    const imagesResponse = responses[1];
+                    const webDataResponse = responses[2];
+                    const dashboardDataResponse = responses[3];
+                    
                     const imagePrompts = imagesResponse?.imagePrompts?.slice(0, 4) || [];
                     generatedImages = await Promise.all(
                         imagePrompts.map(async (imgPrompt) => {
@@ -350,12 +359,14 @@ export default function Qwirey() {
                             }
                         })
                     );
+                    
+                    chartData = webDataResponse?.hasChartData ? webDataResponse : null;
+                    dashboardData = dashboardDataResponse;
+                } else if (responseFormat === 'tabled') {
+                    tabledData = responses[1];
+                } else if (responseFormat === 'reviews') {
+                    reviewsData = responses[1];
                 }
-
-                // Only use AI-generated dashboard data - no fallbacks
-                const finalDashboardData = responseFormat === 'dynamic' ? dashboardDataResponse : null;
-                const tabledData = responseFormat === 'tabled' ? dashboardDataResponse : null;
-                const reviewsData = responseFormat === 'reviews' ? dashboardDataResponse : null;
 
                 setResult({
                     type: 'qwirey',
@@ -363,8 +374,8 @@ export default function Qwirey() {
                     followUpQuestions: textResponse?.followUpQuestions || [],
                     sources: textResponse?.sources || [],
                     images: generatedImages.filter(Boolean),
-                    chartData: responseFormat === 'dynamic' && webDataResponse?.hasChartData ? webDataResponse : null,
-                    dashboardData: finalDashboardData,
+                    chartData: chartData,
+                    dashboardData: dashboardData,
                     tabledData: tabledData,
                     reviewsData: reviewsData
                 });
