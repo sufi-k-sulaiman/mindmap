@@ -35,14 +35,9 @@ export default function LearningIslandCard({ topic, index, progress = 0, onExplo
             onMouseLeave={() => setHovered(false)}
             onClick={() => !locked && onExplore(topic)}
         >
-            {/* Graduation cap on top */}
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
-                <GraduationCap className="w-10 h-10 text-purple-600" fill="currentColor" />
-            </div>
-            
-            {/* Priority number bubble */}
+            {/* Priority number bubble on top */}
             <div 
-                className="absolute top-3 left-1/2 -translate-x-1/2 z-20 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg"
+                className="absolute -top-2 left-1/2 -translate-x-1/2 z-20 w-9 h-9 rounded-full flex items-center justify-center text-white text-base font-bold shadow-lg"
                 style={{ backgroundColor: '#14B8A6' }}
             >
                 {index + 1}
@@ -51,7 +46,7 @@ export default function LearningIslandCard({ topic, index, progress = 0, onExplo
 
             
             {/* Island SVG - varied by index for unique look */}
-            <div className="w-44 h-36 mx-auto">
+            <div className="w-56 h-44 mx-auto mt-2">
                 <IslandSVG 
                     index={index} 
                     color={topic.color} 
@@ -75,9 +70,9 @@ export default function LearningIslandCard({ topic, index, progress = 0, onExplo
             )}
             
             {/* XP Badge below island */}
-            <div className="flex justify-center -mt-4 relative z-20">
+            <div className="flex justify-center -mt-5 relative z-20">
                 <div className="flex items-center gap-1.5 px-4 py-1.5 bg-amber-400 rounded-full text-base font-bold text-amber-900 shadow-lg">
-                    <GraduationCap className="w-5 h-5" />
+                    <GraduationCap className="w-6 h-6" />
                     {xpReward} XP
                 </div>
             </div>
