@@ -646,10 +646,6 @@ Provide detailed JSON with:
                         ))}
                     </div>
                 ) : null}
-
-
-            </div>
-
             </div>
         </div>
     );
