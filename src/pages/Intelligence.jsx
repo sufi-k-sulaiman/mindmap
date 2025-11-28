@@ -51,10 +51,10 @@ export default function Intelligence() {
     }, []);
 
     const [activeTab, setActiveTab] = useState('forecast');
-    const [selectedDomains, setSelectedDomains] = useState(['Economy']);
-    const [selectedCountries, setSelectedCountries] = useState(['USA', 'China']);
-    const [selectedTimeHorizons, setSelectedTimeHorizons] = useState(['Monthly']);
-    const [selectedModels, setSelectedModels] = useState(['Ensemble']);
+    const [selectedDomains, setSelectedDomains] = useState([]);
+    const [selectedCountries, setSelectedCountries] = useState([]);
+    const [selectedTimeHorizons, setSelectedTimeHorizons] = useState([]);
+    const [selectedModels, setSelectedModels] = useState([]);
     const [selectedDataSources, setSelectedDataSources] = useState([]);
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(false);
@@ -661,21 +661,56 @@ Provide detailed JSON with:
                             />
                         </div>
 
-                        {/* Charts Row 2 */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Charts Row 2 - Country Comparison (only show if multiple countries selected) */}
+                        {selectedCountries.length > 1 && (
                             <div className="bg-white rounded-xl border border-gray-200 p-5">
-                                <h3 className="font-semibold text-gray-900 mb-4">Country Comparison</h3>
-                                <div className="h-64">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={analysisResults.countryData || []}>
-                                            <XAxis dataKey="country" fontSize={10} />
-                                            <YAxis fontSize={10} />
-                                            <Tooltip />
-                                            <Bar dataKey="score" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
-                                        </BarChart>
-                                    </ResponsiveContainer>
+                                <h3 className="font-semibold text-gray-900 mb-4">Country Comparison Analysis</h3>
+                                <p className="text-sm text-gray-600 mb-4">Comparative performance metrics across {selectedCountries.join(', ')}</p>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Country Bar Chart */}
+                                    <div>
+                                        <h4 className="text-sm font-medium text-gray-700 mb-3">Performance Scores</h4>
+                                        <div className="h-64">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <BarChart data={analysisResults.countryData || []}>
+                                                    <XAxis dataKey="country" fontSize={10} />
+                                                    <YAxis fontSize={10} />
+                                                    <Tooltip />
+                                                    <Bar dataKey="score" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                    </div>
+
+                                    {/* Country Ranking List */}
+                                    <div>
+                                        <h4 className="text-sm font-medium text-gray-700 mb-3">Country Rankings</h4>
+                                        <div className="space-y-2">
+                                            {(analysisResults.countryData || [])
+                                                .sort((a, b) => b.score - a.score)
+                                                .map((country, i) => (
+                                                    <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${i === 0 ? 'bg-amber-100 text-amber-700' : i === 1 ? 'bg-gray-200 text-gray-700' : i === 2 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'}`}>
+                                                            {i + 1}
+                                                        </span>
+                                                        <span className="flex-1 font-medium text-gray-900">{country.country}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                                <div className="h-full bg-purple-600 rounded-full" style={{ width: `${country.score}%` }} />
+                                                            </div>
+                                                            <span className="text-sm font-semibold text-purple-600">{country.score}</span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                        )}
+
+                        {/* Performance Radar */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="bg-white rounded-xl border border-gray-200 p-5">
                                 <h3 className="font-semibold text-gray-900 mb-4">Performance Radar</h3>
                                 <div className="h-64">
@@ -688,6 +723,26 @@ Provide detailed JSON with:
                                             <Radar name="Target" dataKey="target" stroke="#10B981" fill="#10B981" fillOpacity={0.3} />
                                             <Legend />
                                         </RadarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                            <div className="bg-white rounded-xl border border-gray-200 p-5">
+                                <h3 className="font-semibold text-gray-900 mb-4">Forecast Trend</h3>
+                                <div className="h-64">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={analysisResults.forecastData || []}>
+                                            <defs>
+                                                <linearGradient id="confBand3" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
+                                                    <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+                                                </linearGradient>
+                                            </defs>
+                                            <XAxis dataKey="period" fontSize={10} />
+                                            <YAxis fontSize={10} />
+                                            <Tooltip />
+                                            <Area type="monotone" dataKey="actual" stroke="#8B5CF6" fill="url(#confBand3)" strokeWidth={2} />
+                                            <Area type="monotone" dataKey="forecast" stroke="#10B981" fill="transparent" strokeWidth={2} strokeDasharray="5 5" />
+                                        </AreaChart>
                                     </ResponsiveContainer>
                                 </div>
                             </div>
