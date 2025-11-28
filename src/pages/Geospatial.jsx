@@ -90,6 +90,44 @@ Provide realistic data in JSON format with these sections:
 22. healthcareStats: Array of 4 objects with {title, value, unit} for hospitals, beds, pharmacies, spending
 23. trendData: Array of 12 objects with {period, infrastructure, energy, digital} for monthly trends
 24. countryComparison: Array comparing selected countries with {country, infrastructure, resources, digital} scores 0-100
+25. publicFacilitiesData: Array of 6 objects with {type, count, capacity, condition, funding}
+26. publicFacilitiesStats: Array of 4 objects with {title, value, unit} for schools, hospitals, fire stations, police
+27. defenseData: Array of 5 objects with {type, count, personnel, status, budget}
+28. defenseStats: Array of 4 objects with {title, value, unit} for bases, naval, air force, budget
+29. agriculturalData: Array of 5 objects with {resource, amount, utilization, output, globalRank}
+30. agriculturalStats: Array of 4 objects with {title, value, unit} for arable land, forests, freshwater, marine EEZ
+31. humanCapitalData: Array of 5 objects with {metric, value, growth, globalRank}
+32. humanCapitalStats: Array of 4 objects with {title, value, unit} for population, labor force, STEM grads, skilled workers
+33. intellectualData: Array of 5 objects with {category, count, annual, value, globalShare}
+34. intellectualStats: Array of 4 objects with {title, value, unit} for patents, research unis, Nobel laureates, R&D
+35. strategicReservesData: Array of 5 objects with {reserve, capacity, current, value, days}
+36. strategicStats: Array of 4 objects with {title, value, unit} for petroleum, defense stockpile, food, medical
+37. digitalAssetsData: Array of 5 objects with {asset, count, capacity, investment, growth}
+38. digitalStats: Array of 4 objects with {title, value, unit} for data centers, cloud regions, AI clusters, cyber
+39. governanceData: Array of 5 objects with {institution, count, personnel, budget, efficiency}
+40. governanceStats: Array of 4 objects with {title, value, unit} for courts, agencies, regulatory, local gov
+41. lawEnforcementData: Array of 5 objects with {agency, personnel, budget, jurisdiction, clearRate}
+42. lawEnforcementStats: Array of 4 objects with {title, value, unit} for federal, local, border, intel
+43. financialInfraData: Array of 5 objects with {type, count, assets, coverage, rating}
+44. financialInfraStats: Array of 4 objects with {title, value, unit} for banks, exchanges, insurance, market cap
+45. tradeNetworksData: Array of 5 objects with {network, count, volume, value, globalRank}
+46. tradeStats: Array of 4 objects with {title, value, unit} for ports, trade volume, FTAs, logistics
+47. laborMarketData: Array of 5 objects with {metric, value, change, rate}
+48. laborStats: Array of 4 objects with {title, value, unit} for employment, tech jobs, gig workers, unemployment
+49. socialSafetyData: Array of 5 objects with {program, beneficiaries, annual, coverage, fundStatus}
+50. socialSafetyStats: Array of 4 objects with {title, value, unit} for social security, medicare, medicaid, SNAP
+51. diplomaticData: Array of 5 objects with {type, count, personnel, regions, budget}
+52. diplomaticStats: Array of 4 objects with {title, value, unit} for embassies, consulates, alliances, missions
+53. geopoliticalData: Array of 5 objects with {asset, size, value, rank, control}
+54. geopoliticalStats: Array of 4 objects with {title, value, unit} for EEZ, airspace, satellites, maritime
+55. softPowerData: Array of 5 objects with {category, value, reach, rank, growth}
+56. softPowerStats: Array of 4 objects with {title, value, unit} for cultural exports, students, media, tourism
+57. climateResilienceData: Array of 5 objects with {system, count, capacity, investment, condition}
+58. climateStats: Array of 4 objects with {title, value, unit} for flood control, wildfire, shelters, FEMA
+59. protectedAreasData: Array of 5 objects with {type, count, area, visitors, budget}
+60. protectedStats: Array of 4 objects with {title, value, unit} for parks, forests, refuges, marine
+61. renewablePotentialData: Array of 5 objects with {source, potential, installed, utilization, growth}
+62. renewableStats: Array of 4 objects with {title, value, unit} for solar, wind, hydro, geothermal
 
 Make all data realistic and proportional to each country's actual size and development level. Use actual known statistics where possible.`,
                 add_context_from_internet: true,
@@ -119,7 +157,45 @@ Make all data realistic and proportional to each country's actual size and devel
                         healthcareData: { type: "array", items: { type: "object", properties: { facility: { type: "string" }, count: { type: "string" }, capacity: { type: "string" }, staff: { type: "string" }, spending: { type: "string" } } } },
                         healthcareStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
                         trendData: { type: "array", items: { type: "object", properties: { period: { type: "string" }, infrastructure: { type: "number" }, energy: { type: "number" }, digital: { type: "number" } } } },
-                        countryComparison: { type: "array", items: { type: "object", properties: { country: { type: "string" }, infrastructure: { type: "number" }, resources: { type: "number" }, digital: { type: "number" } } } }
+                        countryComparison: { type: "array", items: { type: "object", properties: { country: { type: "string" }, infrastructure: { type: "number" }, resources: { type: "number" }, digital: { type: "number" } } } },
+                        publicFacilitiesData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, capacity: { type: "string" }, condition: { type: "string" }, funding: { type: "string" } } } },
+                        publicFacilitiesStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        defenseData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, personnel: { type: "string" }, status: { type: "string" }, budget: { type: "string" } } } },
+                        defenseStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        agriculturalData: { type: "array", items: { type: "object", properties: { resource: { type: "string" }, amount: { type: "string" }, utilization: { type: "string" }, output: { type: "string" }, globalRank: { type: "string" } } } },
+                        agriculturalStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        humanCapitalData: { type: "array", items: { type: "object", properties: { metric: { type: "string" }, value: { type: "string" }, growth: { type: "string" }, globalRank: { type: "string" } } } },
+                        humanCapitalStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        intellectualData: { type: "array", items: { type: "object", properties: { category: { type: "string" }, count: { type: "string" }, annual: { type: "string" }, value: { type: "string" }, globalShare: { type: "string" } } } },
+                        intellectualStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        strategicReservesData: { type: "array", items: { type: "object", properties: { reserve: { type: "string" }, capacity: { type: "string" }, current: { type: "string" }, value: { type: "string" }, days: { type: "string" } } } },
+                        strategicStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        digitalAssetsData: { type: "array", items: { type: "object", properties: { asset: { type: "string" }, count: { type: "string" }, capacity: { type: "string" }, investment: { type: "string" }, growth: { type: "string" } } } },
+                        digitalStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        governanceData: { type: "array", items: { type: "object", properties: { institution: { type: "string" }, count: { type: "string" }, personnel: { type: "string" }, budget: { type: "string" }, efficiency: { type: "string" } } } },
+                        governanceStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        lawEnforcementData: { type: "array", items: { type: "object", properties: { agency: { type: "string" }, personnel: { type: "string" }, budget: { type: "string" }, jurisdiction: { type: "string" }, clearRate: { type: "string" } } } },
+                        lawEnforcementStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        financialInfraData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, assets: { type: "string" }, coverage: { type: "string" }, rating: { type: "string" } } } },
+                        financialInfraStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        tradeNetworksData: { type: "array", items: { type: "object", properties: { network: { type: "string" }, count: { type: "string" }, volume: { type: "string" }, value: { type: "string" }, globalRank: { type: "string" } } } },
+                        tradeStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        laborMarketData: { type: "array", items: { type: "object", properties: { metric: { type: "string" }, value: { type: "string" }, change: { type: "string" }, rate: { type: "string" } } } },
+                        laborStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        socialSafetyData: { type: "array", items: { type: "object", properties: { program: { type: "string" }, beneficiaries: { type: "string" }, annual: { type: "string" }, coverage: { type: "string" }, fundStatus: { type: "string" } } } },
+                        socialSafetyStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        diplomaticData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, personnel: { type: "string" }, regions: { type: "string" }, budget: { type: "string" } } } },
+                        diplomaticStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        geopoliticalData: { type: "array", items: { type: "object", properties: { asset: { type: "string" }, size: { type: "string" }, value: { type: "string" }, rank: { type: "string" }, control: { type: "string" } } } },
+                        geopoliticalStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        softPowerData: { type: "array", items: { type: "object", properties: { category: { type: "string" }, value: { type: "string" }, reach: { type: "string" }, rank: { type: "string" }, growth: { type: "string" } } } },
+                        softPowerStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        climateResilienceData: { type: "array", items: { type: "object", properties: { system: { type: "string" }, count: { type: "string" }, capacity: { type: "string" }, investment: { type: "string" }, condition: { type: "string" } } } },
+                        climateStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        protectedAreasData: { type: "array", items: { type: "object", properties: { type: { type: "string" }, count: { type: "string" }, area: { type: "string" }, visitors: { type: "string" }, budget: { type: "string" } } } },
+                        protectedStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+                        renewablePotentialData: { type: "array", items: { type: "object", properties: { source: { type: "string" }, potential: { type: "string" }, installed: { type: "string" }, utilization: { type: "string" }, growth: { type: "string" } } } },
+                        renewableStats: { type: "array", items: { type: "object", properties: { title: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } }
                     }
                 }
             });
@@ -831,13 +907,12 @@ Make all data realistic and proportional to each country's actual size and devel
 
                             <TabsContent value="public">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="K-12 Schools" value="130,930" icon={GraduationCap} color="#EC4899" />
-                                    <AssetCard title="Hospitals" value="6,090" icon={Stethoscope} color="#EF4444" />
-                                    <AssetCard title="Fire Stations" value="29,705" icon={Shield} color="#F59E0B" />
-                                    <AssetCard title="Police Stations" value="18,000+" icon={ShieldCheck} color="#3B82F6" />
+                                    {(dynamicData?.publicFacilitiesStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[GraduationCap, Stethoscope, Shield, ShieldCheck][i]} color={['#EC4899', '#EF4444', '#F59E0B', '#3B82F6'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Public Facilities"
+                                    title={`Public Facilities - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'type', label: 'Type' },
                                         { key: 'count', label: 'Count' },
@@ -847,19 +922,17 @@ Make all data realistic and proportional to each country's actual size and devel
                                         )},
                                         { key: 'funding', label: 'Annual Funding' }
                                     ]}
-                                    data={publicFacilitiesTable}
-                                />
+                                    data={dynamicData?.publicFacilitiesData || []}/>
                             </TabsContent>
 
                             <TabsContent value="defense">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Military Bases" value="1,500+" unit="worldwide" icon={Shield} color="#EF4444" />
-                                    <AssetCard title="Naval Ports" value="28" unit="major" icon={Anchor} color="#3B82F6" />
-                                    <AssetCard title="Air Force Bases" value="156" icon={Plane} color="#8B5CF6" />
-                                    <AssetCard title="Defense Budget" value="$886B" icon={Shield} color="#10B981" change={3.2} trend="up" />
+                                    {(dynamicData?.defenseStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Shield, Anchor, Plane, Shield][i]} color={['#EF4444', '#3B82F6', '#8B5CF6', '#10B981'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Defense Infrastructure"
+                                    title={`Defense Infrastructure - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'type', label: 'Type' },
                                         { key: 'count', label: 'Count' },
@@ -869,8 +942,7 @@ Make all data realistic and proportional to each country's actual size and devel
                                         )},
                                         { key: 'budget', label: 'Budget' }
                                     ]}
-                                    data={defenseTable}
-                                />
+                                    data={dynamicData?.defenseData || []}/>
                             </TabsContent>
                         </Tabs>
                     </CategorySection>
@@ -933,13 +1005,12 @@ Make all data realistic and proportional to each country's actual size and devel
 
                             <TabsContent value="agricultural">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Arable Land" value="915M" unit="acres" icon={Leaf} color="#10B981" />
-                                    <AssetCard title="Forests" value="766M" unit="acres" icon={TreePine} color="#059669" />
-                                    <AssetCard title="Freshwater" value="3,069" unit="km³/yr" icon={Droplets} color="#06B6D4" />
-                                    <AssetCard title="Marine EEZ" value="4.4M" unit="sq mi" icon={Anchor} color="#3B82F6" />
+                                    {(dynamicData?.agriculturalStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Leaf, TreePine, Droplets, Anchor][i]} color={['#10B981', '#059669', '#06B6D4', '#3B82F6'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Agricultural & Natural Resources"
+                                    title={`Agricultural & Natural Resources - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'resource', label: 'Resource' },
                                         { key: 'amount', label: 'Amount' },
@@ -947,27 +1018,24 @@ Make all data realistic and proportional to each country's actual size and devel
                                         { key: 'output', label: 'Annual Output' },
                                         { key: 'globalRank', label: 'Global Rank' }
                                     ]}
-                                    data={agriculturalTable}
-                                />
+                                    data={dynamicData?.agriculturalData || []}/>
                             </TabsContent>
 
                             <TabsContent value="human">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Population" value="335M" icon={Users} color="#EC4899" change={0.4} trend="up" />
-                                    <AssetCard title="Labor Force" value="164M" icon={Briefcase} color="#3B82F6" />
-                                    <AssetCard title="STEM Grads" value="568K" unit="/year" icon={GraduationCap} color="#8B5CF6" change={3.2} trend="up" />
-                                    <AssetCard title="Skilled Workers" value="85M" icon={Award} color="#10B981" />
+                                    {(dynamicData?.humanCapitalStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Users, Briefcase, GraduationCap, Award][i]} color={['#EC4899', '#3B82F6', '#8B5CF6', '#10B981'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Human Capital Metrics"
+                                    title={`Human Capital - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'metric', label: 'Metric' },
                                         { key: 'value', label: 'Value' },
                                         { key: 'growth', label: 'Growth' },
                                         { key: 'globalRank', label: 'Global Rank' }
                                     ]}
-                                    data={humanCapitalTable}
-                                />
+                                    data={dynamicData?.humanCapitalData || []}/>
                             </TabsContent>
                         </Tabs>
                     </CategorySection>
@@ -1034,13 +1102,12 @@ Make all data realistic and proportional to each country's actual size and devel
 
                             <TabsContent value="intellectual">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Active Patents" value="3.4M" icon={Award} color="#8B5CF6" change={8.5} trend="up" />
-                                    <AssetCard title="Research Unis" value="418" icon={GraduationCap} color="#3B82F6" />
-                                    <AssetCard title="Nobel Laureates" value="403" icon={Award} color="#F59E0B" />
-                                    <AssetCard title="R&D Spending" value="$680B" icon={Lightbulb} color="#10B981" change={5.8} trend="up" />
+                                    {(dynamicData?.intellectualStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Award, GraduationCap, Award, Lightbulb][i]} color={['#8B5CF6', '#3B82F6', '#F59E0B', '#10B981'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Intellectual Assets"
+                                    title={`Intellectual Assets - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'category', label: 'Category' },
                                         { key: 'count', label: 'Count' },
@@ -1048,19 +1115,17 @@ Make all data realistic and proportional to each country's actual size and devel
                                         { key: 'value', label: 'Value' },
                                         { key: 'globalShare', label: 'Global Share' }
                                     ]}
-                                    data={intellectualAssetsTable}
-                                />
+                                    data={dynamicData?.intellectualData || []}/>
                             </TabsContent>
 
                             <TabsContent value="strategic">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Petroleum Reserve" value="372M" unit="barrels" icon={Fuel} color="#F59E0B" />
-                                    <AssetCard title="Defense Stockpile" value="$888M" icon={Shield} color="#EF4444" />
-                                    <AssetCard title="Food Reserves" value="120" unit="days" icon={Leaf} color="#10B981" />
-                                    <AssetCard title="Medical Reserve" value="$12B" icon={Stethoscope} color="#8B5CF6" />
+                                    {(dynamicData?.strategicStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Fuel, Shield, Leaf, Stethoscope][i]} color={['#F59E0B', '#EF4444', '#10B981', '#8B5CF6'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Strategic Reserves"
+                                    title={`Strategic Reserves - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'reserve', label: 'Reserve' },
                                         { key: 'capacity', label: 'Capacity' },
@@ -1068,19 +1133,17 @@ Make all data realistic and proportional to each country's actual size and devel
                                         { key: 'value', label: 'Value' },
                                         { key: 'days', label: 'Coverage' }
                                     ]}
-                                    data={strategicReservesTable}
-                                />
+                                    data={dynamicData?.strategicReservesData || []}/>
                             </TabsContent>
 
                             <TabsContent value="digital">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Hyperscale DCs" value="2,700+" icon={Server} color="#8B5CF6" change={24} trend="up" />
-                                    <AssetCard title="Cloud Regions" value="32" icon={Globe} color="#3B82F6" change={35} trend="up" />
-                                    <AssetCard title="AI Clusters" value="156" icon={Cpu} color="#10B981" change={85} trend="up" />
-                                    <AssetCard title="Cyber Centers" value="450+" icon={Lock} color="#EF4444" change={22} trend="up" />
+                                    {(dynamicData?.digitalStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Server, Globe, Cpu, Lock][i]} color={['#8B5CF6', '#3B82F6', '#10B981', '#EF4444'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Digital Assets"
+                                    title={`Digital Assets - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'asset', label: 'Asset' },
                                         { key: 'count', label: 'Count' },
@@ -1090,8 +1153,7 @@ Make all data realistic and proportional to each country's actual size and devel
                                             <span className="text-emerald-600">{val}</span>
                                         )}
                                     ]}
-                                    data={digitalAssetsTable}
-                                />
+                                    data={dynamicData?.digitalAssetsData || []}/>
                             </TabsContent>
                         </Tabs>
                     </CategorySection>
@@ -1114,13 +1176,12 @@ Make all data realistic and proportional to each country's actual size and devel
 
                             <TabsContent value="legal">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Federal Courts" value="94" unit="districts" icon={Scale} color="#8B5CF6" />
-                                    <AssetCard title="State Courts" value="50" unit="systems" icon={Scale} color="#3B82F6" />
-                                    <AssetCard title="Federal Agencies" value="438" icon={Building2} color="#10B981" />
-                                    <AssetCard title="Regulatory Bodies" value="115" icon={ShieldCheck} color="#F59E0B" />
+                                    {(dynamicData?.governanceStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Scale, Scale, Building2, ShieldCheck][i]} color={['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Government Institutions"
+                                    title={`Government Institutions - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'institution', label: 'Institution' },
                                         { key: 'count', label: 'Count' },
@@ -1128,19 +1189,17 @@ Make all data realistic and proportional to each country's actual size and devel
                                         { key: 'budget', label: 'Budget' },
                                         { key: 'efficiency', label: 'Efficiency' }
                                     ]}
-                                    data={governanceTable}
-                                />
+                                    data={dynamicData?.governanceData || []}/>
                             </TabsContent>
 
                             <TabsContent value="law">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Federal LEOs" value="137K" icon={ShieldCheck} color="#EF4444" />
-                                    <AssetCard title="Local Police" value="650K" icon={ShieldCheck} color="#3B82F6" />
-                                    <AssetCard title="Border Patrol" value="21K" icon={Shield} color="#10B981" />
-                                    <AssetCard title="Intel Personnel" value="100K+" icon={Lock} color="#8B5CF6" />
+                                    {(dynamicData?.lawEnforcementStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[ShieldCheck, ShieldCheck, Shield, Lock][i]} color={['#EF4444', '#3B82F6', '#10B981', '#8B5CF6'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Law Enforcement Agencies"
+                                    title={`Law Enforcement - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'agency', label: 'Agency' },
                                         { key: 'personnel', label: 'Personnel' },
@@ -1148,8 +1207,7 @@ Make all data realistic and proportional to each country's actual size and devel
                                         { key: 'jurisdiction', label: 'Jurisdiction' },
                                         { key: 'clearRate', label: 'Clear Rate' }
                                     ]}
-                                    data={lawEnforcementTable}
-                                />
+                                    data={dynamicData?.lawEnforcementData || []}/>
                             </TabsContent>
                         </Tabs>
                     </CategorySection>
@@ -1173,13 +1231,12 @@ Make all data realistic and proportional to each country's actual size and devel
 
                             <TabsContent value="financial">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Commercial Banks" value="4,844" icon={Landmark} color="#3B82F6" />
-                                    <AssetCard title="Stock Exchanges" value="13" unit="major" icon={BarChart3} color="#10B981" />
-                                    <AssetCard title="Insurance Cos" value="5,929" icon={Shield} color="#F59E0B" />
-                                    <AssetCard title="Market Cap" value="$53T" icon={TrendingUp} color="#8B5CF6" change={12} trend="up" />
+                                    {(dynamicData?.financialInfraStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Landmark, BarChart3, Shield, TrendingUp][i]} color={['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Financial Infrastructure"
+                                    title={`Financial Infrastructure - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'type', label: 'Type' },
                                         { key: 'count', label: 'Count' },
@@ -1187,19 +1244,17 @@ Make all data realistic and proportional to each country's actual size and devel
                                         { key: 'coverage', label: 'Coverage' },
                                         { key: 'rating', label: 'Rating' }
                                     ]}
-                                    data={financialInfraTable}
-                                />
+                                    data={dynamicData?.financialInfraData || []}/>
                             </TabsContent>
 
                             <TabsContent value="trade">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Container Ports" value="360" icon={Anchor} color="#3B82F6" />
-                                    <AssetCard title="Trade Volume" value="$4.6T" icon={Ship} color="#10B981" change={4.2} trend="up" />
-                                    <AssetCard title="FTAs" value="14" unit="agreements" icon={Globe} color="#8B5CF6" />
-                                    <AssetCard title="Logistics Hubs" value="1,200+" icon={Network} color="#F59E0B" />
+                                    {(dynamicData?.tradeStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Anchor, Ship, Globe, Network][i]} color={['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Trade Networks"
+                                    title={`Trade Networks - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'network', label: 'Network' },
                                         { key: 'count', label: 'Count' },
@@ -1207,27 +1262,24 @@ Make all data realistic and proportional to each country's actual size and devel
                                         { key: 'value', label: 'Value' },
                                         { key: 'globalRank', label: 'Global Rank' }
                                     ]}
-                                    data={tradeNetworksTable}
-                                />
+                                    data={dynamicData?.tradeNetworksData || []}/>
                             </TabsContent>
 
                             <TabsContent value="labor">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Total Employment" value="161M" icon={Users} color="#10B981" change={1.8} trend="up" />
-                                    <AssetCard title="Tech Jobs" value="12.1M" icon={Cpu} color="#8B5CF6" change={3.7} trend="up" />
-                                    <AssetCard title="Gig Workers" value="59M" icon={Briefcase} color="#F59E0B" change={12} trend="up" />
-                                    <AssetCard title="Unemployment" value="3.6%" icon={Users} color="#3B82F6" change={-0.2} trend="up" />
+                                    {(dynamicData?.laborStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Users, Cpu, Briefcase, Users][i]} color={['#10B981', '#8B5CF6', '#F59E0B', '#3B82F6'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Labor Market"
+                                    title={`Labor Market - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'metric', label: 'Metric' },
                                         { key: 'value', label: 'Value' },
                                         { key: 'change', label: 'Change' },
                                         { key: 'rate', label: 'Rate/Share' }
                                     ]}
-                                    data={laborMarketTable}
-                                />
+                                    data={dynamicData?.laborMarketData || []}/>
                             </TabsContent>
                         </Tabs>
                     </CategorySection>
@@ -1289,13 +1341,12 @@ Make all data realistic and proportional to each country's actual size and devel
 
                             <TabsContent value="safety">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Social Security" value="66M" unit="beneficiaries" icon={Users} color="#8B5CF6" />
-                                    <AssetCard title="Medicare" value="65M" unit="beneficiaries" icon={Heart} color="#EF4444" />
-                                    <AssetCard title="Medicaid" value="85M" unit="beneficiaries" icon={Heart} color="#10B981" />
-                                    <AssetCard title="SNAP" value="42M" unit="beneficiaries" icon={Leaf} color="#F59E0B" />
+                                    {(dynamicData?.socialSafetyStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Users, Heart, Heart, Leaf][i]} color={['#8B5CF6', '#EF4444', '#10B981', '#F59E0B'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Social Safety Net Programs"
+                                    title={`Social Safety Net - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'program', label: 'Program' },
                                         { key: 'beneficiaries', label: 'Beneficiaries' },
@@ -1303,8 +1354,7 @@ Make all data realistic and proportional to each country's actual size and devel
                                         { key: 'coverage', label: 'Coverage' },
                                         { key: 'fundStatus', label: 'Fund Status' }
                                     ]}
-                                    data={socialSafetyTable}
-                                />
+                                    data={dynamicData?.socialSafetyData || []}/>
                             </TabsContent>
                         </Tabs>
                     </CategorySection>
@@ -1328,13 +1378,12 @@ Make all data realistic and proportional to each country's actual size and devel
 
                             <TabsContent value="diplomatic">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Embassies" value="168" icon={Building2} color="#06B6D4" />
-                                    <AssetCard title="Consulates" value="88" icon={Building2} color="#3B82F6" />
-                                    <AssetCard title="Military Alliances" value="7" unit="major" icon={Shield} color="#EF4444" />
-                                    <AssetCard title="Trade Missions" value="275" icon={Briefcase} color="#10B981" />
+                                    {(dynamicData?.diplomaticStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Building2, Building2, Shield, Briefcase][i]} color={['#06B6D4', '#3B82F6', '#EF4444', '#10B981'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Diplomatic Networks"
+                                    title={`Diplomatic Networks - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'type', label: 'Type' },
                                         { key: 'count', label: 'Count' },
@@ -1342,19 +1391,17 @@ Make all data realistic and proportional to each country's actual size and devel
                                         { key: 'regions', label: 'Regions' },
                                         { key: 'budget', label: 'Budget' }
                                     ]}
-                                    data={diplomaticTable}
-                                />
+                                    data={dynamicData?.diplomaticData || []}/>
                             </TabsContent>
 
                             <TabsContent value="geopolitical">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="EEZ" value="11.4M" unit="km²" icon={Anchor} color="#3B82F6" />
-                                    <AssetCard title="Airspace" value="24.7M" unit="km²" icon={Plane} color="#8B5CF6" />
-                                    <AssetCard title="Space Assets" value="5,500+" unit="satellites" icon={Globe} color="#F59E0B" />
-                                    <AssetCard title="Maritime Routes" value="3" unit="chokepoints" icon={Ship} color="#10B981" />
+                                    {(dynamicData?.geopoliticalStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Anchor, Plane, Globe, Ship][i]} color={['#3B82F6', '#8B5CF6', '#F59E0B', '#10B981'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Geopolitical Assets"
+                                    title={`Geopolitical Assets - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'asset', label: 'Asset' },
                                         { key: 'size', label: 'Size/Count' },
@@ -1362,19 +1409,17 @@ Make all data realistic and proportional to each country's actual size and devel
                                         { key: 'rank', label: 'Global Rank' },
                                         { key: 'control', label: 'Control' }
                                     ]}
-                                    data={geopoliticalTable}
-                                />
+                                    data={dynamicData?.geopoliticalData || []}/>
                             </TabsContent>
 
                             <TabsContent value="softpower">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Cultural Exports" value="$178B" icon={Award} color="#EC4899" change={4.2} trend="up" />
-                                    <AssetCard title="Intl Students" value="1.1M" icon={GraduationCap} color="#8B5CF6" change={7.5} trend="up" />
-                                    <AssetCard title="Media & Entertainment" value="$820B" icon={Radio} color="#3B82F6" />
-                                    <AssetCard title="Tourism" value="79M" unit="visitors" icon={Globe} color="#10B981" change={15} trend="up" />
+                                    {(dynamicData?.softPowerStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Award, GraduationCap, Radio, Globe][i]} color={['#EC4899', '#8B5CF6', '#3B82F6', '#10B981'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Soft Power Assets"
+                                    title={`Soft Power - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'category', label: 'Category' },
                                         { key: 'value', label: 'Value' },
@@ -1384,8 +1429,7 @@ Make all data realistic and proportional to each country's actual size and devel
                                             <span className="text-emerald-600">{val}</span>
                                         )}
                                     ]}
-                                    data={softPowerTable}
-                                />
+                                    data={dynamicData?.softPowerData || []}/>
                             </TabsContent>
                         </Tabs>
                     </CategorySection>
@@ -1409,13 +1453,12 @@ Make all data realistic and proportional to each country's actual size and devel
 
                             <TabsContent value="climate">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Flood Control" value="2,500+" unit="levees" icon={Droplets} color="#06B6D4" />
-                                    <AssetCard title="Wildfire Mgmt" value="660M" unit="acres" icon={Zap} color="#EF4444" />
-                                    <AssetCard title="Hurricane Shelters" value="3,200" icon={Shield} color="#3B82F6" />
-                                    <AssetCard title="FEMA Budget" value="$28B" icon={Shield} color="#10B981" />
+                                    {(dynamicData?.climateStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Droplets, Zap, Shield, Shield][i]} color={['#06B6D4', '#EF4444', '#3B82F6', '#10B981'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Climate Resilience Systems"
+                                    title={`Climate Resilience - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'system', label: 'System' },
                                         { key: 'count', label: 'Count' },
@@ -1425,19 +1468,17 @@ Make all data realistic and proportional to each country's actual size and devel
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${val === 'Excellent' ? 'bg-emerald-100 text-emerald-700' : val === 'Good' ? 'bg-blue-100 text-blue-700' : val === 'Strained' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{val}</span>
                                         )}
                                     ]}
-                                    data={climateResilienceTable}
-                                />
+                                    data={dynamicData?.climateResilienceData || []}/>
                             </TabsContent>
 
                             <TabsContent value="protected">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="National Parks" value="63" icon={TreePine} color="#84CC16" />
-                                    <AssetCard title="National Forests" value="154" icon={TreePine} color="#10B981" />
-                                    <AssetCard title="Wildlife Refuges" value="568" icon={Leaf} color="#059669" />
-                                    <AssetCard title="Marine Sanctuaries" value="15" icon={Anchor} color="#06B6D4" />
+                                    {(dynamicData?.protectedStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[TreePine, TreePine, Leaf, Anchor][i]} color={['#84CC16', '#10B981', '#059669', '#06B6D4'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Protected Areas"
+                                    title={`Protected Areas - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'type', label: 'Type' },
                                         { key: 'count', label: 'Count' },
@@ -1445,19 +1486,17 @@ Make all data realistic and proportional to each country's actual size and devel
                                         { key: 'visitors', label: 'Annual Visitors' },
                                         { key: 'budget', label: 'Budget' }
                                     ]}
-                                    data={protectedAreasTable}
-                                />
+                                    data={dynamicData?.protectedAreasData || []}/>
                             </TabsContent>
 
                             <TabsContent value="renewable">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                                    <AssetCard title="Solar Installed" value="136" unit="GW" icon={Sun} color="#F59E0B" change={23.6} trend="up" />
-                                    <AssetCard title="Wind Installed" value="141" unit="GW" icon={Wind} color="#3B82F6" change={14.2} trend="up" />
-                                    <AssetCard title="Hydro" value="80" unit="GW" icon={Droplets} color="#06B6D4" />
-                                    <AssetCard title="Geothermal" value="3.7" unit="GW" icon={Zap} color="#EF4444" />
+                                    {(dynamicData?.renewableStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Sun, Wind, Droplets, Zap][i]} color={['#F59E0B', '#3B82F6', '#06B6D4', '#EF4444'][i]} />
+                                    ))}
                                 </div>
                                 <DataTable
-                                    title="Renewable Energy Potential"
+                                    title={`Renewable Energy - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'source', label: 'Source' },
                                         { key: 'potential', label: 'Potential' },
@@ -1467,8 +1506,7 @@ Make all data realistic and proportional to each country's actual size and devel
                                             <span className="text-emerald-600">{val}</span>
                                         )}
                                     ]}
-                                    data={renewablePotentialTable}
-                                />
+                                    data={dynamicData?.renewablePotentialData || []}/>
                             </TabsContent>
                         </Tabs>
                     </CategorySection>
