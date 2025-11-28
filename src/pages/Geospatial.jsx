@@ -626,7 +626,7 @@ Make data realistic and proportional to each country's actual size and developme
                 {selectedCountries.length > 0 && dynamicData && !dataLoading && <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Infrastructure Trend */}
                     <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-5">
-                        <h3 className="font-semibold text-gray-900 mb-4">Infrastructure Development Index - {selectedCountries.join(', ')}</h3>
+                        <h3 className="font-semibold text-gray-900 mb-4">Development Index - {selectedCountries.join(', ')}</h3>
                         <div className="h-72">
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={dynamicData.trendData || trendData}>
@@ -678,15 +678,11 @@ Make data realistic and proportional to each country's actual size and developme
                 {/* CORE INFRASTRUCTURE */}
                 {selectedCountries.length > 0 && dynamicData && !dataLoading && (activeCategory === 'all' || activeCategory === 'infrastructure') && (
                     <CategorySection
-                        title="Core Infrastructure"
+                        title={`Core Infrastructure - ${selectedCountries.join(', ')}`}
                         description="Transportation, energy, water, telecommunications, and defense systems"
                         icon={Building2}
                         color="#3B82F6"
-                        stats={[
-                            { value: '164K mi', label: 'Highways' },
-                            { value: '5,080', label: 'Airports' },
-                            { value: '1.2 TW', label: 'Power Capacity' }
-                        ]}
+                        stats={[]}
                     >
                         <Tabs defaultValue="transportation" className="mt-4">
                             <TabsList className="mb-4 flex-wrap">
@@ -706,17 +702,17 @@ Make data realistic and proportional to each country's actual size and developme
                                     <AssetCard title="Seaports" value="360" unit="deep-water" icon={Anchor} color="#8B5CF6" change={0.5} trend="stable" />
                                 </div>
                                 <DataTable
-                                    title="Transportation Infrastructure Details"
+                                    title={`Transportation Infrastructure - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'type', label: 'Type' },
-                                        { key: 'length', label: 'Length/Count' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'capacity', label: 'Capacity' },
                                         { key: 'condition', label: 'Condition', render: (val) => (
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${val === 'Excellent' ? 'bg-emerald-100 text-emerald-700' : val === 'Good' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>{val}</span>
                                         )},
-                                        { key: 'investment', label: 'Investment' },
-                                        { key: 'utilization', label: 'Utilization' }
+                                        { key: 'investment', label: 'Investment' }
                                     ]}
-                                    data={transportTable}
+                                    data={dynamicData?.transportData || []}
                                     maxRows={10}
                                 />
                             </TabsContent>
@@ -747,17 +743,17 @@ Make data realistic and proportional to each country's actual size and developme
                                         </div>
                                     </div>
                                     <DataTable
-                                        title="Power Generation Sources"
+                                        title={`Power Generation - ${selectedCountries.join(', ')}`}
                                         columns={[
                                             { key: 'source', label: 'Source' },
                                             { key: 'capacity', label: 'Capacity' },
                                             { key: 'share', label: 'Share' },
                                             { key: 'plants', label: 'Plants' },
                                             { key: 'growth', label: 'Growth', render: (val) => (
-                                                <span className={val.startsWith('+') ? 'text-emerald-600' : 'text-red-600'}>{val}</span>
+                                                <span className={val?.startsWith?.('+') ? 'text-emerald-600' : 'text-red-600'}>{val}</span>
                                             )}
                                         ]}
-                                        data={energyTable}
+                                        data={dynamicData?.energyData || []}
                                     />
                                 </div>
                                 <DataTable
@@ -781,7 +777,7 @@ Make data realistic and proportional to each country's actual size and developme
                                     <AssetCard title="Satellites" value="3,400" unit="active" icon={Globe} color="#F59E0B" change={28.3} trend="up" />
                                 </div>
                                 <DataTable
-                                    title="Telecommunications Infrastructure"
+                                    title={`Telecommunications - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'type', label: 'Type' },
                                         { key: 'count', label: 'Count' },
@@ -791,7 +787,7 @@ Make data realistic and proportional to each country's actual size and developme
                                             <span className="text-emerald-600">{val}</span>
                                         )}
                                     ]}
-                                    data={telecomTable}
+                                    data={dynamicData?.telecomData || []}
                                 />
                             </TabsContent>
 
@@ -803,7 +799,7 @@ Make data realistic and proportional to each country's actual size and developme
                                     <AssetCard title="Pipeline Network" value="2.2M" unit="miles" icon={Droplets} color="#8B5CF6" change={0.8} trend="up" />
                                 </div>
                                 <DataTable
-                                    title="Water Infrastructure Systems"
+                                    title={`Water Infrastructure - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'type', label: 'Type' },
                                         { key: 'count', label: 'Count' },
@@ -813,7 +809,7 @@ Make data realistic and proportional to each country's actual size and developme
                                         )},
                                         { key: 'age', label: 'Avg Age' }
                                     ]}
-                                    data={waterInfraTable}
+                                    data={dynamicData?.waterData || []}
                                 />
                             </TabsContent>
 
@@ -867,15 +863,11 @@ Make data realistic and proportional to each country's actual size and developme
                 {/* NATURAL & STRATEGIC RESOURCES */}
                 {selectedCountries.length > 0 && dynamicData && !dataLoading && (activeCategory === 'all' || activeCategory === 'resources') && (
                     <CategorySection
-                        title="Natural & Strategic Resources"
+                        title={`Natural & Strategic Resources - ${selectedCountries.join(', ')}`}
                         description="Energy reserves, minerals, agricultural resources, human capital, and biodiversity"
                         icon={Fuel}
                         color="#10B981"
-                        stats={[
-                            { value: '68.8B bbl', label: 'Oil Reserves' },
-                            { value: '253B tons', label: 'Coal' },
-                            { value: '915M acres', label: 'Farmland' }
-                        ]}
+                        stats={[]}
                     >
                         <Tabs defaultValue="energy" className="mt-4">
                             <TabsList className="mb-4 flex-wrap">
@@ -913,7 +905,7 @@ Make data realistic and proportional to each country's actual size and developme
                                     <AssetCard title="Rare Earth" value="1.5M" unit="tonnes" icon={Database} color="#8B5CF6" />
                                 </div>
                                 <DataTable
-                                    title="Mineral Resources"
+                                    title={`Mineral Resources - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'mineral', label: 'Mineral' },
                                         { key: 'reserves', label: 'Reserves' },
@@ -921,7 +913,7 @@ Make data realistic and proportional to each country's actual size and developme
                                         { key: 'globalRank', label: 'Global Rank' },
                                         { key: 'value', label: 'Annual Value' }
                                     ]}
-                                    data={mineralResourcesTable}
+                                    data={dynamicData?.mineralsData || []}
                                 />
                             </TabsContent>
 
@@ -970,15 +962,11 @@ Make data realistic and proportional to each country's actual size and developme
                 {/* NATIONAL ASSETS */}
                 {selectedCountries.length > 0 && dynamicData && !dataLoading && (activeCategory === 'all' || activeCategory === 'assets') && (
                     <CategorySection
-                        title="National Assets"
+                        title={`National Assets - ${selectedCountries.join(', ')}`}
                         description="Financial, industrial, cultural, intellectual, strategic reserves, and digital assets"
                         icon={Landmark}
                         color="#F59E0B"
-                        stats={[
-                            { value: '$8.1T', label: 'Gold Reserves' },
-                            { value: '$156B', label: 'Strategic Reserve' },
-                            { value: '24', label: 'World Heritage Sites' }
-                        ]}
+                        stats={[]}
                     >
                         <Tabs defaultValue="financial" className="mt-4">
                             <TabsList className="mb-4 flex-wrap">
@@ -997,16 +985,16 @@ Make data realistic and proportional to each country's actual size and developme
                                     <AssetCard title="Banking Assets" value="$23.7T" icon={Landmark} color="#8B5CF6" change={3.5} trend="up" />
                                 </div>
                                 <DataTable
-                                    title="Financial Assets"
+                                    title={`Financial Assets - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'asset', label: 'Asset' },
                                         { key: 'value', label: 'Value' },
                                         { key: 'change', label: 'Change', render: (val) => (
-                                            <span className={val.startsWith('+') ? 'text-emerald-600' : 'text-red-600'}>{val}</span>
+                                            <span className={val?.startsWith?.('+') ? 'text-emerald-600' : 'text-red-600'}>{val}</span>
                                         )},
                                         { key: 'type', label: 'Type' }
                                     ]}
-                                    data={financialAssetsTable}
+                                    data={dynamicData?.financialData || []}
                                 />
                             </TabsContent>
 
@@ -1018,7 +1006,7 @@ Make data realistic and proportional to each country's actual size and developme
                                     <AssetCard title="R&D Centers" value="15,000+" icon={Lightbulb} color="#10B981" />
                                 </div>
                                 <DataTable
-                                    title="Industrial Assets"
+                                    title={`Industrial Assets - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'sector', label: 'Sector' },
                                         { key: 'count', label: 'Count' },
@@ -1028,7 +1016,7 @@ Make data realistic and proportional to each country's actual size and developme
                                             <span className="text-emerald-600">{val}</span>
                                         )}
                                     ]}
-                                    data={industrialAssetsTable}
+                                    data={dynamicData?.industrialData || []}
                                 />
                             </TabsContent>
 
@@ -1100,15 +1088,11 @@ Make data realistic and proportional to each country's actual size and developme
                 {/* GOVERNANCE & INSTITUTIONS */}
                 {selectedCountries.length > 0 && dynamicData && !dataLoading && (activeCategory === 'all' || activeCategory === 'governance') && (
                     <CategorySection
-                        title="Governance & Institutions"
+                        title={`Governance & Institutions - ${selectedCountries.join(', ')}`}
                         description="Legal system, political institutions, law enforcement, and public administration"
                         icon={Scale}
                         color="#8B5CF6"
-                        stats={[
-                            { value: '438', label: 'Federal Agencies' },
-                            { value: '2.9M', label: 'Federal Employees' },
-                            { value: '90K+', label: 'Local Govts' }
-                        ]}
+                        stats={[]}
                     >
                         <Tabs defaultValue="legal" className="mt-4">
                             <TabsList className="mb-4 flex-wrap">
@@ -1162,15 +1146,11 @@ Make data realistic and proportional to each country's actual size and developme
                 {/* ECONOMIC SYSTEMS */}
                 {selectedCountries.length > 0 && dynamicData && !dataLoading && (activeCategory === 'all' || activeCategory === 'economic') && (
                     <CategorySection
-                        title="Economic Systems"
+                        title={`Economic Systems - ${selectedCountries.join(', ')}`}
                         description="Financial infrastructure, trade networks, industrial base, and labor markets"
                         icon={Briefcase}
                         color="#EF4444"
-                        stats={[
-                            { value: '$25.5T', label: 'GDP' },
-                            { value: '4,800', label: 'Banks' },
-                            { value: '164M', label: 'Workforce' }
-                        ]}
+                        stats={[]}
                     >
                         <Tabs defaultValue="financial" className="mt-4">
                             <TabsList className="mb-4 flex-wrap">
@@ -1244,15 +1224,11 @@ Make data realistic and proportional to each country's actual size and developme
                 {/* SOCIAL & HUMAN DEVELOPMENT */}
                 {selectedCountries.length > 0 && dynamicData && !dataLoading && (activeCategory === 'all' || activeCategory === 'social') && (
                     <CategorySection
-                        title="Social & Human Development"
+                        title={`Social & Human Development - ${selectedCountries.join(', ')}`}
                         description="Education systems, healthcare, social safety nets, and cultural institutions"
                         icon={Users}
                         color="#EC4899"
-                        stats={[
-                            { value: '130K', label: 'Schools' },
-                            { value: '6,090', label: 'Hospitals' },
-                            { value: '92%', label: 'Literacy' }
-                        ]}
+                        stats={[]}
                     >
                         <Tabs defaultValue="education" className="mt-4">
                             <TabsList className="mb-4 flex-wrap">
@@ -1269,7 +1245,7 @@ Make data realistic and proportional to each country's actual size and developme
                                     <AssetCard title="Ed Spending" value="$1.6T" icon={Banknote} color="#10B981" />
                                 </div>
                                 <DataTable
-                                    title="Education Systems"
+                                    title={`Education Systems - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'level', label: 'Level' },
                                         { key: 'institutions', label: 'Institutions' },
@@ -1277,7 +1253,7 @@ Make data realistic and proportional to each country's actual size and developme
                                         { key: 'teachers', label: 'Teachers' },
                                         { key: 'spending', label: 'Spending' }
                                     ]}
-                                    data={educationTable}
+                                    data={dynamicData?.educationData || []}
                                 />
                             </TabsContent>
 
@@ -1289,15 +1265,15 @@ Make data realistic and proportional to each country's actual size and developme
                                     <AssetCard title="Health Spending" value="$4.3T" icon={Banknote} color="#3B82F6" change={5.2} trend="up" />
                                 </div>
                                 <DataTable
-                                    title="Healthcare Systems"
+                                    title={`Healthcare Systems - ${selectedCountries.join(', ')}`}
                                     columns={[
                                         { key: 'facility', label: 'Facility Type' },
                                         { key: 'count', label: 'Count' },
-                                        { key: 'beds', label: 'Beds/Capacity' },
+                                        { key: 'capacity', label: 'Capacity' },
                                         { key: 'staff', label: 'Staff' },
                                         { key: 'spending', label: 'Spending' }
                                     ]}
-                                    data={healthcareTable}
+                                    data={dynamicData?.healthcareData || []}
                                 />
                             </TabsContent>
 
@@ -1327,15 +1303,11 @@ Make data realistic and proportional to each country's actual size and developme
                 {/* GLOBAL & STRATEGIC POSITIONING */}
                 {selectedCountries.length > 0 && dynamicData && !dataLoading && (activeCategory === 'all' || activeCategory === 'global') && (
                     <CategorySection
-                        title="Global & Strategic Positioning"
+                        title={`Global & Strategic Positioning - ${selectedCountries.join(', ')}`}
                         description="Diplomatic networks, geopolitical assets, soft power, and cyber infrastructure"
                         icon={Globe}
                         color="#06B6D4"
-                        stats={[
-                            { value: '168', label: 'Embassies' },
-                            { value: '11.4M km²', label: 'EEZ' },
-                            { value: '#1', label: 'Soft Power' }
-                        ]}
+                        stats={[]}
                     >
                         <Tabs defaultValue="diplomatic" className="mt-4">
                             <TabsList className="mb-4 flex-wrap">
@@ -1412,15 +1384,11 @@ Make data realistic and proportional to each country's actual size and developme
                 {/* ENVIRONMENTAL & SUSTAINABILITY */}
                 {selectedCountries.length > 0 && dynamicData && !dataLoading && (activeCategory === 'all' || activeCategory === 'environment') && (
                     <CategorySection
-                        title="Environmental & Sustainability Assets"
+                        title={`Environmental & Sustainability - ${selectedCountries.join(', ')}`}
                         description="Climate resilience, protected areas, and renewable energy potential"
                         icon={Leaf}
                         color="#84CC16"
-                        stats={[
-                            { value: '640M acres', label: 'Protected Land' },
-                            { value: '63', label: 'National Parks' },
-                            { value: '29%', label: 'Renewable Energy' }
-                        ]}
+                        stats={[]}
                     >
                         <Tabs defaultValue="climate" className="mt-4">
                             <TabsList className="mb-4 flex-wrap">
