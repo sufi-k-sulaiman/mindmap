@@ -26,13 +26,15 @@ import MultiSelectDropdown from '@/components/intelligence/MultiSelectDropdown';
 import LineChartWithMarkers from '@/components/dashboard/LineChartWithMarkers';
 
 const MODULES = [
-    { id: 'forecast', name: 'Forecasting', icon: LineChart, color: '#8B5CF6', desc: 'Time-series predictions with ARIMA, LSTM, Transformer models' },
-    { id: 'scenario', name: 'Scenario Builder', icon: GitBranch, color: '#10B981', desc: 'Drag-and-drop scenario construction with templates' },
-    { id: 'whatif', name: 'What-If Analysis', icon: Sliders, color: '#F59E0B', desc: 'Parameter sliders with instant recalculation' },
-    { id: 'simulation', name: 'Simulation', icon: Activity, color: '#3B82F6', desc: 'Agent-based, system dynamics, Monte Carlo runs' },
-    { id: 'risk', name: 'Risk Assessment', icon: Shield, color: '#EF4444', desc: 'Threat analysis, scoring matrices, early warnings' },
-    { id: 'opportunity', name: 'Opportunity Mapping', icon: Lightbulb, color: '#EC4899', desc: 'Growth potential, emerging markets, ROI forecasting' },
-    { id: 'impact', name: 'Impact Analysis', icon: Target, color: '#0EA5E9', desc: 'Policy quantification, cross-domain ripple effects' },
+    { id: 'forecast', name: 'Forecast', subtitle: '5-year predictions across all sectors', icon: LineChart, color: '#F59E0B', bgColor: '#FEF3C7', dataSources: ['GDP Growth', 'Employment Rates', 'Trade Balance'], buttonText: 'Run Forecast' },
+    { id: 'projection', name: 'Projection', subtitle: 'Decade-long sector trajectories', icon: TrendingUp, color: '#10B981', bgColor: '#D1FAE5', dataSources: ['Population Growth', 'Infrastructure Development', 'Technology Adoption'], buttonText: 'Run Projection' },
+    { id: 'prophesy', name: 'Prophesy', subtitle: 'Long-term visionary predictions', icon: Sparkles, color: '#8B5CF6', bgColor: '#EDE9FE', dataSources: ['Demographic Shifts', 'Technological Breakthroughs', 'Climate Change'], buttonText: 'Run Prophesy' },
+    { id: 'model', name: 'Model', subtitle: 'Complex systems modeling', icon: Cpu, color: '#0EA5E9', bgColor: '#E0F2FE', dataSources: ['Health-Economy Links', 'Education-Workforce', 'Defense-Security'], buttonText: 'Run Model' },
+    { id: 'emulation', name: 'Emulation', subtitle: 'Crisis response simulation', icon: Activity, color: '#EF4444', bgColor: '#FEE2E2', dataSources: ['Pandemic Response', 'Economic Recession', 'Natural Disasters'], buttonText: 'Run Emulation' },
+    { id: 'hypothetical', name: 'Hypothetical', subtitle: 'Policy intervention analysis', icon: Lightbulb, color: '#84CC16', bgColor: '#ECFCCB', dataSources: ['Universal Basic Income', 'Carbon Tax Impact', 'Education Reform'], buttonText: 'Run Hypothetical' },
+    { id: 'simulation', name: 'Simulation', subtitle: 'Monte Carlo probability runs', icon: GitBranch, color: '#0EA5E9', bgColor: '#E0F2FE', dataSources: ['Economic Growth', 'Immigration Flows', 'Trade Variations'], buttonText: 'Run Simulation' },
+    { id: 'scenario', name: 'Scenario', subtitle: 'Alternative future scenarios', icon: Layers, color: '#10B981', bgColor: '#D1FAE5', dataSources: ['Digital Utopia', 'Climate Crisis', 'Economic Stagnation'], buttonText: 'Run Scenario' },
+    { id: 'custom', name: 'Custom Query', subtitle: 'Ask anything with AI', icon: MessageSquare, color: '#84CC16', bgColor: '#ECFCCB', dataSources: [], buttonText: 'Generate Analysis', isCustom: true },
 ];
 
 const DOMAINS = ['Economy', 'Health', 'Education', 'Defense', 'Trade', 'Labor', 'Tourism', 'Climate'];
@@ -349,19 +351,67 @@ Provide:
                     </div>
                 </div>
 
-                {/* Module Tabs */}
-                <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                {/* Module Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                     {MODULES.map(mod => (
-                        <button key={mod.id} onClick={() => setActiveTab(mod.id)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl whitespace-nowrap transition-all ${
-                                activeTab === mod.id
-                                    ? 'bg-white shadow-md border-2 text-gray-900'
-                                    : 'bg-white/70 text-gray-600 hover:bg-white border border-gray-200'
-                            }`}
-                            style={{ borderColor: activeTab === mod.id ? mod.color : undefined }}>
-                            <mod.icon className="w-4 h-4" style={{ color: mod.color }} />
-                            <span className="font-medium text-sm">{mod.name}</span>
-                        </button>
+                        <div 
+                            key={mod.id} 
+                            className="rounded-2xl p-5 transition-all hover:shadow-lg cursor-pointer"
+                            style={{ backgroundColor: mod.bgColor }}
+                            onClick={() => !mod.isCustom && setActiveTab(mod.id)}
+                        >
+                            <div className="flex items-start gap-3 mb-4">
+                                <div 
+                                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                                    style={{ backgroundColor: `${mod.color}20` }}
+                                >
+                                    <mod.icon className="w-5 h-5" style={{ color: mod.color }} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-gray-900">{mod.name}</h3>
+                                    <p className="text-sm text-gray-600">{mod.subtitle}</p>
+                                </div>
+                            </div>
+                            
+                            {mod.isCustom ? (
+                                <div className="mb-4">
+                                    <p className="text-sm text-gray-600 mb-3">
+                                        Ask anything: "What if we increase healthcare spending by 20%?" or "Predict economic impact of new trade agreement..."
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="mb-4">
+                                    <p className="text-xs text-gray-500 font-medium mb-2">Key Data Sources</p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {mod.dataSources.map((source, i) => (
+                                            <span 
+                                                key={i} 
+                                                className="px-2.5 py-1 rounded-full text-xs font-medium bg-white/70 text-gray-700 border border-gray-200"
+                                            >
+                                                {source}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (mod.isCustom) {
+                                        setShowModal(true);
+                                    } else {
+                                        setActiveTab(mod.id);
+                                        loadDynamicData();
+                                    }
+                                }}
+                                className="w-full py-2.5 rounded-xl font-medium text-white flex items-center justify-center gap-2 transition-all hover:opacity-90"
+                                style={{ backgroundColor: mod.color }}
+                            >
+                                <Sparkles className="w-4 h-4" />
+                                {mod.buttonText}
+                            </button>
+                        </div>
                     ))}
                 </div>
 
