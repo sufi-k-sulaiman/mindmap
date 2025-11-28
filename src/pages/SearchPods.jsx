@@ -139,7 +139,7 @@ export default function SearchPods() {
     const utteranceRef = useRef(null);
     const timerRef = useRef(null);
     const audioRef = useRef(null);
-    const [useElevenLabs, setUseElevenLabs] = useState(true);
+    const [useElevenLabs, setUseElevenLabs] = useState(false);
     const [audioLoading, setAudioLoading] = useState(false);
 
     // Load voices
@@ -839,29 +839,25 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
                             </div>
                         </div>
 
-                        {/* Voice Toggle */}
-                        <div className="mt-4 flex justify-center gap-2">
-                            <button
-                                onClick={() => setUseElevenLabs(true)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                                    useElevenLabs 
-                                        ? 'bg-purple-600 text-white' 
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                }`}
-                            >
-                                🎙️ Natural Voice
-                            </button>
-                            <button
-                                onClick={() => setUseElevenLabs(false)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                                    !useElevenLabs 
-                                        ? 'bg-purple-600 text-white' 
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                }`}
-                            >
-                                🤖 Browser Voice
-                            </button>
-                        </div>
+                        {/* Voice Selection */}
+                        {voices.length > 1 && (
+                            <div className="mt-4 flex justify-center">
+                                <select
+                                    value={selectedVoice?.name || ''}
+                                    onChange={(e) => {
+                                        const voice = voices.find(v => v.name === e.target.value);
+                                        setSelectedVoice(voice);
+                                    }}
+                                    className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1 text-sm text-gray-700"
+                                >
+                                    {voices.map((voice) => (
+                                        <option key={voice.name} value={voice.name}>
+                                            {voice.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
                     </div>
                 </DialogContent>
             </Dialog>
