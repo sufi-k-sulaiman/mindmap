@@ -213,6 +213,25 @@ The URL must be a direct link to the article page, not a search results page.`,
                     </div>
                 </div>
 
+                {/* Search Bar */}
+                <form onSubmit={handleSearch} className="mb-6">
+                    <div className="relative">
+                        <Input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search for any news topic..."
+                            className="w-full h-14 pl-6 pr-16 rounded-full border-gray-200 bg-white shadow-sm focus:border-red-300 focus:ring-2 focus:ring-red-100 text-lg"
+                        />
+                        <button
+                            type="submit"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center transition-colors"
+                        >
+                            <Search className="w-5 h-5 text-white" />
+                        </button>
+                    </div>
+                </form>
+
                 {/* Categories */}
                 <div className="flex flex-wrap gap-2 mb-2">
                     {CATEGORIES.map((cat) => {
