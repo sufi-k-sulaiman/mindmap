@@ -291,17 +291,19 @@ Time horizons: ${selectedTimeHorizons.join(', ')}, Models: ${selectedModels.join
 Data sources to consider: ${selectedDataSources.length > 0 ? selectedDataSources.join(', ') : module.dataSources.join(', ')}
 
 Provide detailed JSON with:
-1. Executive summary (2-3 paragraphs)
-2. Key findings (5 detailed points)
-3. Risk level (Low/Medium/High) with explanation
+1. Executive summary (2-3 detailed paragraphs with specific metrics and insights)
+2. Key findings (5 detailed points with percentages and data)
+3. Risk level (Low/Medium/High) with detailed explanation
 4. Confidence score (0-100) with interval
 5. Recommendations (5 actionable items)
-6. Projected impact with metrics
+6. projectedImpact: detailed object with metrics, timeline, scenarios
 7. forecastData: 12 periods with actual (first 8) and forecast values
-8. distributionData: 5 segments with percentage breakdown
+8. distributionData: 5 segments for ${selectedDomains.join(', ')} breakdown
 9. trendData: 10 time periods with 3 trend lines
-10. countryData: comparison scores for selected countries
-11. radarData: 6 performance dimensions scored 0-100`,
+10. countryData: comparison scores for ${selectedCountries.join(', ')}
+11. radarData: 6 performance dimensions scored 0-100
+12. impactMetrics: 4 key impact metrics with values and changes
+13. scenarioData: 3 scenarios (optimistic, base, pessimistic) with probability`,
                 add_context_from_internet: true,
                 response_json_schema: {
                     type: "object",
@@ -318,7 +320,10 @@ Provide detailed JSON with:
                         distributionData: { type: "array", items: { type: "object", properties: { name: { type: "string" }, value: { type: "number" } } } },
                         trendData: { type: "array", items: { type: "object", properties: { period: { type: "string" }, trend1: { type: "number" }, trend2: { type: "number" }, trend3: { type: "number" } } } },
                         countryData: { type: "array", items: { type: "object", properties: { country: { type: "string" }, score: { type: "number" } } } },
-                        radarData: { type: "array", items: { type: "object", properties: { dimension: { type: "string" }, current: { type: "number" }, target: { type: "number" } } } }
+                        radarData: { type: "array", items: { type: "object", properties: { dimension: { type: "string" }, current: { type: "number" }, target: { type: "number" } } } },
+                        impactMetrics: { type: "array", items: { type: "object", properties: { name: { type: "string" }, value: { type: "string" }, change: { type: "string" }, trend: { type: "string" } } } },
+                        scenarioData: { type: "array", items: { type: "object", properties: { name: { type: "string" }, probability: { type: "number" }, gdpImpact: { type: "number" }, employmentImpact: { type: "number" } } } },
+                        impactTimeline: { type: "array", items: { type: "object", properties: { period: { type: "string" }, shortTerm: { type: "number" }, mediumTerm: { type: "number" }, longTerm: { type: "number" } } } }
                     }
                 }
             });
@@ -372,16 +377,33 @@ Provide detailed JSON with:
                     { dimension: 'Resilience', current: 70, target: 85 },
                     { dimension: 'Efficiency', current: 75, target: 90 },
                     { dimension: 'Sustainability', current: 60, target: 78 }
-                ],
-                module,
-                timestamp: new Date().toISOString()
-            };
-            setAnalysisResults(fallbackResults);
-            setViewMode('results');
-        } finally {
-            setDataLoading(false);
-        }
-    };
+                    ],
+                    impactMetrics: [
+                    { name: 'GDP Growth', value: '+3.2%', change: '+0.8%', trend: 'up' },
+                    { name: 'Employment', value: '94.2%', change: '+1.2%', trend: 'up' },
+                    { name: 'Trade Balance', value: '$42B', change: '-$3B', trend: 'down' },
+                    { name: 'Investment Flow', value: '$128B', change: '+$18B', trend: 'up' }
+                    ],
+                    scenarioData: [
+                    { name: 'Optimistic', probability: 25, gdpImpact: 4.5, employmentImpact: 2.1 },
+                    { name: 'Base Case', probability: 55, gdpImpact: 2.8, employmentImpact: 1.2 },
+                    { name: 'Pessimistic', probability: 20, gdpImpact: 0.5, employmentImpact: -0.8 }
+                    ],
+                    impactTimeline: Array.from({ length: 8 }, (_, i) => ({
+                    period: `Q${i + 1}`,
+                    shortTerm: Math.round(20 + Math.random() * 30),
+                    mediumTerm: Math.round(30 + Math.random() * 35),
+                    longTerm: Math.round(40 + Math.random() * 40)
+                    })),
+                    module,
+                    timestamp: new Date().toISOString()
+                    };
+                    setAnalysisResults(fallbackResults);
+                    setViewMode('results');
+                    } finally {
+                    setDataLoading(false);
+                    }
+                    };
 
     const saveToLibrary = () => {
         if (analysisResults) {
@@ -553,10 +575,33 @@ Provide detailed JSON with:
                                 </div>
                             </div>
                             
-                            {/* Summary */}
-                            <div className="p-4 bg-gray-50 rounded-lg mb-4">
-                                <h3 className="font-semibold text-gray-900 mb-2">Executive Summary</h3>
-                                <p className="text-gray-700">{analysisResults.summary}</p>
+                            {/* Executive Summary */}
+                            <div className="p-5 bg-gradient-to-r from-gray-50 to-purple-50 rounded-xl mb-4 border border-gray-100">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Brain className="w-5 h-5 text-purple-600" />
+                                    <h3 className="font-semibold text-gray-900">Executive Summary</h3>
+                                </div>
+                                <div className="prose prose-sm max-w-none">
+                                    <p className="text-gray-700 leading-relaxed mb-3">{analysisResults.summary}</p>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-gray-200">
+                                        <div className="text-center">
+                                            <p className="text-xs text-gray-500">Domains Analyzed</p>
+                                            <p className="font-bold text-purple-600">{selectedDomains.length}</p>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-xs text-gray-500">Countries</p>
+                                            <p className="font-bold text-blue-600">{selectedCountries.length}</p>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-xs text-gray-500">Time Horizon</p>
+                                            <p className="font-bold text-emerald-600">{selectedTimeHorizons[0]}</p>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-xs text-gray-500">Model</p>
+                                            <p className="font-bold text-amber-600">{selectedModels[0]}</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             
                             {/* Key Metrics */}
@@ -670,10 +715,108 @@ Provide detailed JSON with:
                             </div>
                         </div>
 
-                        {/* Impact */}
-                        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100 p-5">
-                            <h3 className="font-semibold text-gray-900 mb-2">Projected Impact</h3>
-                            <p className="text-gray-700">{analysisResults.projectedImpact}</p>
+                        {/* Projected Impact Section */}
+                        <div className="bg-white rounded-xl border border-gray-200 p-5">
+                            <div className="flex items-center gap-2 mb-4">
+                                <Target className="w-5 h-5 text-purple-600" />
+                                <h3 className="font-semibold text-gray-900">Projected Impact Analysis</h3>
+                            </div>
+                            
+                            {/* Impact Description */}
+                            <div className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl mb-6">
+                                <p className="text-gray-700 leading-relaxed">{analysisResults.projectedImpact}</p>
+                            </div>
+
+                            {/* Impact Metrics Cards */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                {(analysisResults.impactMetrics || [
+                                    { name: 'GDP Growth', value: '+3.2%', change: '+0.8%', trend: 'up' },
+                                    { name: 'Employment', value: '94.2%', change: '+1.2%', trend: 'up' },
+                                    { name: 'Trade Balance', value: '$42B', change: '-$3B', trend: 'down' },
+                                    { name: 'Investment Flow', value: '$128B', change: '+$18B', trend: 'up' }
+                                ]).map((metric, i) => (
+                                    <div key={i} className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                        <p className="text-xs text-gray-500 mb-1">{metric.name}</p>
+                                        <p className="text-xl font-bold text-gray-900">{metric.value}</p>
+                                        <div className={`flex items-center gap-1 mt-1 text-xs ${metric.trend === 'up' ? 'text-emerald-600' : 'text-red-600'}`}>
+                                            {metric.trend === 'up' ? <TrendingUp className="w-3 h-3" /> : <Activity className="w-3 h-3" />}
+                                            {metric.change}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Impact Charts Row */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                {/* Scenario Analysis */}
+                                <div className="bg-gray-50 rounded-xl p-4">
+                                    <h4 className="font-medium text-gray-900 mb-3">Scenario Analysis</h4>
+                                    <div className="h-48">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={analysisResults.scenarioData || [
+                                                { name: 'Optimistic', probability: 25, gdpImpact: 4.5, employmentImpact: 2.1 },
+                                                { name: 'Base Case', probability: 55, gdpImpact: 2.8, employmentImpact: 1.2 },
+                                                { name: 'Pessimistic', probability: 20, gdpImpact: 0.5, employmentImpact: -0.8 }
+                                            ]}>
+                                                <XAxis dataKey="name" fontSize={10} />
+                                                <YAxis fontSize={10} />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Bar dataKey="probability" name="Probability %" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                                                <Bar dataKey="gdpImpact" name="GDP Impact %" fill="#10B981" radius={[4, 4, 0, 0]} />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+
+                                {/* Impact Timeline */}
+                                <div className="bg-gray-50 rounded-xl p-4">
+                                    <h4 className="font-medium text-gray-900 mb-3">Impact Timeline</h4>
+                                    <div className="h-48">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <AreaChart data={analysisResults.impactTimeline || Array.from({ length: 8 }, (_, i) => ({
+                                                period: `Q${i + 1}`,
+                                                shortTerm: Math.round(20 + Math.random() * 30),
+                                                mediumTerm: Math.round(30 + Math.random() * 35),
+                                                longTerm: Math.round(40 + Math.random() * 40)
+                                            }))}>
+                                                <XAxis dataKey="period" fontSize={10} />
+                                                <YAxis fontSize={10} />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Area type="monotone" dataKey="shortTerm" name="Short Term" stroke="#EF4444" fill="#EF4444" fillOpacity={0.3} />
+                                                <Area type="monotone" dataKey="mediumTerm" name="Medium Term" stroke="#F59E0B" fill="#F59E0B" fillOpacity={0.3} />
+                                                <Area type="monotone" dataKey="longTerm" name="Long Term" stroke="#10B981" fill="#10B981" fillOpacity={0.3} />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Key Takeaways */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                        <span className="font-medium text-emerald-900">Opportunities</span>
+                                    </div>
+                                    <p className="text-sm text-emerald-700">Strong growth potential in {selectedDomains[0]} sector with favorable market conditions</p>
+                                </div>
+                                <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                                        <span className="font-medium text-amber-900">Risks</span>
+                                    </div>
+                                    <p className="text-sm text-amber-700">Monitor geopolitical developments and policy changes in {selectedCountries[0]}</p>
+                                </div>
+                                <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Zap className="w-4 h-4 text-blue-600" />
+                                        <span className="font-medium text-blue-900">Action Items</span>
+                                    </div>
+                                    <p className="text-sm text-blue-700">Implement {selectedModels[0]} model updates for {selectedTimeHorizons[0]} forecasting</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ) : viewMode === 'library' ? (
