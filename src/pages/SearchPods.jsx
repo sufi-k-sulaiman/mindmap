@@ -141,6 +141,8 @@ export default function SearchPods() {
     const audioRef = useRef(null);
     const [useElevenLabs, setUseElevenLabs] = useState(false);
     const [audioLoading, setAudioLoading] = useState(false);
+    const [podImage, setPodImage] = useState(null);
+    const [imageLoading, setImageLoading] = useState(false);
 
     // Load voices
     useEffect(() => {
