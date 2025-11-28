@@ -600,17 +600,19 @@ export default function Geospatial() {
                         ]}
                     >
                         <Tabs defaultValue="transportation" className="mt-4">
-                            <TabsList className="mb-4">
+                            <TabsList className="mb-4 flex-wrap">
                                 <TabsTrigger value="transportation" className="gap-2"><Train className="w-4 h-4" /> Transportation</TabsTrigger>
                                 <TabsTrigger value="energy" className="gap-2"><Zap className="w-4 h-4" /> Energy</TabsTrigger>
                                 <TabsTrigger value="telecom" className="gap-2"><Wifi className="w-4 h-4" /> Telecom</TabsTrigger>
                                 <TabsTrigger value="water" className="gap-2"><Droplets className="w-4 h-4" /> Water</TabsTrigger>
+                                <TabsTrigger value="public" className="gap-2"><Building2 className="w-4 h-4" /> Public Facilities</TabsTrigger>
+                                <TabsTrigger value="defense" className="gap-2"><Shield className="w-4 h-4" /> Defense</TabsTrigger>
                             </TabsList>
 
                             <TabsContent value="transportation">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                                     <AssetCard title="Highway Network" value="164,000" unit="miles" icon={Train} color="#3B82F6" change={2.1} trend="up" />
-                                    <AssetCard title="Railway Lines" value="140,000" unit="miles" icon={Train} color="#10B981" change={0.8} trend="up" />
+                                    <AssetCard title="Railway Lines" value="161,400" unit="miles" icon={Train} color="#10B981" change={0.8} trend="up" />
                                     <AssetCard title="Airports" value="5,080" unit="facilities" icon={Plane} color="#F59E0B" change={1.2} trend="up" />
                                     <AssetCard title="Seaports" value="360" unit="deep-water" icon={Anchor} color="#8B5CF6" change={0.5} trend="stable" />
                                 </div>
@@ -622,9 +624,11 @@ export default function Geospatial() {
                                         { key: 'condition', label: 'Condition', render: (val) => (
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${val === 'Excellent' ? 'bg-emerald-100 text-emerald-700' : val === 'Good' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>{val}</span>
                                         )},
-                                        { key: 'investment', label: 'Investment' }
+                                        { key: 'investment', label: 'Investment' },
+                                        { key: 'utilization', label: 'Utilization' }
                                     ]}
                                     data={transportTable}
+                                    maxRows={10}
                                 />
                             </TabsContent>
 
@@ -635,7 +639,7 @@ export default function Geospatial() {
                                     <AssetCard title="Renewable Share" value="29" unit="%" icon={Sun} color="#10B981" change={15.2} trend="up" />
                                     <AssetCard title="Gas Pipelines" value="305K" unit="miles" icon={Fuel} color="#8B5CF6" change={1.8} trend="up" />
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <div className="bg-gray-50 rounded-xl p-5">
                                         <h4 className="font-semibold text-gray-900 mb-4">Energy Mix</h4>
                                         <div className="h-64">
@@ -654,11 +658,12 @@ export default function Geospatial() {
                                         </div>
                                     </div>
                                     <DataTable
-                                        title="Energy Sources"
+                                        title="Power Generation Sources"
                                         columns={[
                                             { key: 'source', label: 'Source' },
                                             { key: 'capacity', label: 'Capacity' },
                                             { key: 'share', label: 'Share' },
+                                            { key: 'plants', label: 'Plants' },
                                             { key: 'growth', label: 'Growth', render: (val) => (
                                                 <span className={val.startsWith('+') ? 'text-emerald-600' : 'text-red-600'}>{val}</span>
                                             )}
@@ -666,6 +671,17 @@ export default function Geospatial() {
                                         data={energyTable}
                                     />
                                 </div>
+                                <DataTable
+                                    title="Energy Resources & Reserves"
+                                    columns={[
+                                        { key: 'resource', label: 'Resource' },
+                                        { key: 'amount', label: 'Reserves' },
+                                        { key: 'production', label: 'Production' },
+                                        { key: 'lifespan', label: 'Lifespan' },
+                                        { key: 'value', label: 'Est. Value' }
+                                    ]}
+                                    data={energyResourcesTable}
+                                />
                             </TabsContent>
 
                             <TabsContent value="telecom">
@@ -675,15 +691,85 @@ export default function Geospatial() {
                                     <AssetCard title="Data Centers" value="5,375" unit="facilities" icon={Server} color="#10B981" change={18.5} trend="up" />
                                     <AssetCard title="Satellites" value="3,400" unit="active" icon={Globe} color="#F59E0B" change={28.3} trend="up" />
                                 </div>
+                                <DataTable
+                                    title="Telecommunications Infrastructure"
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'coverage', label: 'Coverage' },
+                                        { key: 'investment', label: 'Investment' },
+                                        { key: 'growth', label: 'Growth', render: (val) => (
+                                            <span className="text-emerald-600">{val}</span>
+                                        )}
+                                    ]}
+                                    data={telecomTable}
+                                />
                             </TabsContent>
 
                             <TabsContent value="water">
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                                     <AssetCard title="Dams" value="91,457" unit="total" icon={Droplets} color="#06B6D4" change={0.2} trend="stable" />
                                     <AssetCard title="Reservoirs" value="53,000" unit="capacity" icon={Droplets} color="#3B82F6" change={1.1} trend="up" />
                                     <AssetCard title="Treatment Plants" value="16,000" unit="facilities" icon={Droplets} color="#10B981" change={2.3} trend="up" />
                                     <AssetCard title="Pipeline Network" value="2.2M" unit="miles" icon={Droplets} color="#8B5CF6" change={0.8} trend="up" />
                                 </div>
+                                <DataTable
+                                    title="Water Infrastructure Systems"
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'capacity', label: 'Capacity' },
+                                        { key: 'condition', label: 'Condition', render: (val) => (
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${val === 'Excellent' ? 'bg-emerald-100 text-emerald-700' : val === 'Good' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>{val}</span>
+                                        )},
+                                        { key: 'age', label: 'Avg Age' }
+                                    ]}
+                                    data={waterInfraTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="public">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="K-12 Schools" value="130,930" icon={GraduationCap} color="#EC4899" />
+                                    <AssetCard title="Hospitals" value="6,090" icon={Stethoscope} color="#EF4444" />
+                                    <AssetCard title="Fire Stations" value="29,705" icon={Shield} color="#F59E0B" />
+                                    <AssetCard title="Police Stations" value="18,000+" icon={ShieldCheck} color="#3B82F6" />
+                                </div>
+                                <DataTable
+                                    title="Public Facilities"
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'capacity', label: 'Capacity' },
+                                        { key: 'condition', label: 'Condition', render: (val) => (
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${val === 'Excellent' ? 'bg-emerald-100 text-emerald-700' : val === 'Good' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>{val}</span>
+                                        )},
+                                        { key: 'funding', label: 'Annual Funding' }
+                                    ]}
+                                    data={publicFacilitiesTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="defense">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Military Bases" value="1,500+" unit="worldwide" icon={Shield} color="#EF4444" />
+                                    <AssetCard title="Naval Ports" value="28" unit="major" icon={Anchor} color="#3B82F6" />
+                                    <AssetCard title="Air Force Bases" value="156" icon={Plane} color="#8B5CF6" />
+                                    <AssetCard title="Defense Budget" value="$886B" icon={Shield} color="#10B981" change={3.2} trend="up" />
+                                </div>
+                                <DataTable
+                                    title="Defense Infrastructure"
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'personnel', label: 'Personnel' },
+                                        { key: 'status', label: 'Status', render: (val) => (
+                                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">{val}</span>
+                                        )},
+                                        { key: 'budget', label: 'Budget' }
+                                    ]}
+                                    data={defenseTable}
+                                />
                             </TabsContent>
                         </Tabs>
                     </CategorySection>
@@ -693,7 +779,7 @@ export default function Geospatial() {
                 {(activeCategory === 'all' || activeCategory === 'resources') && (
                     <CategorySection
                         title="Natural & Strategic Resources"
-                        description="Energy reserves, minerals, agricultural resources, and biodiversity"
+                        description="Energy reserves, minerals, agricultural resources, human capital, and biodiversity"
                         icon={Fuel}
                         color="#10B981"
                         stats={[
@@ -702,38 +788,93 @@ export default function Geospatial() {
                             { value: '915M acres', label: 'Farmland' }
                         ]}
                     >
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-                            <ResourcesChart 
-                                title="Energy Reserves" 
-                                data={resourcesData.energy}
-                                type="horizontal"
-                            />
-                            <ResourcesChart 
-                                title="Mineral Resources" 
-                                data={resourcesData.minerals}
-                                type="bar"
-                            />
-                            <div className="bg-white rounded-xl border border-gray-200 p-5">
-                                <h3 className="font-semibold text-gray-900 mb-4">Resource Assessment</h3>
-                                <div className="h-64">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <RadarChart data={radarData}>
-                                            <PolarGrid />
-                                            <PolarAngleAxis dataKey="dimension" fontSize={10} />
-                                            <PolarRadiusAxis angle={30} domain={[0, 100]} fontSize={10} />
-                                            <Radar name="Score" dataKey="value" stroke="#10B981" fill="#10B981" fillOpacity={0.3} />
-                                            <Tooltip />
-                                        </RadarChart>
-                                    </ResponsiveContainer>
+                        <Tabs defaultValue="energy" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="energy" className="gap-2"><Fuel className="w-4 h-4" /> Energy Resources</TabsTrigger>
+                                <TabsTrigger value="minerals" className="gap-2"><Database className="w-4 h-4" /> Minerals</TabsTrigger>
+                                <TabsTrigger value="agricultural" className="gap-2"><Leaf className="w-4 h-4" /> Agricultural</TabsTrigger>
+                                <TabsTrigger value="human" className="gap-2"><Users className="w-4 h-4" /> Human Capital</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="energy">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Oil Reserves" value="68.8B" unit="barrels" icon={Fuel} color="#F59E0B" />
+                                    <AssetCard title="Natural Gas" value="625" unit="Tcf" icon={Fuel} color="#3B82F6" />
+                                    <AssetCard title="Coal Reserves" value="253B" unit="tonnes" icon={Fuel} color="#6B7280" />
+                                    <AssetCard title="Shale Oil" value="78.2B" unit="barrels" icon={Fuel} color="#8B5CF6" />
                                 </div>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                            <AssetCard title="Oil Reserves" value="68.8" unit="billion bbl" icon={Fuel} color="#F59E0B" />
-                            <AssetCard title="Natural Gas" value="625" unit="tcf" icon={Fuel} color="#3B82F6" />
-                            <AssetCard title="Arable Land" value="915M" unit="acres" icon={Leaf} color="#10B981" />
-                            <AssetCard title="Fresh Water" value="6%" unit="of global" icon={Droplets} color="#06B6D4" />
-                        </div>
+                                <DataTable
+                                    title="Energy Resources & Reserves"
+                                    columns={[
+                                        { key: 'resource', label: 'Resource' },
+                                        { key: 'amount', label: 'Reserves' },
+                                        { key: 'production', label: 'Production' },
+                                        { key: 'lifespan', label: 'Lifespan' },
+                                        { key: 'value', label: 'Est. Value' }
+                                    ]}
+                                    data={energyResourcesTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="minerals">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Iron Ore" value="3B" unit="tonnes" icon={Database} color="#EF4444" />
+                                    <AssetCard title="Copper" value="48M" unit="tonnes" icon={Database} color="#F59E0B" />
+                                    <AssetCard title="Gold" value="3,000" unit="tonnes" icon={Coins} color="#F59E0B" />
+                                    <AssetCard title="Rare Earth" value="1.5M" unit="tonnes" icon={Database} color="#8B5CF6" />
+                                </div>
+                                <DataTable
+                                    title="Mineral Resources"
+                                    columns={[
+                                        { key: 'mineral', label: 'Mineral' },
+                                        { key: 'reserves', label: 'Reserves' },
+                                        { key: 'production', label: 'Annual Production' },
+                                        { key: 'globalRank', label: 'Global Rank' },
+                                        { key: 'value', label: 'Annual Value' }
+                                    ]}
+                                    data={mineralResourcesTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="agricultural">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Arable Land" value="915M" unit="acres" icon={Leaf} color="#10B981" />
+                                    <AssetCard title="Forests" value="766M" unit="acres" icon={TreePine} color="#059669" />
+                                    <AssetCard title="Freshwater" value="3,069" unit="km³/yr" icon={Droplets} color="#06B6D4" />
+                                    <AssetCard title="Marine EEZ" value="4.4M" unit="sq mi" icon={Anchor} color="#3B82F6" />
+                                </div>
+                                <DataTable
+                                    title="Agricultural & Natural Resources"
+                                    columns={[
+                                        { key: 'resource', label: 'Resource' },
+                                        { key: 'amount', label: 'Amount' },
+                                        { key: 'utilization', label: 'Utilization' },
+                                        { key: 'output', label: 'Annual Output' },
+                                        { key: 'globalRank', label: 'Global Rank' }
+                                    ]}
+                                    data={agriculturalTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="human">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Population" value="335M" icon={Users} color="#EC4899" change={0.4} trend="up" />
+                                    <AssetCard title="Labor Force" value="164M" icon={Briefcase} color="#3B82F6" />
+                                    <AssetCard title="STEM Grads" value="568K" unit="/year" icon={GraduationCap} color="#8B5CF6" change={3.2} trend="up" />
+                                    <AssetCard title="Skilled Workers" value="85M" icon={Award} color="#10B981" />
+                                </div>
+                                <DataTable
+                                    title="Human Capital Metrics"
+                                    columns={[
+                                        { key: 'metric', label: 'Metric' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'growth', label: 'Growth' },
+                                        { key: 'globalRank', label: 'Global Rank' }
+                                    ]}
+                                    data={humanCapitalTable}
+                                />
+                            </TabsContent>
+                        </Tabs>
                     </CategorySection>
                 )}
 
@@ -741,7 +882,7 @@ export default function Geospatial() {
                 {(activeCategory === 'all' || activeCategory === 'assets') && (
                     <CategorySection
                         title="National Assets"
-                        description="Financial, industrial, cultural, intellectual, and strategic reserves"
+                        description="Financial, industrial, cultural, intellectual, strategic reserves, and digital assets"
                         icon={Landmark}
                         color="#F59E0B"
                         stats={[
@@ -750,45 +891,182 @@ export default function Geospatial() {
                             { value: '24', label: 'World Heritage Sites' }
                         ]}
                     >
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                            <AssetCard title="Gold Reserves" value="8,133" unit="tonnes" icon={Coins} color="#F59E0B" change={2.1} trend="up" />
-                            <AssetCard title="Foreign Reserves" value="$242B" icon={Banknote} color="#10B981" change={-1.2} trend="down" />
-                            <AssetCard title="Patents" value="3.4M" unit="active" icon={Award} color="#8B5CF6" change={8.5} trend="up" />
-                            <AssetCard title="Heritage Sites" value="24" unit="UNESCO" icon={Landmark} color="#EF4444" />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                            <InfrastructureStats 
-                                title="Asset Value Growth"
-                                data={trendData.map(d => ({ period: d.period, value: 50 + Math.random() * 40 }))}
-                            />
-                            <div className="bg-white rounded-xl border border-gray-200 p-5">
-                                <h3 className="font-semibold text-gray-900 mb-4">Strategic Reserves Status</h3>
-                                <div className="space-y-4">
-                                    {[
-                                        { name: 'Strategic Petroleum Reserve', level: 78, capacity: '714M barrels' },
-                                        { name: 'National Defense Stockpile', level: 92, capacity: '$1.2B value' },
-                                        { name: 'Emergency Food Reserves', level: 65, capacity: '120 days supply' },
-                                        { name: 'Medical Countermeasures', level: 84, capacity: '$12B inventory' }
-                                    ].map((item, i) => (
-                                        <div key={i}>
-                                            <div className="flex justify-between text-sm mb-1">
-                                                <span className="text-gray-700">{item.name}</span>
-                                                <span className="text-gray-500">{item.capacity}</span>
-                                            </div>
-                                            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                                <div 
-                                                    className="h-full rounded-full transition-all"
-                                                    style={{ 
-                                                        width: `${item.level}%`,
-                                                        backgroundColor: item.level > 80 ? '#10B981' : item.level > 50 ? '#F59E0B' : '#EF4444'
-                                                    }}
-                                                />
-                                            </div>
-                                        </div>
-                                    ))}
+                        <Tabs defaultValue="financial" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="financial" className="gap-2"><Banknote className="w-4 h-4" /> Financial</TabsTrigger>
+                                <TabsTrigger value="industrial" className="gap-2"><Factory className="w-4 h-4" /> Industrial</TabsTrigger>
+                                <TabsTrigger value="intellectual" className="gap-2"><Award className="w-4 h-4" /> Intellectual</TabsTrigger>
+                                <TabsTrigger value="strategic" className="gap-2"><Shield className="w-4 h-4" /> Strategic Reserves</TabsTrigger>
+                                <TabsTrigger value="digital" className="gap-2"><Server className="w-4 h-4" /> Digital Assets</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="financial">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Gold Reserves" value="8,133" unit="tonnes" icon={Coins} color="#F59E0B" change={2.1} trend="up" />
+                                    <AssetCard title="Foreign Reserves" value="$242B" icon={Banknote} color="#10B981" change={-1.2} trend="down" />
+                                    <AssetCard title="Pension Assets" value="$35.4T" icon={Landmark} color="#3B82F6" change={6.2} trend="up" />
+                                    <AssetCard title="Banking Assets" value="$23.7T" icon={Landmark} color="#8B5CF6" change={3.5} trend="up" />
                                 </div>
-                            </div>
-                        </div>
+                                <DataTable
+                                    title="Financial Assets"
+                                    columns={[
+                                        { key: 'asset', label: 'Asset' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'change', label: 'Change', render: (val) => (
+                                            <span className={val.startsWith('+') ? 'text-emerald-600' : 'text-red-600'}>{val}</span>
+                                        )},
+                                        { key: 'type', label: 'Type' }
+                                    ]}
+                                    data={financialAssetsTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="industrial">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Manufacturing" value="292,825" unit="plants" icon={Factory} color="#EF4444" />
+                                    <AssetCard title="Tech Hubs" value="45" unit="major" icon={Cpu} color="#8B5CF6" />
+                                    <AssetCard title="Industrial Parks" value="1,200+" icon={Building2} color="#3B82F6" />
+                                    <AssetCard title="R&D Centers" value="15,000+" icon={Lightbulb} color="#10B981" />
+                                </div>
+                                <DataTable
+                                    title="Industrial Assets"
+                                    columns={[
+                                        { key: 'sector', label: 'Sector' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'employment', label: 'Employment' },
+                                        { key: 'output', label: 'Output' },
+                                        { key: 'growth', label: 'Growth', render: (val) => (
+                                            <span className="text-emerald-600">{val}</span>
+                                        )}
+                                    ]}
+                                    data={industrialAssetsTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="intellectual">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Active Patents" value="3.4M" icon={Award} color="#8B5CF6" change={8.5} trend="up" />
+                                    <AssetCard title="Research Unis" value="418" icon={GraduationCap} color="#3B82F6" />
+                                    <AssetCard title="Nobel Laureates" value="403" icon={Award} color="#F59E0B" />
+                                    <AssetCard title="R&D Spending" value="$680B" icon={Lightbulb} color="#10B981" change={5.8} trend="up" />
+                                </div>
+                                <DataTable
+                                    title="Intellectual Assets"
+                                    columns={[
+                                        { key: 'category', label: 'Category' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'annual', label: 'Annual' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'globalShare', label: 'Global Share' }
+                                    ]}
+                                    data={intellectualAssetsTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="strategic">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Petroleum Reserve" value="372M" unit="barrels" icon={Fuel} color="#F59E0B" />
+                                    <AssetCard title="Defense Stockpile" value="$888M" icon={Shield} color="#EF4444" />
+                                    <AssetCard title="Food Reserves" value="120" unit="days" icon={Leaf} color="#10B981" />
+                                    <AssetCard title="Medical Reserve" value="$12B" icon={Stethoscope} color="#8B5CF6" />
+                                </div>
+                                <DataTable
+                                    title="Strategic Reserves"
+                                    columns={[
+                                        { key: 'reserve', label: 'Reserve' },
+                                        { key: 'capacity', label: 'Capacity' },
+                                        { key: 'current', label: 'Current Level' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'days', label: 'Coverage' }
+                                    ]}
+                                    data={strategicReservesTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="digital">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Hyperscale DCs" value="2,700+" icon={Server} color="#8B5CF6" change={24} trend="up" />
+                                    <AssetCard title="Cloud Regions" value="32" icon={Globe} color="#3B82F6" change={35} trend="up" />
+                                    <AssetCard title="AI Clusters" value="156" icon={Cpu} color="#10B981" change={85} trend="up" />
+                                    <AssetCard title="Cyber Centers" value="450+" icon={Lock} color="#EF4444" change={22} trend="up" />
+                                </div>
+                                <DataTable
+                                    title="Digital Assets"
+                                    columns={[
+                                        { key: 'asset', label: 'Asset' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'capacity', label: 'Capacity' },
+                                        { key: 'investment', label: 'Investment' },
+                                        { key: 'growth', label: 'Growth', render: (val) => (
+                                            <span className="text-emerald-600">{val}</span>
+                                        )}
+                                    ]}
+                                    data={digitalAssetsTable}
+                                />
+                            </TabsContent>
+                        </Tabs>
+                    </CategorySection>
+                )}
+
+                {/* GOVERNANCE & INSTITUTIONS */}
+                {(activeCategory === 'all' || activeCategory === 'governance') && (
+                    <CategorySection
+                        title="Governance & Institutions"
+                        description="Legal system, political institutions, law enforcement, and public administration"
+                        icon={Scale}
+                        color="#8B5CF6"
+                        stats={[
+                            { value: '438', label: 'Federal Agencies' },
+                            { value: '2.9M', label: 'Federal Employees' },
+                            { value: '90K+', label: 'Local Govts' }
+                        ]}
+                    >
+                        <Tabs defaultValue="legal" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="legal" className="gap-2"><Scale className="w-4 h-4" /> Legal System</TabsTrigger>
+                                <TabsTrigger value="law" className="gap-2"><ShieldCheck className="w-4 h-4" /> Law Enforcement</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="legal">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Federal Courts" value="94" unit="districts" icon={Scale} color="#8B5CF6" />
+                                    <AssetCard title="State Courts" value="50" unit="systems" icon={Scale} color="#3B82F6" />
+                                    <AssetCard title="Federal Agencies" value="438" icon={Building2} color="#10B981" />
+                                    <AssetCard title="Regulatory Bodies" value="115" icon={ShieldCheck} color="#F59E0B" />
+                                </div>
+                                <DataTable
+                                    title="Government Institutions"
+                                    columns={[
+                                        { key: 'institution', label: 'Institution' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'personnel', label: 'Personnel' },
+                                        { key: 'budget', label: 'Budget' },
+                                        { key: 'efficiency', label: 'Efficiency' }
+                                    ]}
+                                    data={governanceTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="law">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Federal LEOs" value="137K" icon={ShieldCheck} color="#EF4444" />
+                                    <AssetCard title="Local Police" value="650K" icon={ShieldCheck} color="#3B82F6" />
+                                    <AssetCard title="Border Patrol" value="21K" icon={Shield} color="#10B981" />
+                                    <AssetCard title="Intel Personnel" value="100K+" icon={Lock} color="#8B5CF6" />
+                                </div>
+                                <DataTable
+                                    title="Law Enforcement Agencies"
+                                    columns={[
+                                        { key: 'agency', label: 'Agency' },
+                                        { key: 'personnel', label: 'Personnel' },
+                                        { key: 'budget', label: 'Budget' },
+                                        { key: 'jurisdiction', label: 'Jurisdiction' },
+                                        { key: 'clearRate', label: 'Clear Rate' }
+                                    ]}
+                                    data={lawEnforcementTable}
+                                />
+                            </TabsContent>
+                        </Tabs>
                     </CategorySection>
                 )}
 
@@ -805,41 +1083,72 @@ export default function Geospatial() {
                             { value: '164M', label: 'Workforce' }
                         ]}
                     >
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                            <AssetCard title="GDP" value="$25.5T" icon={TrendingUp} color="#EF4444" change={2.4} trend="up" />
-                            <AssetCard title="Stock Exchanges" value="13" unit="major" icon={BarChart3} color="#3B82F6" />
-                            <AssetCard title="Trade Volume" value="$5.8T" unit="annual" icon={Ship} color="#10B981" change={4.2} trend="up" />
-                            <AssetCard title="Industrial Output" value="$2.3T" icon={Factory} color="#F59E0B" change={1.8} trend="up" />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                            <div className="bg-white rounded-xl border border-gray-200 p-5">
-                                <h3 className="font-semibold text-gray-900 mb-4">Global Comparison</h3>
-                                <div className="h-64">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={countryComparison}>
-                                            <XAxis dataKey="country" fontSize={10} />
-                                            <YAxis fontSize={10} />
-                                            <Tooltip />
-                                            <Legend />
-                                            <Bar dataKey="infrastructure" name="Infrastructure" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                                            <Bar dataKey="resources" name="Resources" fill="#10B981" radius={[4, 4, 0, 0]} />
-                                            <Bar dataKey="digital" name="Digital" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
-                                        </BarChart>
-                                    </ResponsiveContainer>
+                        <Tabs defaultValue="financial" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="financial" className="gap-2"><Banknote className="w-4 h-4" /> Financial Infra</TabsTrigger>
+                                <TabsTrigger value="trade" className="gap-2"><Ship className="w-4 h-4" /> Trade Networks</TabsTrigger>
+                                <TabsTrigger value="labor" className="gap-2"><Users className="w-4 h-4" /> Labor Market</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="financial">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Commercial Banks" value="4,844" icon={Landmark} color="#3B82F6" />
+                                    <AssetCard title="Stock Exchanges" value="13" unit="major" icon={BarChart3} color="#10B981" />
+                                    <AssetCard title="Insurance Cos" value="5,929" icon={Shield} color="#F59E0B" />
+                                    <AssetCard title="Market Cap" value="$53T" icon={TrendingUp} color="#8B5CF6" change={12} trend="up" />
                                 </div>
-                            </div>
-                            <InfrastructureStats 
-                                title="Trade Volume Trend"
-                                type="multi"
-                                data={trendData}
-                                lines={[
-                                    { key: 'infrastructure', color: '#3B82F6', name: 'Exports' },
-                                    { key: 'energy', color: '#10B981', name: 'Imports' },
-                                    { key: 'digital', color: '#8B5CF6', name: 'Services' }
-                                ]}
-                                height={240}
-                            />
-                        </div>
+                                <DataTable
+                                    title="Financial Infrastructure"
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'assets', label: 'Assets/Volume' },
+                                        { key: 'coverage', label: 'Coverage' },
+                                        { key: 'rating', label: 'Rating' }
+                                    ]}
+                                    data={financialInfraTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="trade">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Container Ports" value="360" icon={Anchor} color="#3B82F6" />
+                                    <AssetCard title="Trade Volume" value="$4.6T" icon={Ship} color="#10B981" change={4.2} trend="up" />
+                                    <AssetCard title="FTAs" value="14" unit="agreements" icon={Globe} color="#8B5CF6" />
+                                    <AssetCard title="Logistics Hubs" value="1,200+" icon={Network} color="#F59E0B" />
+                                </div>
+                                <DataTable
+                                    title="Trade Networks"
+                                    columns={[
+                                        { key: 'network', label: 'Network' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'volume', label: 'Volume' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'globalRank', label: 'Global Rank' }
+                                    ]}
+                                    data={tradeNetworksTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="labor">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Total Employment" value="161M" icon={Users} color="#10B981" change={1.8} trend="up" />
+                                    <AssetCard title="Tech Jobs" value="12.1M" icon={Cpu} color="#8B5CF6" change={3.7} trend="up" />
+                                    <AssetCard title="Gig Workers" value="59M" icon={Briefcase} color="#F59E0B" change={12} trend="up" />
+                                    <AssetCard title="Unemployment" value="3.6%" icon={Users} color="#3B82F6" change={-0.2} trend="up" />
+                                </div>
+                                <DataTable
+                                    title="Labor Market"
+                                    columns={[
+                                        { key: 'metric', label: 'Metric' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'change', label: 'Change' },
+                                        { key: 'rate', label: 'Rate/Share' }
+                                    ]}
+                                    data={laborMarketTable}
+                                />
+                            </TabsContent>
+                        </Tabs>
                     </CategorySection>
                 )}
 
@@ -847,7 +1156,7 @@ export default function Geospatial() {
                 {(activeCategory === 'all' || activeCategory === 'social') && (
                     <CategorySection
                         title="Social & Human Development"
-                        description="Education, healthcare, social safety nets, and cultural institutions"
+                        description="Education systems, healthcare, social safety nets, and cultural institutions"
                         icon={Users}
                         color="#EC4899"
                         stats={[
@@ -856,12 +1165,158 @@ export default function Geospatial() {
                             { value: '92%', label: 'Literacy' }
                         ]}
                     >
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                            <AssetCard title="K-12 Schools" value="130,930" icon={GraduationCap} color="#EC4899" />
-                            <AssetCard title="Universities" value="5,916" icon={BookOpen} color="#8B5CF6" />
-                            <AssetCard title="Hospitals" value="6,090" icon={Stethoscope} color="#EF4444" />
-                            <AssetCard title="Healthcare Spending" value="$4.3T" icon={Heart} color="#10B981" change={5.2} trend="up" />
-                        </div>
+                        <Tabs defaultValue="education" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="education" className="gap-2"><GraduationCap className="w-4 h-4" /> Education</TabsTrigger>
+                                <TabsTrigger value="healthcare" className="gap-2"><Stethoscope className="w-4 h-4" /> Healthcare</TabsTrigger>
+                                <TabsTrigger value="safety" className="gap-2"><Shield className="w-4 h-4" /> Social Safety Nets</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="education">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="K-12 Schools" value="130,930" icon={GraduationCap} color="#EC4899" />
+                                    <AssetCard title="Universities" value="4,873" icon={BookOpen} color="#8B5CF6" />
+                                    <AssetCard title="Community Colleges" value="1,043" icon={GraduationCap} color="#3B82F6" />
+                                    <AssetCard title="Ed Spending" value="$1.6T" icon={Banknote} color="#10B981" />
+                                </div>
+                                <DataTable
+                                    title="Education Systems"
+                                    columns={[
+                                        { key: 'level', label: 'Level' },
+                                        { key: 'institutions', label: 'Institutions' },
+                                        { key: 'enrollment', label: 'Enrollment' },
+                                        { key: 'teachers', label: 'Teachers' },
+                                        { key: 'spending', label: 'Spending' }
+                                    ]}
+                                    data={educationTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="healthcare">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Hospitals" value="6,090" icon={Stethoscope} color="#EF4444" />
+                                    <AssetCard title="Hospital Beds" value="920K" icon={Heart} color="#EC4899" />
+                                    <AssetCard title="Pharmacies" value="88,000" icon={Stethoscope} color="#10B981" />
+                                    <AssetCard title="Health Spending" value="$4.3T" icon={Banknote} color="#3B82F6" change={5.2} trend="up" />
+                                </div>
+                                <DataTable
+                                    title="Healthcare Systems"
+                                    columns={[
+                                        { key: 'facility', label: 'Facility Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'beds', label: 'Beds/Capacity' },
+                                        { key: 'staff', label: 'Staff' },
+                                        { key: 'spending', label: 'Spending' }
+                                    ]}
+                                    data={healthcareTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="safety">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Social Security" value="66M" unit="beneficiaries" icon={Users} color="#8B5CF6" />
+                                    <AssetCard title="Medicare" value="65M" unit="beneficiaries" icon={Heart} color="#EF4444" />
+                                    <AssetCard title="Medicaid" value="85M" unit="beneficiaries" icon={Heart} color="#10B981" />
+                                    <AssetCard title="SNAP" value="42M" unit="beneficiaries" icon={Leaf} color="#F59E0B" />
+                                </div>
+                                <DataTable
+                                    title="Social Safety Net Programs"
+                                    columns={[
+                                        { key: 'program', label: 'Program' },
+                                        { key: 'beneficiaries', label: 'Beneficiaries' },
+                                        { key: 'annual', label: 'Annual Budget' },
+                                        { key: 'coverage', label: 'Coverage' },
+                                        { key: 'fundStatus', label: 'Fund Status' }
+                                    ]}
+                                    data={socialSafetyTable}
+                                />
+                            </TabsContent>
+                        </Tabs>
+                    </CategorySection>
+                )}
+
+                {/* GLOBAL & STRATEGIC POSITIONING */}
+                {(activeCategory === 'all' || activeCategory === 'global') && (
+                    <CategorySection
+                        title="Global & Strategic Positioning"
+                        description="Diplomatic networks, geopolitical assets, soft power, and cyber infrastructure"
+                        icon={Globe}
+                        color="#06B6D4"
+                        stats={[
+                            { value: '168', label: 'Embassies' },
+                            { value: '11.4M km²', label: 'EEZ' },
+                            { value: '#1', label: 'Soft Power' }
+                        ]}
+                    >
+                        <Tabs defaultValue="diplomatic" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="diplomatic" className="gap-2"><Globe className="w-4 h-4" /> Diplomatic</TabsTrigger>
+                                <TabsTrigger value="geopolitical" className="gap-2"><Map className="w-4 h-4" /> Geopolitical</TabsTrigger>
+                                <TabsTrigger value="softpower" className="gap-2"><Award className="w-4 h-4" /> Soft Power</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="diplomatic">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Embassies" value="168" icon={Building2} color="#06B6D4" />
+                                    <AssetCard title="Consulates" value="88" icon={Building2} color="#3B82F6" />
+                                    <AssetCard title="Military Alliances" value="7" unit="major" icon={Shield} color="#EF4444" />
+                                    <AssetCard title="Trade Missions" value="275" icon={Briefcase} color="#10B981" />
+                                </div>
+                                <DataTable
+                                    title="Diplomatic Networks"
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'personnel', label: 'Personnel' },
+                                        { key: 'regions', label: 'Regions' },
+                                        { key: 'budget', label: 'Budget' }
+                                    ]}
+                                    data={diplomaticTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="geopolitical">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="EEZ" value="11.4M" unit="km²" icon={Anchor} color="#3B82F6" />
+                                    <AssetCard title="Airspace" value="24.7M" unit="km²" icon={Plane} color="#8B5CF6" />
+                                    <AssetCard title="Space Assets" value="5,500+" unit="satellites" icon={Globe} color="#F59E0B" />
+                                    <AssetCard title="Maritime Routes" value="3" unit="chokepoints" icon={Ship} color="#10B981" />
+                                </div>
+                                <DataTable
+                                    title="Geopolitical Assets"
+                                    columns={[
+                                        { key: 'asset', label: 'Asset' },
+                                        { key: 'size', label: 'Size/Count' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'rank', label: 'Global Rank' },
+                                        { key: 'control', label: 'Control' }
+                                    ]}
+                                    data={geopoliticalTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="softpower">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Cultural Exports" value="$178B" icon={Award} color="#EC4899" change={4.2} trend="up" />
+                                    <AssetCard title="Intl Students" value="1.1M" icon={GraduationCap} color="#8B5CF6" change={7.5} trend="up" />
+                                    <AssetCard title="Media & Entertainment" value="$820B" icon={Radio} color="#3B82F6" />
+                                    <AssetCard title="Tourism" value="79M" unit="visitors" icon={Globe} color="#10B981" change={15} trend="up" />
+                                </div>
+                                <DataTable
+                                    title="Soft Power Assets"
+                                    columns={[
+                                        { key: 'category', label: 'Category' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'reach', label: 'Reach' },
+                                        { key: 'rank', label: 'Global Rank' },
+                                        { key: 'growth', label: 'Growth', render: (val) => (
+                                            <span className="text-emerald-600">{val}</span>
+                                        )}
+                                    ]}
+                                    data={softPowerTable}
+                                />
+                            </TabsContent>
+                        </Tabs>
                     </CategorySection>
                 )}
 
@@ -874,49 +1329,81 @@ export default function Geospatial() {
                         color="#84CC16"
                         stats={[
                             { value: '640M acres', label: 'Protected Land' },
-                            { value: '423', label: 'National Parks' },
+                            { value: '63', label: 'National Parks' },
                             { value: '29%', label: 'Renewable Energy' }
                         ]}
                     >
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                            <AssetCard title="National Parks" value="423" icon={TreePine} color="#84CC16" />
-                            <AssetCard title="Protected Areas" value="640M" unit="acres" icon={Leaf} color="#10B981" />
-                            <AssetCard title="Solar Potential" value="97" unit="GW installed" icon={Sun} color="#F59E0B" change={23.6} trend="up" />
-                            <AssetCard title="Wind Capacity" value="141" unit="GW" icon={Wind} color="#3B82F6" change={14.2} trend="up" />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                            <ResourcesChart 
-                                title="Renewable Energy Growth" 
-                                data={[
-                                    { name: 'Solar', value: 97 },
-                                    { name: 'Wind', value: 141 },
-                                    { name: 'Hydro', value: 80 },
-                                    { name: 'Geothermal', value: 3.7 },
-                                    { name: 'Biomass', value: 12 }
-                                ]}
-                            />
-                            <div className="bg-white rounded-xl border border-gray-200 p-5">
-                                <h3 className="font-semibold text-gray-900 mb-4">Climate Resilience Index</h3>
-                                <div className="h-64">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <RadarChart data={[
-                                            { dimension: 'Flood Defense', value: 72 },
-                                            { dimension: 'Wildfire Mgmt', value: 58 },
-                                            { dimension: 'Drought Response', value: 65 },
-                                            { dimension: 'Storm Readiness', value: 78 },
-                                            { dimension: 'Heat Resilience', value: 55 },
-                                            { dimension: 'Sea Level Prep', value: 48 }
-                                        ]}>
-                                            <PolarGrid />
-                                            <PolarAngleAxis dataKey="dimension" fontSize={10} />
-                                            <PolarRadiusAxis angle={30} domain={[0, 100]} />
-                                            <Radar name="Score" dataKey="value" stroke="#84CC16" fill="#84CC16" fillOpacity={0.3} />
-                                            <Tooltip />
-                                        </RadarChart>
-                                    </ResponsiveContainer>
+                        <Tabs defaultValue="climate" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="climate" className="gap-2"><Shield className="w-4 h-4" /> Climate Resilience</TabsTrigger>
+                                <TabsTrigger value="protected" className="gap-2"><TreePine className="w-4 h-4" /> Protected Areas</TabsTrigger>
+                                <TabsTrigger value="renewable" className="gap-2"><Sun className="w-4 h-4" /> Renewable Potential</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="climate">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Flood Control" value="2,500+" unit="levees" icon={Droplets} color="#06B6D4" />
+                                    <AssetCard title="Wildfire Mgmt" value="660M" unit="acres" icon={Zap} color="#EF4444" />
+                                    <AssetCard title="Hurricane Shelters" value="3,200" icon={Shield} color="#3B82F6" />
+                                    <AssetCard title="FEMA Budget" value="$28B" icon={Shield} color="#10B981" />
                                 </div>
-                            </div>
-                        </div>
+                                <DataTable
+                                    title="Climate Resilience Systems"
+                                    columns={[
+                                        { key: 'system', label: 'System' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'capacity', label: 'Capacity' },
+                                        { key: 'investment', label: 'Investment' },
+                                        { key: 'condition', label: 'Condition', render: (val) => (
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${val === 'Excellent' ? 'bg-emerald-100 text-emerald-700' : val === 'Good' ? 'bg-blue-100 text-blue-700' : val === 'Strained' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{val}</span>
+                                        )}
+                                    ]}
+                                    data={climateResilienceTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="protected">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="National Parks" value="63" icon={TreePine} color="#84CC16" />
+                                    <AssetCard title="National Forests" value="154" icon={TreePine} color="#10B981" />
+                                    <AssetCard title="Wildlife Refuges" value="568" icon={Leaf} color="#059669" />
+                                    <AssetCard title="Marine Sanctuaries" value="15" icon={Anchor} color="#06B6D4" />
+                                </div>
+                                <DataTable
+                                    title="Protected Areas"
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'area', label: 'Area' },
+                                        { key: 'visitors', label: 'Annual Visitors' },
+                                        { key: 'budget', label: 'Budget' }
+                                    ]}
+                                    data={protectedAreasTable}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="renewable">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <AssetCard title="Solar Installed" value="136" unit="GW" icon={Sun} color="#F59E0B" change={23.6} trend="up" />
+                                    <AssetCard title="Wind Installed" value="141" unit="GW" icon={Wind} color="#3B82F6" change={14.2} trend="up" />
+                                    <AssetCard title="Hydro" value="80" unit="GW" icon={Droplets} color="#06B6D4" />
+                                    <AssetCard title="Geothermal" value="3.7" unit="GW" icon={Zap} color="#EF4444" />
+                                </div>
+                                <DataTable
+                                    title="Renewable Energy Potential"
+                                    columns={[
+                                        { key: 'source', label: 'Source' },
+                                        { key: 'potential', label: 'Potential' },
+                                        { key: 'installed', label: 'Installed' },
+                                        { key: 'utilization', label: 'Utilization' },
+                                        { key: 'growth', label: 'Growth', render: (val) => (
+                                            <span className="text-emerald-600">{val}</span>
+                                        )}
+                                    ]}
+                                    data={renewablePotentialTable}
+                                />
+                            </TabsContent>
+                        </Tabs>
                     </CategorySection>
                 )}
             </div>
