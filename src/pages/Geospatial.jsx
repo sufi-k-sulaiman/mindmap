@@ -1696,9 +1696,30 @@ export default function Geospatial() {
                     </div>
                 )}
                 {/* Hidden legacy content - removed for cleaner code */}
+                </>
+                )}
+                </div>
+
+                <CountrySelectModal
+                    isOpen={showCountryModal}
+                    onClose={() => setShowCountryModal(false)}
+                    selectedCountry={selectedCountry}
+                    onSelect={setSelectedCountry}
+                    title="Select Country for Analysis"
+                />
+                                    </div>
+                                    );
+                                    }
+
+// LEGACY CODE REMOVED - Component now uses on-demand loading
+const LEGACY_PLACEHOLDER = null; /* Hidden legacy content block removed */
+                                    
+// Original hidden block truncated for cleaner file
+const _LEGACY_HIDDEN_CODE = false && (
+                <>
 
                 {/* Analysis Results */}
-                {selectedCountries.length > 0 && loadingSections.summary && (
+                {false && (
                     <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-100">
                         <div className="flex items-center justify-center py-8">
                             <Loader2 className="w-8 h-8 text-purple-600 animate-spin mr-3" />
