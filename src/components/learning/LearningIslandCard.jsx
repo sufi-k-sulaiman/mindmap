@@ -46,7 +46,12 @@ export default function LearningIslandCard({ topic, index, progress = 0, onExplo
 
             
             {/* Island SVG - varied by index for unique look */}
-            <div className="w-56 h-44 mx-auto mt-2">
+            <div className={`w-56 h-44 mx-auto mt-2 transition-transform duration-300 ${hovered && !locked ? 'animate-bounce-subtle' : ''}`}
+                style={{ 
+                    transform: hovered && !locked ? 'translateY(-4px)' : 'translateY(0)',
+                    transition: 'transform 0.3s ease-in-out'
+                }}
+            >
                 <IslandSVG 
                     index={index} 
                     color={topic.color} 
