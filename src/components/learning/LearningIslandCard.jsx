@@ -42,7 +42,7 @@ export default function LearningIslandCard({ topic, index, progress = 0, onExplo
             
             {/* Priority number bubble */}
             <div 
-                className="absolute top-6 left-1/2 -translate-x-1/2 z-20 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg"
+                className="absolute top-3 left-1/2 -translate-x-1/2 z-20 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg"
                 style={{ backgroundColor: '#14B8A6' }}
             >
                 {index + 1}
