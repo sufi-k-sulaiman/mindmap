@@ -365,16 +365,22 @@ Provide:
 
                 {/* Controls Row */}
                 <div className="flex flex-wrap gap-3 mb-6">
-                    <Select value={selectedDomain} onValueChange={setSelectedDomain}>
-                        <SelectTrigger className="w-36 bg-white">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {DOMAINS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
+                    <MultiSelectDropdown
+                        options={DOMAINS}
+                        selected={selectedDomains}
+                        onChange={setSelectedDomains}
+                        placeholder="Select Domains"
+                        icon={Building2}
+                    />
+                    <MultiSelectDropdown
+                        options={COUNTRIES}
+                        selected={selectedCountries}
+                        onChange={setSelectedCountries}
+                        placeholder="Select Countries"
+                        icon={Globe}
+                    />
                     <Select value={timeHorizon} onValueChange={setTimeHorizon}>
-                        <SelectTrigger className="w-32 bg-white">
+                        <SelectTrigger className="w-40 bg-white border-2 border-gray-300">
                             <Clock className="w-4 h-4 mr-2 text-gray-500" />
                             <SelectValue />
                         </SelectTrigger>
@@ -383,7 +389,7 @@ Provide:
                         </SelectContent>
                     </Select>
                     <Select value={modelType} onValueChange={setModelType}>
-                        <SelectTrigger className="w-40 bg-white">
+                        <SelectTrigger className="w-48 bg-white border-2 border-gray-300">
                             <Cpu className="w-4 h-4 mr-2 text-gray-500" />
                             <SelectValue />
                         </SelectTrigger>
@@ -391,7 +397,7 @@ Provide:
                             {MODEL_TYPES.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                         </SelectContent>
                     </Select>
-                    <Button onClick={loadDynamicData} variant="outline" size="sm" className="gap-2" disabled={dataLoading}>
+                    <Button onClick={loadDynamicData} variant="outline" size="sm" className="gap-2 border-2" disabled={dataLoading}>
                         <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} /> Refresh Data
                     </Button>
                 </div>
