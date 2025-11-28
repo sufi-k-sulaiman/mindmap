@@ -576,11 +576,12 @@ export default function Qwirey() {
                                                 {result.dashboardData.goals?.length > 0 && (
                                                     <ProgressListCard 
                                                         title="Goals Progress"
-                                                        items={result.dashboardData.goals.slice(0, 4).map(g => ({
+                                                        items={result.dashboardData.goals.slice(0, 4).map((g, i) => ({
                                                             label: g.label,
-                                                            current: g.current,
-                                                            target: g.target,
-                                                            percentage: Math.round((g.current / g.target) * 100)
+                                                            value: Math.round((g.current / g.target) * 100),
+                                                            current: String(g.current),
+                                                            target: String(g.target),
+                                                            color: ['#8B5CF6', '#10B981', '#3B82F6', '#F59E0B'][i % 4]
                                                         }))}
                                                     />
                                                 )}
@@ -589,7 +590,7 @@ export default function Qwirey() {
                                                         title="Notifications"
                                                         notifications={result.dashboardData.notifications.slice(0, 4).map(n => ({
                                                             title: n.title,
-                                                            description: n.description,
+                                                            message: n.description,
                                                             time: n.time,
                                                             type: n.type || 'info'
                                                         }))}
