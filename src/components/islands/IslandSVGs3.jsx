@@ -195,7 +195,7 @@ export const Island25 = ({ className = "", color = "currentColor" }) => (
         <rect x="40" y="48" width="38" height="4" />
         {/* Treehouse */}
         <rect x="45" y="35" width="28" height="13" />
-        <path d="M43" y="35" L59 22 L75 35 Z" />
+        <path d="M43 35 L59 22 L75 35 Z" />
         {/* Window */}
         <rect x="55" y="40" width="8" height="6" fill="white" />
         {/* Ladder */}
