@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { 
     Globe, Map, Layers, Train, Zap, Droplets, Wifi, Building2, Shield,
     Factory, Landmark, GraduationCap, Heart, Scale, Briefcase, Users,
@@ -539,14 +540,9 @@ export default function Geospatial() {
                 {/* Header */}
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
-                                <Globe className="w-8 h-8" />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl md:text-3xl font-bold">Geospatial Intelligence</h1>
-                                <p className="text-white/80">Infrastructure, Resources & National Assets Analytics</p>
-                            </div>
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-bold">Geospatial Intelligence</h1>
+                            <p className="text-white/80">Infrastructure, Resources & National Assets Analytics</p>
                         </div>
                         <div className="flex gap-3 items-center">
                             <MultiSelectDropdown
@@ -569,12 +565,6 @@ export default function Geospatial() {
                     </div>
                 ) : (
                     <>
-                        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                            <p className="text-sm text-blue-700">
-                                <span className="font-semibold">Analyzing:</span> {selectedCountries.join(', ')}
-                            </p>
-                        </div>
-
                         {/* Category Titles */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             {CATEGORIES.map(cat => (
@@ -607,18 +597,22 @@ export default function Geospatial() {
                 {selectedCountries.length > 0 && !loadingSections.summary && analysisData && (
                     <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-100">
                         <h3 className="font-bold text-gray-900 mb-3">AI Analysis Summary - {selectedCountries.join(', ')}</h3>
-                        <p className="text-gray-700 mb-4">{analysisData.summary}</p>
-                        <div className="bg-white rounded-xl p-4">
-                            <h4 className="font-semibold text-emerald-700 mb-2">Key Insights</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                {analysisData.keyInsights?.map((item, i) => (
-                                    <div key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                                        <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                                        {item}
-                                    </div>
-                                ))}
-                            </div>
+                        <div className="text-gray-700 mb-4 prose prose-sm max-w-none">
+                            <ReactMarkdown>{analysisData.summary || ''}</ReactMarkdown>
                         </div>
+                        {analysisData.keyInsights?.length > 0 && (
+                            <div className="bg-white rounded-xl p-4">
+                                <h4 className="font-semibold text-emerald-700 mb-2">Key Insights</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    {analysisData.keyInsights.map((item, i) => (
+                                        <div key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                                            <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                                            <span>{item}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
