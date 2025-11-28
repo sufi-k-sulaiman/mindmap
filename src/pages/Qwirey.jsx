@@ -317,24 +317,27 @@ export default function Qwirey() {
                     }) : Promise.resolve(null)
                 ]);
 
-                const imagePrompts = imagesResponse?.imagePrompts?.slice(0, 4) || [];
-                const generatedImages = await Promise.all(
-                    imagePrompts.map(async (imgPrompt) => {
-                        try {
-                            const img = await base44.integrations.Core.GenerateImage({ prompt: imgPrompt });
-                            return { prompt: imgPrompt, url: img.url };
-                        } catch (e) {
-                            console.error('Image generation error:', e);
-                            return null;
-                        }
-                    })
-                );
+                // Only generate images for dynamic format
+                let generatedImages = [];
+                if (responseFormat === 'dynamic') {
+                    const imagePrompts = imagesResponse?.imagePrompts?.slice(0, 4) || [];
+                    generatedImages = await Promise.all(
+                        imagePrompts.map(async (imgPrompt) => {
+                            try {
+                                const img = await base44.integrations.Core.GenerateImage({ prompt: imgPrompt });
+                                return { prompt: imgPrompt, url: img.url };
+                            } catch (e) {
+                                console.error('Image generation error:', e);
+                                return null;
+                            }
+                        })
+                    );
+                }
 
                 // Only use AI-generated dashboard data - no fallbacks
-                const finalDashboardData = responseFormat === 'dynamic' && dashboardDataResponse ? dashboardDataResponse : null;
-
-                const tabledData = responseFormat === 'tabled' && dashboardDataResponse ? dashboardDataResponse : null;
-                const reviewsData = responseFormat === 'reviews' && dashboardDataResponse ? dashboardDataResponse : null;
+                const finalDashboardData = responseFormat === 'dynamic' ? dashboardDataResponse : null;
+                const tabledData = responseFormat === 'tabled' ? dashboardDataResponse : null;
+                const reviewsData = responseFormat === 'reviews' ? dashboardDataResponse : null;
 
                 setResult({
                     type: 'qwirey',
@@ -342,7 +345,7 @@ export default function Qwirey() {
                     followUpQuestions: textResponse?.followUpQuestions || [],
                     sources: textResponse?.sources || [],
                     images: generatedImages.filter(Boolean),
-                    chartData: webDataResponse?.hasChartData ? webDataResponse : null,
+                    chartData: responseFormat === 'dynamic' && webDataResponse?.hasChartData ? webDataResponse : null,
                     dashboardData: finalDashboardData,
                     tabledData: tabledData,
                     reviewsData: reviewsData
