@@ -17,6 +17,7 @@ import AssetCard from '@/components/geospatial/AssetCard';
 import ResourcesChart from '@/components/geospatial/ResourcesChart';
 import InfrastructureStats from '@/components/geospatial/InfrastructureStats';
 import DataTable from '@/components/geospatial/DataTable';
+import MultiSelectDropdown from '@/components/intelligence/MultiSelectDropdown';
 
 const COLORS = ['#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#EC4899', '#06B6D4', '#84CC16'];
 
@@ -40,6 +41,9 @@ export default function Geospatial() {
     const [activeCategory, setActiveCategory] = useState('all');
     const [loading, setLoading] = useState(false);
     const [analysisData, setAnalysisData] = useState(null);
+    const [selectedCountries, setSelectedCountries] = useState([]);
+
+    const COUNTRIES = ['USA', 'China', 'India', 'Germany', 'UK', 'France', 'Japan', 'Brazil', 'Canada', 'Australia', 'South Korea', 'Spain', 'Italy', 'Mexico', 'Indonesia', 'Netherlands', 'Saudi Arabia', 'Turkey', 'Switzerland', 'Poland', 'Russia', 'South Africa', 'Nigeria', 'Egypt', 'UAE'];
 
     // Generate comprehensive data
     const infrastructureData = {
@@ -132,9 +136,10 @@ export default function Geospatial() {
 
     const runAnalysis = async () => {
         setLoading(true);
+        const countriesContext = selectedCountries.length > 0 ? selectedCountries.join(', ') : 'global overview';
         try {
             const response = await base44.integrations.Core.InvokeLLM({
-                prompt: `Generate comprehensive geospatial infrastructure analysis with key insights, trends, and recommendations. Include data about transportation networks, energy systems, digital infrastructure, and strategic resources.`,
+                prompt: `Generate comprehensive geospatial infrastructure analysis for ${countriesContext} with key insights, trends, and recommendations. Include data about transportation networks, energy systems, digital infrastructure, and strategic resources specific to these regions.`,
                 add_context_from_internet: true,
                 response_json_schema: {
                     type: "object",
@@ -150,23 +155,23 @@ export default function Geospatial() {
         } catch (error) {
             console.error('Analysis failed:', error);
             setAnalysisData({
-                summary: 'Comprehensive infrastructure analysis reveals strong foundational assets with opportunities for modernization and sustainability improvements.',
+                summary: `Comprehensive infrastructure analysis for ${countriesContext} reveals significant assets with opportunities for modernization and sustainability improvements.`,
                 keyInsights: [
-                    'Transportation networks require $2.6 trillion in upgrades over the next decade',
+                    `Transportation networks in ${countriesContext} require major upgrades over the next decade`,
                     'Renewable energy capacity growing at 15% annually',
-                    'Digital infrastructure ranks among top 5 globally',
-                    '45% of water infrastructure exceeds design life'
+                    'Digital infrastructure investments accelerating',
+                    'Water infrastructure modernization needed'
                 ],
                 recommendations: [
-                    'Prioritize bridge and tunnel maintenance investments',
+                    'Prioritize critical infrastructure maintenance',
                     'Accelerate renewable energy grid integration',
-                    'Expand rural broadband coverage',
+                    'Expand broadband coverage',
                     'Modernize water treatment facilities'
                 ],
                 riskFactors: [
-                    'Aging infrastructure in critical urban areas',
-                    'Cybersecurity vulnerabilities in energy grid',
-                    'Climate change impact on coastal infrastructure'
+                    'Aging infrastructure in urban areas',
+                    'Cybersecurity vulnerabilities',
+                    'Climate change impact on infrastructure'
                 ]
             });
         } finally {
@@ -189,51 +194,45 @@ export default function Geospatial() {
                                 <p className="text-white/80">Infrastructure, Resources & National Assets Analytics</p>
                             </div>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 items-center">
+                            <MultiSelectDropdown
+                                options={COUNTRIES}
+                                selected={selectedCountries}
+                                onChange={setSelectedCountries}
+                                placeholder="Select Countries"
+                                icon={Globe}
+                            />
                             <Button onClick={runAnalysis} disabled={loading} className="bg-white text-blue-600 hover:bg-white/90 gap-2">
                                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Activity className="w-4 h-4" />}
                                 Run Analysis
                             </Button>
                         </div>
                     </div>
-
-                    {/* Quick Stats */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                        <div className="bg-white/10 rounded-xl p-4">
-                            <p className="text-3xl font-bold">164K</p>
-                            <p className="text-sm text-white/70">Highway Miles</p>
-                        </div>
-                        <div className="bg-white/10 rounded-xl p-4">
-                            <p className="text-3xl font-bold">1.2 TW</p>
-                            <p className="text-sm text-white/70">Power Capacity</p>
-                        </div>
-                        <div className="bg-white/10 rounded-xl p-4">
-                            <p className="text-3xl font-bold">5,375</p>
-                            <p className="text-sm text-white/70">Data Centers</p>
-                        </div>
-                        <div className="bg-white/10 rounded-xl p-4">
-                            <p className="text-3xl font-bold">$4.6T</p>
-                            <p className="text-sm text-white/70">Asset Value</p>
-                        </div>
-                    </div>
                 </div>
 
-                {/* Category Quick Filters */}
-                <div className="flex gap-2 overflow-x-auto pb-2">
-                    <button
-                        onClick={() => setActiveCategory('all')}
-                        className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${activeCategory === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:border-blue-300'}`}
-                    >
-                        All Categories
-                    </button>
+                {/* Selected Countries Display */}
+                {selectedCountries.length > 0 && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <p className="text-sm text-blue-700">
+                            <span className="font-semibold">Analyzing:</span> {selectedCountries.join(', ')}
+                        </p>
+                    </div>
+                )}
+
+                {/* Category Titles */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {CATEGORIES.map(cat => (
                         <button
                             key={cat.id}
-                            onClick={() => setActiveCategory(cat.id)}
-                            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all flex items-center gap-2 ${activeCategory === cat.id ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:border-blue-300'}`}
+                            onClick={() => setActiveCategory(activeCategory === cat.id ? 'all' : cat.id)}
+                            className={`p-4 rounded-xl border-2 transition-all text-left ${activeCategory === cat.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}
                         >
-                            <cat.icon className="w-4 h-4" />
-                            {cat.name}
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${cat.color}15` }}>
+                                    <cat.icon className="w-5 h-5" style={{ color: cat.color }} />
+                                </div>
+                                <h3 className="font-semibold text-gray-900 text-sm">{cat.name}</h3>
+                            </div>
                         </button>
                     ))}
                 </div>
