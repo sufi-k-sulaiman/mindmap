@@ -167,16 +167,22 @@ Return JSON with ALL these arrays (4-6 items each with specified fields):
                 }
             });
 
-            // Merge with fallback to ensure all fields exist
+            // Always use fallback as base, then overlay any LLM response data
             const fallback = generateFallbackData();
-            const merged = { ...fallback, ...response };
+            const merged = { ...fallback };
             
-            // Ensure all arrays exist
-            Object.keys(fallback).forEach(key => {
-                if (!merged[key] || (Array.isArray(merged[key]) && merged[key].length === 0)) {
-                    merged[key] = fallback[key];
-                }
-            });
+            // Only use LLM data if it exists and has content
+            if (response) {
+                Object.keys(response).forEach(key => {
+                    if (response[key] !== undefined && response[key] !== null) {
+                        if (Array.isArray(response[key]) && response[key].length > 0) {
+                            merged[key] = response[key];
+                        } else if (typeof response[key] === 'string' && response[key].length > 0) {
+                            merged[key] = response[key];
+                        }
+                    }
+                });
+            }
 
             setDynamicData(merged);
             setAnalysisData({ summary: merged.summary, keyInsights: merged.keyInsights });
