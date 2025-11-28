@@ -254,7 +254,7 @@ export default function SearchPods() {
         
         // Generate image in parallel
         base44.integrations.Core.GenerateImage({
-            prompt: `Beautiful lifestyle photography for "${episode.title}". Authentic, natural scene with real people or calming environment. Warm lighting, editorial style. No technology, no phones, no computers, no headphones, no microphones. Absolutely no text, no words, no letters, no titles, no captions, no watermarks.`
+            prompt: `Beautiful lifestyle photography representing "${episode.title}". Authentic, natural scene with real people or calming environment. Warm lighting, editorial style, professional DSLR quality. No technology devices, no phones, no computers, no headphones, no microphones, no screens. Absolutely no text, no words, no letters, no titles, no captions, no watermarks, no logos, no URLs.`
         }).then(result => {
             setPodImage(result.url);
             setImageLoading(false);
@@ -268,15 +268,15 @@ export default function SearchPods() {
             
             const script = await base44.integrations.Core.InvokeLLM({
                 prompt: `Write a 2-3 minute engaging podcast script about "${episode.title}". 
-                
+
 Structure:
 1. Warm greeting and topic introduction (2-3 sentences)
 2. 3-4 key points with interesting facts and insights
 3. Brief conclusion with takeaway
 
 Write naturally as if speaking to a listener. Be informative and engaging. 
-Use short sentences for better pacing. Do NOT use any markdown formatting.`,
-                add_context_from_internet: true
+Use short sentences for better pacing. Do NOT use any markdown formatting.
+Do NOT mention any websites, URLs, or external references in the audio script.`
             });
             
             setGenerationStep('Preparing audio...');
@@ -431,46 +431,15 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
     // Download MP3
     const downloadAudio = async () => {
         try {
-            const cleanText = cleanTextForSpeech(sentencesRef.current.join(' '));
-
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const utterances = sentencesRef.current.map(text => {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.voice = selectedVoice;
-                utterance.rate = 1;
-                utterance.volume = 1;
-                return utterance;
-            });
-
-            // Use MediaRecorder to capture audio
-            const chunks = [];
-            const stream = audioContext.createMediaStreamDestination();
-            const recorder = new MediaRecorder(stream.stream);
-
-            recorder.ondataavailable = (e) => chunks.push(e.data);
-            recorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'audio/mpeg' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${currentEpisode.title.replace(/[^a-z0-9]/gi, '_')}.mp3`;
-                a.click();
-                URL.revokeObjectURL(url);
-            };
-
-            recorder.start();
-
-            // Speak all text
-            for (const text of sentencesRef.current) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.voice = selectedVoice;
-                window.speechSynthesis.speak(utterance);
-                await new Promise(resolve => {
-                    utterance.onend = resolve;
-                });
-            }
-
-            recorder.stop();
+            // Create a simple text file with the script
+            const fullScript = sentencesRef.current.join(' ');
+            const blob = new Blob([fullScript], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentEpisode.title.replace(/[^a-z0-9]/gi, '_')}_script.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
         } catch (err) {
             console.error('Download error:', err);
         }
@@ -672,7 +641,7 @@ Use short sentences for better pacing. Do NOT use any markdown formatting.`,
                                 onClick={downloadAudio}
                                 disabled={isGenerating}
                                 className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
-                                title="Download MP3"
+                                title="Download Script"
                             >
                                 <Download className="w-5 h-5" />
                             </button>
