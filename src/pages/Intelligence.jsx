@@ -52,8 +52,8 @@ export default function Intelligence() {
     const [activeTab, setActiveTab] = useState('forecast');
     const [selectedDomains, setSelectedDomains] = useState(['Economy']);
     const [selectedCountries, setSelectedCountries] = useState(['USA', 'China']);
-    const [timeHorizon, setTimeHorizon] = useState('Monthly');
-    const [modelType, setModelType] = useState('Ensemble');
+    const [selectedTimeHorizons, setSelectedTimeHorizons] = useState(['Monthly']);
+    const [selectedModels, setSelectedModels] = useState(['Ensemble']);
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [dataLoading, setDataLoading] = useState(true);
@@ -81,16 +81,18 @@ export default function Intelligence() {
     // Load dynamic data based on domain
     useEffect(() => {
         loadDynamicData();
-    }, [selectedDomains, selectedCountries, timeHorizon, activeTab]);
+    }, [selectedDomains, selectedCountries, selectedTimeHorizons, selectedModels, activeTab]);
 
     const loadDynamicData = async () => {
         setDataLoading(true);
         try {
             const domains = selectedDomains.join(', ');
             const countries = selectedCountries.join(', ');
+            const horizons = selectedTimeHorizons.join(', ');
+            const models = selectedModels.join(', ');
             const response = await base44.integrations.Core.InvokeLLM({
                 prompt: `Generate realistic analytics data for ${domains} sectors across ${countries}.
-Time horizon: ${timeHorizon}. Analysis type: ${activeTab}.
+Time horizons: ${horizons}. Models: ${models}. Analysis type: ${activeTab}.
 
 Provide JSON with:
 1. forecastData: 12 periods with actual (first 8) and forecast values (periods 9-12), include upper/lower confidence bounds
@@ -275,7 +277,7 @@ Provide JSON with:
         try {
             const response = await base44.integrations.Core.InvokeLLM({
                 prompt: `Perform ${activeTab} analysis for ${selectedDomains.join(', ')} sectors across ${selectedCountries.join(', ')}: "${query}"
-Time horizon: ${timeHorizon}, Model: ${modelType}
+Time horizons: ${selectedTimeHorizons.join(', ')}, Models: ${selectedModels.join(', ')}
 
 Provide:
 1. Executive Summary
@@ -379,24 +381,20 @@ Provide:
                         placeholder="Select Countries"
                         icon={Globe}
                     />
-                    <Select value={timeHorizon} onValueChange={setTimeHorizon}>
-                        <SelectTrigger className="w-40 bg-white border-2 border-gray-300">
-                            <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {TIME_HORIZONS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                    <Select value={modelType} onValueChange={setModelType}>
-                        <SelectTrigger className="w-48 bg-white border-2 border-gray-300">
-                            <Cpu className="w-4 h-4 mr-2 text-gray-500" />
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {MODEL_TYPES.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
+                    <MultiSelectDropdown
+                        options={TIME_HORIZONS}
+                        selected={selectedTimeHorizons}
+                        onChange={setSelectedTimeHorizons}
+                        placeholder="Time Horizons"
+                        icon={Clock}
+                    />
+                    <MultiSelectDropdown
+                        options={MODEL_TYPES}
+                        selected={selectedModels}
+                        onChange={setSelectedModels}
+                        placeholder="Models"
+                        icon={Cpu}
+                    />
                     <Button onClick={loadDynamicData} variant="outline" size="sm" className="gap-2 border-2" disabled={dataLoading}>
                         <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} /> Refresh Data
                     </Button>
@@ -429,7 +427,7 @@ Provide:
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <MetricCard 
                                     title="Model Accuracy" 
-                                    subtitle={`${modelType} Performance`} 
+                                    subtitle={`${selectedModels.join(', ')} Performance`} 
                                     value={`${metrics.accuracy || 94}%`} 
                                     change="+2.3%" 
                                     changeType="positive" 
@@ -867,7 +865,7 @@ Provide:
                                     <span className="font-semibold text-gray-900">Custom Analysis Query</span>
                                 </div>
                                 <Textarea value={query} onChange={(e) => setQuery(e.target.value)}
-                                    placeholder={`e.g., "Forecast ${selectedDomains.join(' and ').toLowerCase()} indicators for ${selectedCountries.join(', ')} using ${modelType} model..."`}
+                                    placeholder={`e.g., "Forecast ${selectedDomains.join(' and ').toLowerCase()} indicators for ${selectedCountries.join(', ')} using ${selectedModels.join(', ')} models..."`}
                                     className="min-h-[80px] mb-3" />
                                 <Button onClick={runAnalysis} disabled={loading || !query.trim()} className="bg-purple-600 hover:bg-purple-700">
                                     {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Play className="w-4 h-4 mr-2" />}
@@ -961,7 +959,7 @@ Provide:
                                         {activeModule && <activeModule.icon className="w-6 h-6" />}
                                         <div>
                                             <h2 className="text-lg font-bold">{activeModule?.name} Results</h2>
-                                            <p className="text-white/80 text-sm">{selectedDomains.join(', ')} • {selectedCountries.join(', ')} • {timeHorizon} • {modelType}</p>
+                                            <p className="text-white/80 text-sm">{selectedDomains.join(', ')} • {selectedCountries.join(', ')} • {selectedTimeHorizons.join(', ')} • {selectedModels.join(', ')}</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
