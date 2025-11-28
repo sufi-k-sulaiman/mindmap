@@ -664,64 +664,93 @@ export default function Qwirey() {
                                             
                                             {result.type === 'qwirey' && result.dashboardData && (
                                                 <>
-                                                    {/* Info Cards */}
+                                                    {/* Info Cards - Clean text, remove URLs */}
                                                     {result.dashboardData.infoCards?.length > 0 && (
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                                            {result.dashboardData.infoCards.slice(0, 3).map((card, i) => (
-                                                                <InfoCard key={i} content={card.content} bgColor={card.color || ['#8b5cf6', '#6366f1', '#3b82f6'][i]} />
-                                                            ))}
+                                                            {result.dashboardData.infoCards.slice(0, 3).map((card, i) => {
+                                                                // Clean content: remove URLs, markdown links, and limit length
+                                                                const cleanContent = (card.content || '')
+                                                                    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+                                                                    .replace(/https?:\/\/[^\s)]+/g, '')
+                                                                    .replace(/\([^)]*\)/g, '')
+                                                                    .trim()
+                                                                    .slice(0, 150);
+                                                                return (
+                                                                    <InfoCard 
+                                                                        key={i} 
+                                                                        content={cleanContent} 
+                                                                        bgColor={['#8b5cf6', '#3b82f6', '#10b981'][i]} 
+                                                                    />
+                                                                );
+                                                            })}
                                                         </div>
                                                     )}
                                                     
-                                                    {/* Rankings */}
+                                                    {/* Rankings - Simplified display */}
                                                     {result.dashboardData.rankings?.length >= 3 && (
-                                                        <RankingPodium 
-                                                            title="Top Rankings" 
-                                                            data={result.dashboardData.rankings.slice(0, 3).map((r, i) => ({ 
-                                                                name: r.name, 
-                                                                value: r.value, 
-                                                                position: i + 1 
-                                                            }))} 
+                                                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                                            <h3 className="font-semibold text-gray-900 mb-4">Top Rankings</h3>
+                                                            <div className="grid grid-cols-3 gap-4">
+                                                                {result.dashboardData.rankings.slice(0, 3).map((r, i) => (
+                                                                    <div key={i} className="text-center p-4 rounded-xl bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100">
+                                                                        <div className={`w-10 h-10 mx-auto mb-2 rounded-full flex items-center justify-center text-white font-bold ${
+                                                                            i === 0 ? 'bg-yellow-500' : i === 1 ? 'bg-gray-400' : 'bg-amber-600'
+                                                                        }`}>
+                                                                            {i + 1}
+                                                                        </div>
+                                                                        <p className="font-medium text-gray-900 text-sm line-clamp-2">{r.name}</p>
+                                                                        <p className="text-purple-600 font-bold mt-1">
+                                                                            {typeof r.value === 'number' && r.value > 1000000 
+                                                                                ? `${(r.value / 1000000000).toFixed(1)}B` 
+                                                                                : typeof r.value === 'number' && r.value > 1000 
+                                                                                    ? `${(r.value / 1000).toFixed(0)}K`
+                                                                                    : r.value}
+                                                                        </p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {/* Timeline - Separate */}
+                                                    {result.dashboardData.timeline?.length > 0 && (
+                                                        <TimelineCard 
+                                                            title="Activity Timeline"
+                                                            events={result.dashboardData.timeline.slice(0, 4).map(e => ({
+                                                                time: e.time || 'Now',
+                                                                title: e.title,
+                                                                description: e.description,
+                                                                status: e.status || 'completed'
+                                                            }))}
                                                         />
                                                     )}
                                                     
-                                                    {/* Timeline, Goals, Notifications */}
-                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                        {result.dashboardData.timeline?.length > 0 && (
-                                                            <TimelineCard 
-                                                                title="Activity Timeline"
-                                                                events={result.dashboardData.timeline.slice(0, 4).map(e => ({
-                                                                    time: e.time || 'Now',
-                                                                    title: e.title,
-                                                                    description: e.description,
-                                                                    status: e.status || 'completed'
-                                                                }))}
-                                                            />
-                                                        )}
-                                                        {result.dashboardData.goals?.length > 0 && (
-                                                            <ProgressListCard 
-                                                                title="Goals Progress"
-                                                                items={result.dashboardData.goals.slice(0, 4).map((g, i) => ({
-                                                                    label: g.label,
-                                                                    value: Math.round((g.current / g.target) * 100),
-                                                                    current: String(g.current),
-                                                                    target: String(g.target),
-                                                                    color: ['#8B5CF6', '#10B981', '#3B82F6', '#F59E0B'][i % 4]
-                                                                }))}
-                                                            />
-                                                        )}
-                                                        {result.dashboardData.notifications?.length > 0 && (
-                                                            <NotificationList 
-                                                                title="Notifications"
-                                                                notifications={result.dashboardData.notifications.slice(0, 4).map(n => ({
-                                                                    title: n.title,
-                                                                    message: n.description,
-                                                                    time: n.time,
-                                                                    type: n.type || 'info'
-                                                                }))}
-                                                            />
-                                                        )}
-                                                    </div>
+                                                    {/* Goals - Separate */}
+                                                    {result.dashboardData.goals?.length > 0 && (
+                                                        <ProgressListCard 
+                                                            title="Goals Progress"
+                                                            items={result.dashboardData.goals.slice(0, 4).map((g, i) => ({
+                                                                label: g.label,
+                                                                value: Math.min(100, Math.round((g.current / g.target) * 100)),
+                                                                current: String(g.current),
+                                                                target: String(g.target),
+                                                                color: ['#8B5CF6', '#10B981', '#3B82F6', '#F59E0B'][i % 4]
+                                                            }))}
+                                                        />
+                                                    )}
+                                                    
+                                                    {/* Notifications - Separate */}
+                                                    {result.dashboardData.notifications?.length > 0 && (
+                                                        <NotificationList 
+                                                            title="Notifications"
+                                                            notifications={result.dashboardData.notifications.slice(0, 4).map(n => ({
+                                                                title: n.title,
+                                                                message: n.description,
+                                                                time: n.time,
+                                                                type: n.type || 'info'
+                                                            }))}
+                                                        />
+                                                    )}
                                                 </>
                                             )}
                                         </div>
