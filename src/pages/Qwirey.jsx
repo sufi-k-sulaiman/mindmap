@@ -221,7 +221,8 @@ export default function Qwirey() {
             dynamic: 'Provide a helpful, informative response about the topic. Be clear and concise.',
             short: 'CRITICAL: Your response MUST be under 280 characters maximum. Then add exactly 5 bullet points with key facts (each bullet under 60 chars). Format: First a short blurb, then 5 bullets starting with •',
             long: 'IMPORTANT: Provide a detailed response with 6-8 well-spaced paragraphs. Add TWO line breaks between each paragraph for clear separation. Include thorough explanations and examples.',
-            tabled: 'Provide a 2 sentence summary. Then provide structured data for a comparison with 4-5 items. Each item needs: name, pros (2-3 points), cons (2-3 points), and a rating out of 10.'
+            tabled: 'Provide a 2 sentence summary. Then provide structured data for a comparison with 4-5 items. Each item needs: name, pros (2-3 points), cons (2-3 points), and a rating out of 10.',
+            reviews: 'Provide a brief intro sentence. Then provide 5 realistic user reviews with: reviewer name, rating (1-10), review text (2-3 sentences), and date.'
         };
 
         const formatInstruction = formatInstructions[responseFormat] || '';
@@ -297,6 +298,21 @@ export default function Qwirey() {
                                 } } }
                             }
                         }
+                    }) : responseFormat === 'reviews' ? base44.integrations.Core.InvokeLLM({
+                        prompt: `For "${currentPrompt}", generate 5 realistic user reviews. Each review needs: reviewer name, rating 1-10, review text (2-3 sentences), and a realistic date from last 6 months.`,
+                        add_context_from_internet: true,
+                        response_json_schema: {
+                            type: "object",
+                            properties: {
+                                intro: { type: "string" },
+                                reviews: { type: "array", items: { type: "object", properties: { 
+                                    name: { type: "string" }, 
+                                    rating: { type: "number" }, 
+                                    text: { type: "string" }, 
+                                    date: { type: "string" }
+                                } } }
+                            }
+                        }
                     }) : Promise.resolve(null)
                 ]);
 
@@ -350,6 +366,7 @@ export default function Qwirey() {
                 ) : null;
 
                 const tabledData = responseFormat === 'tabled' && dashboardDataResponse ? dashboardDataResponse : null;
+                const reviewsData = responseFormat === 'reviews' && dashboardDataResponse ? dashboardDataResponse : null;
 
                 setResult({
                     type: 'qwirey',
@@ -359,7 +376,8 @@ export default function Qwirey() {
                     images: generatedImages.filter(Boolean),
                     chartData: webDataResponse?.hasChartData ? webDataResponse : null,
                     dashboardData: finalDashboardData,
-                    tabledData: tabledData
+                    tabledData: tabledData,
+                    reviewsData: reviewsData
                 });
 
             } else {
@@ -475,6 +493,7 @@ export default function Qwirey() {
                                 { id: 'short', label: 'Short' },
                                 { id: 'long', label: 'Long' },
                                 { id: 'tabled', label: 'Tabled' },
+                                { id: 'reviews', label: 'Reviews' },
                             ].map((format) => (
                                 <button
                                     key={format.id}
@@ -655,6 +674,39 @@ export default function Qwirey() {
                                         </div>
                                     )}
                                     
+                                    {/* REVIEWS FORMAT */}
+                                    {responseFormat === 'reviews' && result.reviewsData && (
+                                        <div className="space-y-4">
+                                            <p className="text-gray-700 mb-4">{result.reviewsData.intro}</p>
+                                            <div className="space-y-4">
+                                                {result.reviewsData.reviews?.map((review, i) => (
+                                                    <div key={i} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                                                        <div className="flex items-start justify-between mb-2">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold">
+                                                                    {review.name?.charAt(0) || 'U'}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-medium text-gray-900">{review.name}</p>
+                                                                    <p className="text-xs text-gray-500">{review.date}</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-center gap-1">
+                                                                {[...Array(10)].map((_, j) => (
+                                                                    <svg key={j} className={`w-4 h-4 ${j < review.rating ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                                    </svg>
+                                                                ))}
+                                                                <span className="ml-2 font-bold text-gray-700">{review.rating}/10</span>
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-gray-600 text-sm">{review.text}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    
                                     {/* DYNAMIC FORMAT */}
                                     {responseFormat === 'dynamic' && (
                                         <div className="space-y-6">
@@ -766,7 +818,7 @@ export default function Qwirey() {
 
                                 {result.type === 'qwirey' && (
                             <>
-                                {result.chartData?.hasChartData && responseFormat === 'dynamic' && (
+                                {result.chartData?.hasChartData && (responseFormat === 'dynamic') && (
                                     <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                                         <h3 className="font-bold text-gray-900 mb-2">{result.chartData.chartTitle || 'Data Visualization'}</h3>
                                         <p className="text-sm text-gray-500 mb-4">{result.chartData.chartDescription}</p>
@@ -811,7 +863,7 @@ export default function Qwirey() {
                                     </div>
                                 )}
 
-                                {result.images?.length > 0 && responseFormat === 'dynamic' && (
+                                {result.images?.length > 0 && (responseFormat === 'dynamic' || responseFormat === 'reviews') && (
                                     <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                                         <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                                             <ImageIcon className="w-5 h-5 text-purple-600" />
