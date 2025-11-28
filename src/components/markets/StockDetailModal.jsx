@@ -30,6 +30,7 @@ const NAV_ITEMS = [
     { id: 'dividends', label: 'Dividends', icon: Percent },
     { id: 'peers', label: 'Peers', icon: Users },
     { id: 'reports', label: 'Reports', icon: FileText },
+    { id: 'investor-relations', label: 'Investor Relations', icon: Building },
     { id: 'legends', label: 'Legends', icon: Award },
 ];
 
