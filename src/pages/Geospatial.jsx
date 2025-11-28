@@ -564,25 +564,22 @@ export default function Geospatial() {
                         <p className="text-sm text-gray-500">Choose one or more countries from the dropdown above to view infrastructure and resource data</p>
                     </div>
                 ) : (
-                    <>
-                        {/* Category Titles */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {CATEGORIES.map(cat => (
-                                <button
-                                    key={cat.id}
-                                    onClick={() => setActiveCategory(activeCategory === cat.id ? 'all' : cat.id)}
-                                    className={`p-4 rounded-xl border-2 transition-all text-left ${activeCategory === cat.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}
-                                >
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${cat.color}15` }}>
-                                            <cat.icon className="w-5 h-5" style={{ color: cat.color }} />
-                                        </div>
-                                        <h3 className="font-semibold text-gray-900 text-sm">{cat.name}</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {CATEGORIES.map(cat => (
+                            <button
+                                key={cat.id}
+                                onClick={() => setActiveCategory(activeCategory === cat.id ? 'all' : cat.id)}
+                                className={`p-4 rounded-xl border transition-all text-left ${activeCategory === cat.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${cat.color}15` }}>
+                                        <cat.icon className="w-5 h-5" style={{ color: cat.color }} />
                                     </div>
-                                </button>
-                            ))}
-                        </div>
-                    </>
+                                    <span className="font-medium text-gray-900 text-sm">{cat.name}</span>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
                 )}
 
                 {/* Analysis Results */}
@@ -618,72 +615,7 @@ export default function Geospatial() {
 
 
 
-                {/* Main Dashboard */}
-                {selectedCountries.length > 0 && <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Infrastructure Trend */}
-                    <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-5">
-                        <h3 className="font-semibold text-gray-900 mb-4">Development Index - {selectedCountries.join(', ')}</h3>
-                        {loadingSections.summary ? (
-                            <div className="h-72 flex items-center justify-center">
-                                <Loader2 className="w-8 h-8 text-blue-600 animate-spin mr-3" />
-                                <span className="text-gray-500">Loading trends...</span>
-                            </div>
-                        ) : (
-                        <div className="h-72">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={dynamicData?.trendData || []}>
-                                    <defs>
-                                        <linearGradient id="infraGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                                        </linearGradient>
-                                        <linearGradient id="energyGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                                        </linearGradient>
-                                        <linearGradient id="digitalGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <XAxis dataKey="period" fontSize={11} />
-                                    <YAxis fontSize={11} />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Area type="monotone" dataKey="infrastructure" name="Infrastructure" stroke="#3B82F6" fill="url(#infraGrad)" strokeWidth={2} />
-                                    <Area type="monotone" dataKey="energy" name="Energy" stroke="#10B981" fill="url(#energyGrad)" strokeWidth={2} />
-                                    <Area type="monotone" dataKey="digital" name="Digital" stroke="#8B5CF6" fill="url(#digitalGrad)" strokeWidth={2} />
-                                    </AreaChart>
-                                    </ResponsiveContainer>
-                                    </div>
-                                    )}
-                                    </div>
 
-                                    {/* Country Comparison */}
-                                    <div className="bg-white rounded-xl border border-gray-200 p-5">
-                                    <h3 className="font-semibold text-gray-900 mb-4">Country Comparison</h3>
-                                    {loadingSections.summary ? (
-                                    <div className="h-72 flex items-center justify-center">
-                                    <Loader2 className="w-8 h-8 text-blue-600 animate-spin mr-3" />
-                                    <span className="text-gray-500">Loading comparison...</span>
-                                    </div>
-                                    ) : (
-                                    <div className="h-72">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={dynamicData?.countryComparison || []}>
-                                    <XAxis dataKey="country" fontSize={10} />
-                                    <YAxis fontSize={10} />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Bar dataKey="infrastructure" name="Infrastructure" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                                    <Bar dataKey="resources" name="Resources" fill="#10B981" radius={[4, 4, 0, 0]} />
-                                    <Bar dataKey="digital" name="Digital" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
-                                    </BarChart>
-                                    </ResponsiveContainer>
-                                    </div>
-                                    )}
-                                    </div>
-                                    </div>}
 
                                     {/* CORE INFRASTRUCTURE */}
                                     {selectedCountries.length > 0 && (activeCategory === 'all' || activeCategory === 'infrastructure') && (
