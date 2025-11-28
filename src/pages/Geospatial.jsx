@@ -619,11 +619,27 @@ export default function Geospatial() {
                                     <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${cat.color}15` }}>
                                         <cat.icon className="w-5 h-5" style={{ color: cat.color }} />
                                     </div>
-                                    <span className="font-medium text-gray-900 text-sm">{cat.name}</span>
+                                    <div className="flex-1">
+                                        <span className="font-medium text-gray-900 text-sm">{cat.name}</span>
+                                        {loadedSections[cat.id] && (
+                                            <span className="ml-2 text-xs text-green-600">✓</span>
+                                        )}
+                                        {loadingSections[cat.id] && (
+                                            <Loader2 className="inline-block w-3 h-3 ml-2 animate-spin text-blue-600" />
+                                        )}
+                                    </div>
                                 </div>
                             </button>
                         ))}
                     </div>
+
+                    {activeCategory === 'all' && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
+                            <Layers className="w-10 h-10 text-blue-500 mx-auto mb-3" />
+                            <h3 className="text-lg font-semibold text-blue-900 mb-2">Select a Category</h3>
+                            <p className="text-sm text-blue-700">Click on any category tile above to load and view its data</p>
+                        </div>
+                    )}
 
                 {/* Analysis Results */}
                 {selectedCountries.length > 0 && loadingSections.summary && (
@@ -657,7 +673,7 @@ export default function Geospatial() {
                 )}
 
                                     {/* CORE INFRASTRUCTURE */}
-                                    {selectedCountries.length > 0 && (activeCategory === 'all' || activeCategory === 'infrastructure') && (
+                                    {selectedCountries.length > 0 && activeCategory === 'infrastructure' && (
                     <CategorySection
                         title={`Core Infrastructure - ${selectedCountries.join(', ')}`}
                         description="Transportation, energy, water, telecommunications, and defense systems"
