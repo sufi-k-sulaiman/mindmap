@@ -49,6 +49,7 @@ export default function Geospatial() {
     const COUNTRIES = ['USA', 'China', 'India', 'Germany', 'UK', 'France', 'Japan', 'Brazil', 'Canada', 'Australia', 'South Korea', 'Spain', 'Italy', 'Mexico', 'Indonesia', 'Netherlands', 'Saudi Arabia', 'Turkey', 'Switzerland', 'Poland', 'Russia', 'South Africa', 'Nigeria', 'Egypt', 'UAE'];
 
     const [loadingSections, setLoadingSections] = useState({});
+    const [mainTab, setMainTab] = useState('geographical');
 
     // Load dynamic data when countries change
     useEffect(() => {
@@ -556,7 +557,33 @@ export default function Geospatial() {
                     </div>
                 </div>
 
-                {/* Instruction or Selected Countries Display */}
+                {/* Main Tabs */}
+                <div className="flex gap-2 bg-white rounded-xl p-1.5 border border-gray-200 w-fit">
+                    <button
+                        onClick={() => setMainTab('anomaly')}
+                        className={`px-5 py-2.5 rounded-lg font-medium transition-all ${mainTab === 'anomaly' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                    >
+                        Anomaly Detection
+                    </button>
+                    <button
+                        onClick={() => setMainTab('geographical')}
+                        className={`px-5 py-2.5 rounded-lg font-medium transition-all ${mainTab === 'geographical' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                    >
+                        Geographical Models
+                    </button>
+                </div>
+
+                {/* Anomaly Detection Tab */}
+                {mainTab === 'anomaly' && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+                        <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Anomaly Detection</h3>
+                        <p className="text-sm text-gray-500">Detect anomalies and outliers in geospatial data patterns. Coming soon.</p>
+                    </div>
+                )}
+
+                {/* Geographical Models Tab - Instruction or Selected Countries Display */}
+                {mainTab === 'geographical' && (
                 {selectedCountries.length === 0 ? (
                     <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
                         <Globe className="w-12 h-12 text-gray-400 mx-auto mb-4" />
