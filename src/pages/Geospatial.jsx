@@ -1646,6 +1646,7 @@ export default function Geospatial() {
                                     </CategorySection>
                                     )}
                                     </>
+                                    )
                                     )}
                                     </div>
                                     </div>
