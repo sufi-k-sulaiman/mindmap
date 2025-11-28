@@ -452,82 +452,85 @@ export default function Qwirey() {
                         }}
                     />
                     
-                    <div className="flex items-center justify-end pt-4 border-t border-gray-100">
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                        {/* Left side - URL, Paperclip, Mic */}
                         <div className="flex items-center gap-1">
-                        <button
-                            onClick={() => setShowUrlDialog(true)}
-                            className="p-2.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-purple-600 transition-colors"
-                            title="Link a web URL"
-                        >
-                            <Globe className="w-5 h-5" />
-                        </button>
+                            <button
+                                onClick={() => setShowUrlDialog(true)}
+                                className="p-2.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-purple-600 transition-colors"
+                                title="Link a web URL"
+                            >
+                                <Globe className="w-5 h-5" />
+                            </button>
+                            
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="p-2.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-purple-600 transition-colors"
+                                title="Attach a document (txt, pdf, doc, md, csv, json)"
+                            >
+                                <Paperclip className="w-5 h-5" />
+                            </button>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".txt,.pdf,.doc,.docx,.md,.csv,.json,.xml,.html"
+                                onChange={handleFileUpload}
+                                className="hidden"
+                            />
+                            
+                            <button
+                                onClick={toggleMic}
+                                className={`p-2.5 rounded-lg transition-colors ${
+                                    isListening 
+                                        ? 'bg-red-100 text-red-600 animate-pulse' 
+                                        : 'hover:bg-gray-100 text-gray-500 hover:text-purple-600'
+                                }`}
+                                title={isListening ? 'Stop listening' : 'Start voice input'}
+                            >
+                                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                            </button>
+                        </div>
                         
-                        <button
-                            onClick={() => fileInputRef.current?.click()}
-                            className="p-2.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-purple-600 transition-colors"
-                            title="Attach a document (txt, pdf, doc, md, csv, json)"
-                        >
-                            <Paperclip className="w-5 h-5" />
-                        </button>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept=".txt,.pdf,.doc,.docx,.md,.csv,.json,.xml,.html"
-                            onChange={handleFileUpload}
-                            className="hidden"
-                        />
-                        
-                        <button
-                            onClick={toggleMic}
-                            className={`p-2.5 rounded-lg transition-colors ${
-                                isListening 
-                                    ? 'bg-red-100 text-red-600 animate-pulse' 
-                                    : 'hover:bg-gray-100 text-gray-500 hover:text-purple-600'
-                            }`}
-                            title={isListening ? 'Stop listening' : 'Start voice input'}
-                        >
-                            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-                        </button>
-                        
-                        <button
-                            onClick={() => handleSubmit()}
-                            disabled={loading || (!prompt.trim() && !fileContent)}
-                            className="p-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all ml-1"
-                            title="Send"
-                        >
-                            {loading ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                                <SendArrowIcon />
+                        {/* Right side - Format buttons + Send */}
+                        <div className="flex items-center gap-2">
+                            {selectedModel === 'qwirey' && (
+                                <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                                    {[
+                                        { id: 'dynamic', label: 'Dynamic' },
+                                        { id: 'short', label: 'Short' },
+                                        { id: 'long', label: 'Long' },
+                                        { id: 'tabled', label: 'Tabled' },
+                                        { id: 'reviews', label: 'Reviews' },
+                                    ].map((format) => (
+                                        <button
+                                            key={format.id}
+                                            onClick={() => setResponseFormat(format.id)}
+                                            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                                                responseFormat === format.id
+                                                    ? 'bg-white text-purple-700 shadow-sm'
+                                                    : 'text-gray-500 hover:text-gray-700'
+                                            }`}
+                                        >
+                                            {format.label}
+                                        </button>
+                                    ))}
+                                </div>
                             )}
-                        </button>
+                            
+                            <button
+                                onClick={() => handleSubmit()}
+                                disabled={loading || (!prompt.trim() && !fileContent)}
+                                className="p-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                title="Send"
+                            >
+                                {loading ? (
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : (
+                                    <SendArrowIcon />
+                                )}
+                            </button>
                         </div>
                     </div>
-                    
-                    {/* Response Format Switches - Only show for Qwirey */}
-                    {selectedModel === 'qwirey' && (
-                        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 mt-4">
-                            {[
-                                { id: 'dynamic', label: 'Dynamic' },
-                                { id: 'short', label: 'Short' },
-                                { id: 'long', label: 'Long' },
-                                { id: 'tabled', label: 'Tabled' },
-                                { id: 'reviews', label: 'Reviews' },
-                            ].map((format) => (
-                                <button
-                                    key={format.id}
-                                    onClick={() => setResponseFormat(format.id)}
-                                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                                        responseFormat === format.id
-                                            ? 'bg-white text-purple-700 shadow-sm'
-                                            : 'text-gray-500 hover:text-gray-700'
-                                    }`}
-                                >
-                                    {format.label}
-                                </button>
-                            ))}
-                        </div>
-                    )}
                 </div>
 
                 {/* Results */}
