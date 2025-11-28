@@ -51,7 +51,7 @@ export default function Geospatial() {
     const COUNTRIES = ['USA', 'China', 'India', 'Germany', 'UK', 'France', 'Japan', 'Brazil', 'Canada', 'Australia', 'South Korea', 'Spain', 'Italy', 'Mexico', 'Indonesia', 'Netherlands', 'Saudi Arabia', 'Turkey', 'Switzerland', 'Poland', 'Russia', 'South Africa', 'Nigeria', 'Egypt', 'UAE'];
 
     const [loadingSections, setLoadingSections] = useState({});
-    const [mainTab, setMainTab] = useState('geographical');
+    const [mainTab, setMainTab] = useState('geomatics');
 
     // Load dynamic data when countries change
     useEffect(() => {
@@ -562,6 +562,12 @@ export default function Geospatial() {
                 {/* Main Tabs */}
                 <div className="flex gap-2 bg-white rounded-xl p-1.5 border border-gray-200 w-fit">
                     <button
+                        onClick={() => setMainTab('geomatics')}
+                        className={`px-5 py-2.5 rounded-lg font-medium transition-all ${mainTab === 'geomatics' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                    >
+                        Geomatics
+                    </button>
+                    <button
                         onClick={() => setMainTab('anomaly')}
                         className={`px-5 py-2.5 rounded-lg font-medium transition-all ${mainTab === 'anomaly' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
                     >
@@ -581,6 +587,1069 @@ export default function Geospatial() {
                     </button>
                 </div>
 
+                {/* Geomatics Tab - Original Content */}
+                {mainTab === 'geomatics' && (
+                    selectedCountries.length === 0 ? (
+                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
+                            <Globe className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                            <h3 className="text-lg font-semibold text-gray-700 mb-2">Select Countries to Begin</h3>
+                            <p className="text-sm text-gray-500">Choose one or more countries from the dropdown above to view infrastructure and resource data</p>
+                        </div>
+                    ) : (
+                    <>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {CATEGORIES.map(cat => (
+                            <button
+                                key={cat.id}
+                                onClick={() => setActiveCategory(activeCategory === cat.id ? 'all' : cat.id)}
+                                className={`p-4 rounded-xl border transition-all text-left ${activeCategory === cat.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${cat.color}15` }}>
+                                        <cat.icon className="w-5 h-5" style={{ color: cat.color }} />
+                                    </div>
+                                    <span className="font-medium text-gray-900 text-sm">{cat.name}</span>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+
+                {/* Analysis Results */}
+                {selectedCountries.length > 0 && loadingSections.summary && (
+                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-100">
+                        <div className="flex items-center justify-center py-8">
+                            <Loader2 className="w-8 h-8 text-purple-600 animate-spin mr-3" />
+                            <span className="text-gray-600">Generating AI analysis...</span>
+                        </div>
+                    </div>
+                )}
+                {selectedCountries.length > 0 && !loadingSections.summary && analysisData && (
+                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-100">
+                        <h3 className="font-bold text-gray-900 mb-3">AI Analysis Summary - {selectedCountries.join(', ')}</h3>
+                        <div className="text-gray-700 mb-4 prose prose-sm max-w-none">
+                            <ReactMarkdown>{analysisData.summary || ''}</ReactMarkdown>
+                        </div>
+                        {analysisData.keyInsights?.length > 0 && (
+                            <div className="bg-white rounded-xl p-4">
+                                <h4 className="font-semibold text-emerald-700 mb-2">Key Insights</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    {analysisData.keyInsights.map((item, i) => (
+                                        <div key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                                            <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                                            <span>{item}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                                    {/* CORE INFRASTRUCTURE */}
+                                    {selectedCountries.length > 0 && (activeCategory === 'all' || activeCategory === 'infrastructure') && (
+                    <CategorySection
+                        title={`Core Infrastructure - ${selectedCountries.join(', ')}`}
+                        description="Transportation, energy, water, telecommunications, and defense systems"
+                        icon={Building2}
+                        color="#3B82F6"
+                        stats={[]}
+                    >
+                        <Tabs defaultValue="transportation" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="transportation" className="gap-2"><Train className="w-4 h-4" /> Transportation</TabsTrigger>
+                                <TabsTrigger value="energy" className="gap-2"><Zap className="w-4 h-4" /> Energy</TabsTrigger>
+                                <TabsTrigger value="telecom" className="gap-2"><Wifi className="w-4 h-4" /> Telecom</TabsTrigger>
+                                <TabsTrigger value="water" className="gap-2"><Droplets className="w-4 h-4" /> Water</TabsTrigger>
+                                <TabsTrigger value="public" className="gap-2"><Building2 className="w-4 h-4" /> Public Facilities</TabsTrigger>
+                                <TabsTrigger value="defense" className="gap-2"><Shield className="w-4 h-4" /> Defense</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="transportation">
+                                        {loadingSections.infrastructure ? (
+                                            <div className="flex items-center justify-center py-16">
+                                                <Loader2 className="w-8 h-8 text-blue-600 animate-spin mr-3" />
+                                                <span className="text-gray-600">Loading transportation data...</span>
+                                            </div>
+                                        ) : (
+                                        <>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                            {(dynamicData?.transportStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Train, Train, Plane, Anchor][i]} color={['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Transportation Infrastructure - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'capacity', label: 'Capacity' },
+                                        { key: 'condition', label: 'Condition', render: (val) => (
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${val === 'Excellent' ? 'bg-emerald-100 text-emerald-700' : val === 'Good' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>{val}</span>
+                                        )},
+                                        { key: 'investment', label: 'Investment' }
+                                    ]}
+                                    data={dynamicData?.transportData || []}
+                                    maxRows={10}
+                                    />
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="energy">
+                                    {loadingSections.infrastructure ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading energy data...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.energyStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Zap, Zap, Sun, Fuel][i]} color={['#F59E0B', '#EF4444', '#10B981', '#8B5CF6'][i]} />
+                                    ))}
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                    <div className="bg-gray-50 rounded-xl p-5">
+                                        <h4 className="font-semibold text-gray-900 mb-4">Energy Mix</h4>
+                                        <div className="h-64">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <BarChart data={energyTable} layout="vertical">
+                                                    <XAxis type="number" fontSize={10} />
+                                                    <YAxis type="category" dataKey="source" fontSize={10} width={80} />
+                                                    <Tooltip />
+                                                    <Bar dataKey="share" radius={[0, 4, 4, 0]}>
+                                                        {energyTable.map((entry, index) => (
+                                                            <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                                                        ))}
+                                                    </Bar>
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                    </div>
+                                    <DataTable
+                                        title={`Power Generation - ${selectedCountries.join(', ')}`}
+                                        columns={[
+                                            { key: 'source', label: 'Source' },
+                                            { key: 'capacity', label: 'Capacity' },
+                                            { key: 'share', label: 'Share' },
+                                            { key: 'plants', label: 'Plants' },
+                                            { key: 'growth', label: 'Growth', render: (val) => (
+                                                <span className={val?.startsWith?.('+') ? 'text-emerald-600' : 'text-red-600'}>{val}</span>
+                                            )}
+                                        ]}
+                                        data={dynamicData?.energyData || []}
+                                    />
+                                </div>
+                                <DataTable
+                                    title={`Energy Resources - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'resource', label: 'Resource' },
+                                        { key: 'reserves', label: 'Reserves' },
+                                        { key: 'production', label: 'Production' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'rank', label: 'Rank' }
+                                    ]}
+                                    data={dynamicData?.resourcesData || []}
+                                    />
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="telecom">
+                                    {loadingSections.infrastructure ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading telecom data...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.telecomStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Radio, Network, Server, Globe][i]} color={['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Telecommunications - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'coverage', label: 'Coverage' },
+                                        { key: 'investment', label: 'Investment' },
+                                        { key: 'growth', label: 'Growth', render: (val) => (
+                                            <span className="text-emerald-600">{val}</span>
+                                        )}
+                                    ]}
+                                    data={dynamicData?.telecomData || []}
+                                    />
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="water">
+                                    {loadingSections.infrastructure ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading water data...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.waterStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={Droplets} color={['#06B6D4', '#3B82F6', '#10B981', '#8B5CF6'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Water Infrastructure - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'capacity', label: 'Capacity' },
+                                        { key: 'condition', label: 'Condition', render: (val) => (
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${val === 'Excellent' ? 'bg-emerald-100 text-emerald-700' : val === 'Good' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>{val}</span>
+                                        )},
+                                        { key: 'age', label: 'Avg Age' }
+                                    ]}
+                                    data={dynamicData?.waterData || []}
+                                    />
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="public">
+                                    {loadingSections.defense ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading public facilities...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.publicFacilitiesStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[GraduationCap, Stethoscope, Shield, ShieldCheck][i]} color={['#EC4899', '#EF4444', '#F59E0B', '#3B82F6'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Public Facilities - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'capacity', label: 'Capacity' },
+                                        { key: 'condition', label: 'Condition', render: (val) => (
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${val === 'Excellent' ? 'bg-emerald-100 text-emerald-700' : val === 'Good' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>{val}</span>
+                                        )},
+                                        { key: 'funding', label: 'Annual Funding' }
+                                    ]}
+                                    data={dynamicData?.publicFacilitiesData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="defense">
+                                    {loadingSections.defense ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading defense data...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.defenseStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Shield, Anchor, Plane, Shield][i]} color={['#EF4444', '#3B82F6', '#8B5CF6', '#10B981'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Defense Infrastructure - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'personnel', label: 'Personnel' },
+                                        { key: 'status', label: 'Status', render: (val) => (
+                                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">{val}</span>
+                                        )},
+                                        { key: 'budget', label: 'Budget' }
+                                    ]}
+                                    data={dynamicData?.defenseData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+                                    </Tabs>
+                                    </CategorySection>
+                                    )}
+
+                                    {/* NATURAL & STRATEGIC RESOURCES */}
+                                    {selectedCountries.length > 0 && (activeCategory === 'all' || activeCategory === 'resources') && (
+                    <CategorySection
+                        title={`Natural & Strategic Resources - ${selectedCountries.join(', ')}`}
+                        description="Energy reserves, minerals, agricultural resources, human capital, and biodiversity"
+                        icon={Fuel}
+                        color="#10B981"
+                        stats={[]}
+                    >
+                        <Tabs defaultValue="energy" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="energy" className="gap-2"><Fuel className="w-4 h-4" /> Energy Resources</TabsTrigger>
+                                <TabsTrigger value="minerals" className="gap-2"><Database className="w-4 h-4" /> Minerals</TabsTrigger>
+                                <TabsTrigger value="agricultural" className="gap-2"><Leaf className="w-4 h-4" /> Agricultural</TabsTrigger>
+                                <TabsTrigger value="human" className="gap-2"><Users className="w-4 h-4" /> Human Capital</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="energy">
+                                        {loadingSections.resources ? (
+                                            <div className="flex items-center justify-center py-16">
+                                                <Loader2 className="w-8 h-8 text-green-600 animate-spin mr-3" />
+                                                <span className="text-gray-600">Loading energy resources...</span>
+                                            </div>
+                                        ) : (
+                                        <>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                            {(dynamicData?.resourceStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={Fuel} color={['#F59E0B', '#3B82F6', '#6B7280', '#8B5CF6'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Energy Resources - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'resource', label: 'Resource' },
+                                        { key: 'reserves', label: 'Reserves' },
+                                        { key: 'production', label: 'Production' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'rank', label: 'Rank' }
+                                    ]}
+                                    data={dynamicData?.resourcesData || []}
+                                    />
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="minerals">
+                                    {loadingSections.resources ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-green-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading minerals data...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.mineralStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Database, Database, Coins, Database][i]} color={['#EF4444', '#F59E0B', '#F59E0B', '#8B5CF6'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Mineral Resources - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'mineral', label: 'Mineral' },
+                                        { key: 'reserves', label: 'Reserves' },
+                                        { key: 'production', label: 'Annual Production' },
+                                        { key: 'globalRank', label: 'Global Rank' },
+                                        { key: 'value', label: 'Annual Value' }
+                                    ]}
+                                    data={dynamicData?.mineralsData || []}
+                                    />
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="agricultural">
+                                    {loadingSections.resources ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-green-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading agricultural data...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.agriculturalStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Leaf, TreePine, Droplets, Anchor][i]} color={['#10B981', '#059669', '#06B6D4', '#3B82F6'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Agricultural & Natural Resources - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'resource', label: 'Resource' },
+                                        { key: 'amount', label: 'Amount' },
+                                        { key: 'utilization', label: 'Utilization' },
+                                        { key: 'output', label: 'Annual Output' },
+                                        { key: 'globalRank', label: 'Global Rank' }
+                                    ]}
+                                    data={dynamicData?.agriculturalData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="human">
+                                    {loadingSections.resources ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-green-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading human capital data...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.humanCapitalStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Users, Briefcase, GraduationCap, Award][i]} color={['#EC4899', '#3B82F6', '#8B5CF6', '#10B981'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Human Capital - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'metric', label: 'Metric' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'growth', label: 'Growth' },
+                                        { key: 'globalRank', label: 'Global Rank' }
+                                    ]}
+                                    data={dynamicData?.humanCapitalData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+                                    </Tabs>
+                                    </CategorySection>
+                                    )}
+
+                                    {/* NATIONAL ASSETS */}
+                                    {selectedCountries.length > 0 && (activeCategory === 'all' || activeCategory === 'assets') && (
+                    <CategorySection
+                        title={`National Assets - ${selectedCountries.join(', ')}`}
+                        description="Financial, industrial, cultural, intellectual, strategic reserves, and digital assets"
+                        icon={Landmark}
+                        color="#F59E0B"
+                        stats={[]}
+                    >
+                        <Tabs defaultValue="financial" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="financial" className="gap-2"><Banknote className="w-4 h-4" /> Financial</TabsTrigger>
+                                <TabsTrigger value="industrial" className="gap-2"><Factory className="w-4 h-4" /> Industrial</TabsTrigger>
+                                <TabsTrigger value="intellectual" className="gap-2"><Award className="w-4 h-4" /> Intellectual</TabsTrigger>
+                                <TabsTrigger value="strategic" className="gap-2"><Shield className="w-4 h-4" /> Strategic Reserves</TabsTrigger>
+                                <TabsTrigger value="digital" className="gap-2"><Server className="w-4 h-4" /> Digital Assets</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="financial">
+                                        {loadingSections.assets ? (
+                                            <div className="flex items-center justify-center py-16">
+                                                <Loader2 className="w-8 h-8 text-amber-600 animate-spin mr-3" />
+                                                <span className="text-gray-600">Loading financial data...</span>
+                                            </div>
+                                        ) : (
+                                        <>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                            {(dynamicData?.financialStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Coins, Banknote, Landmark, Landmark][i]} color={['#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Financial Assets - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'asset', label: 'Asset' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'change', label: 'Change', render: (val) => (
+                                            <span className={val?.startsWith?.('+') ? 'text-emerald-600' : 'text-red-600'}>{val}</span>
+                                        )},
+                                        { key: 'type', label: 'Type' }
+                                    ]}
+                                    data={dynamicData?.financialData || []}
+                                    />
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="industrial">
+                                    {loadingSections.assets ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-amber-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading industrial data...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.industrialStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Factory, Cpu, Building2, Lightbulb][i]} color={['#EF4444', '#8B5CF6', '#3B82F6', '#10B981'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Industrial Assets - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'sector', label: 'Sector' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'employment', label: 'Employment' },
+                                        { key: 'output', label: 'Output' },
+                                        { key: 'growth', label: 'Growth', render: (val) => (
+                                            <span className="text-emerald-600">{val}</span>
+                                        )}
+                                    ]}
+                                    data={dynamicData?.industrialData || []}
+                                    />
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="intellectual">
+                                    {loadingSections.assets ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-amber-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading intellectual assets...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.intellectualStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Award, GraduationCap, Award, Lightbulb][i]} color={['#8B5CF6', '#3B82F6', '#F59E0B', '#10B981'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Intellectual Assets - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'category', label: 'Category' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'annual', label: 'Annual' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'globalShare', label: 'Global Share' }
+                                    ]}
+                                    data={dynamicData?.intellectualData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="strategic">
+                                    {loadingSections.assets ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-amber-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading strategic reserves...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.strategicStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Fuel, Shield, Leaf, Stethoscope][i]} color={['#F59E0B', '#EF4444', '#10B981', '#8B5CF6'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Strategic Reserves - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'reserve', label: 'Reserve' },
+                                        { key: 'capacity', label: 'Capacity' },
+                                        { key: 'current', label: 'Current Level' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'days', label: 'Coverage' }
+                                    ]}
+                                    data={dynamicData?.strategicReservesData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="digital">
+                                    {loadingSections.assets ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-amber-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading digital assets...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.digitalStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Server, Globe, Cpu, Lock][i]} color={['#8B5CF6', '#3B82F6', '#10B981', '#EF4444'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Digital Assets - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'asset', label: 'Asset' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'capacity', label: 'Capacity' },
+                                        { key: 'investment', label: 'Investment' },
+                                        { key: 'growth', label: 'Growth', render: (val) => (
+                                            <span className="text-emerald-600">{val}</span>
+                                        )}
+                                    ]}
+                                    data={dynamicData?.digitalAssetsData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+                                    </Tabs>
+                                    </CategorySection>
+                                    )}
+
+                                    {/* GOVERNANCE & INSTITUTIONS */}
+                                    {selectedCountries.length > 0 && (activeCategory === 'all' || activeCategory === 'governance') && (
+                    <CategorySection
+                        title={`Governance & Institutions - ${selectedCountries.join(', ')}`}
+                        description="Legal system, political institutions, law enforcement, and public administration"
+                        icon={Scale}
+                        color="#8B5CF6"
+                        stats={[]}
+                    >
+                        <Tabs defaultValue="legal" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="legal" className="gap-2"><Scale className="w-4 h-4" /> Legal System</TabsTrigger>
+                                <TabsTrigger value="law" className="gap-2"><ShieldCheck className="w-4 h-4" /> Law Enforcement</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="legal">
+                                        {loadingSections.governance ? (
+                                            <div className="flex items-center justify-center py-16">
+                                                <Loader2 className="w-8 h-8 text-purple-600 animate-spin mr-3" />
+                                                <span className="text-gray-600">Loading governance data...</span>
+                                            </div>
+                                        ) : (
+                                        <>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                            {(dynamicData?.governanceStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Scale, Scale, Building2, ShieldCheck][i]} color={['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Government Institutions - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'institution', label: 'Institution' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'personnel', label: 'Personnel' },
+                                        { key: 'budget', label: 'Budget' },
+                                        { key: 'efficiency', label: 'Efficiency' }
+                                    ]}
+                                    data={dynamicData?.governanceData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="law">
+                                    {loadingSections.governance ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-purple-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading law enforcement...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.lawEnforcementStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[ShieldCheck, ShieldCheck, Shield, Lock][i]} color={['#EF4444', '#3B82F6', '#10B981', '#8B5CF6'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Law Enforcement - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'agency', label: 'Agency' },
+                                        { key: 'personnel', label: 'Personnel' },
+                                        { key: 'budget', label: 'Budget' },
+                                        { key: 'jurisdiction', label: 'Jurisdiction' },
+                                        { key: 'clearRate', label: 'Clear Rate' }
+                                    ]}
+                                    data={dynamicData?.lawEnforcementData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+                                    </Tabs>
+                                    </CategorySection>
+                                    )}
+
+                                    {/* ECONOMIC SYSTEMS */}
+                                    {selectedCountries.length > 0 && (activeCategory === 'all' || activeCategory === 'economic') && (
+                    <CategorySection
+                        title={`Economic Systems - ${selectedCountries.join(', ')}`}
+                        description="Financial infrastructure, trade networks, industrial base, and labor markets"
+                        icon={Briefcase}
+                        color="#EF4444"
+                        stats={[]}
+                    >
+                        <Tabs defaultValue="financial" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="financial" className="gap-2"><Banknote className="w-4 h-4" /> Financial Infra</TabsTrigger>
+                                <TabsTrigger value="trade" className="gap-2"><Ship className="w-4 h-4" /> Trade Networks</TabsTrigger>
+                                <TabsTrigger value="labor" className="gap-2"><Users className="w-4 h-4" /> Labor Market</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="financial">
+                                        {loadingSections.governance ? (
+                                            <div className="flex items-center justify-center py-16">
+                                                <Loader2 className="w-8 h-8 text-red-600 animate-spin mr-3" />
+                                                <span className="text-gray-600">Loading financial infrastructure...</span>
+                                            </div>
+                                        ) : (
+                                        <>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                            {(dynamicData?.financialInfraStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Landmark, BarChart3, Shield, TrendingUp][i]} color={['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Financial Infrastructure - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'assets', label: 'Assets/Volume' },
+                                        { key: 'coverage', label: 'Coverage' },
+                                        { key: 'rating', label: 'Rating' }
+                                    ]}
+                                    data={dynamicData?.financialInfraData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="trade">
+                                    {loadingSections.governance ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-red-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading trade networks...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.tradeStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Anchor, Ship, Globe, Network][i]} color={['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Trade Networks - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'network', label: 'Network' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'volume', label: 'Volume' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'globalRank', label: 'Global Rank' }
+                                    ]}
+                                    data={dynamicData?.tradeNetworksData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="labor">
+                                    {loadingSections.governance ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-red-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading labor market...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.laborStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Users, Cpu, Briefcase, Users][i]} color={['#10B981', '#8B5CF6', '#F59E0B', '#3B82F6'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Labor Market - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'metric', label: 'Metric' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'change', label: 'Change' },
+                                        { key: 'rate', label: 'Rate/Share' }
+                                    ]}
+                                    data={dynamicData?.laborMarketData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+                                    </Tabs>
+                                    </CategorySection>
+                                    )}
+
+                                    {/* SOCIAL & HUMAN DEVELOPMENT */}
+                                    {selectedCountries.length > 0 && (activeCategory === 'all' || activeCategory === 'social') && (
+                    <CategorySection
+                        title={`Social & Human Development - ${selectedCountries.join(', ')}`}
+                        description="Education systems, healthcare, social safety nets, and cultural institutions"
+                        icon={Users}
+                        color="#EC4899"
+                        stats={[]}
+                    >
+                        <Tabs defaultValue="education" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="education" className="gap-2"><GraduationCap className="w-4 h-4" /> Education</TabsTrigger>
+                                <TabsTrigger value="healthcare" className="gap-2"><Stethoscope className="w-4 h-4" /> Healthcare</TabsTrigger>
+                                <TabsTrigger value="safety" className="gap-2"><Shield className="w-4 h-4" /> Social Safety Nets</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="education">
+                                        {loadingSections.social ? (
+                                            <div className="flex items-center justify-center py-16">
+                                                <Loader2 className="w-8 h-8 text-pink-600 animate-spin mr-3" />
+                                                <span className="text-gray-600">Loading education data...</span>
+                                            </div>
+                                        ) : (
+                                        <>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                            {(dynamicData?.educationStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[GraduationCap, BookOpen, GraduationCap, Banknote][i]} color={['#EC4899', '#8B5CF6', '#3B82F6', '#10B981'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Education Systems - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'level', label: 'Level' },
+                                        { key: 'institutions', label: 'Institutions' },
+                                        { key: 'enrollment', label: 'Enrollment' },
+                                        { key: 'teachers', label: 'Teachers' },
+                                        { key: 'spending', label: 'Spending' }
+                                    ]}
+                                    data={dynamicData?.educationData || []}
+                                    />
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="healthcare">
+                                    {loadingSections.social ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-pink-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading healthcare data...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.healthcareStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Stethoscope, Heart, Stethoscope, Banknote][i]} color={['#EF4444', '#EC4899', '#10B981', '#3B82F6'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Healthcare Systems - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'facility', label: 'Facility Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'capacity', label: 'Capacity' },
+                                        { key: 'staff', label: 'Staff' },
+                                        { key: 'spending', label: 'Spending' }
+                                    ]}
+                                    data={dynamicData?.healthcareData || []}
+                                    />
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="safety">
+                                    {loadingSections.social ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-pink-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading social safety nets...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.socialSafetyStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Users, Heart, Heart, Leaf][i]} color={['#8B5CF6', '#EF4444', '#10B981', '#F59E0B'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Social Safety Net - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'program', label: 'Program' },
+                                        { key: 'beneficiaries', label: 'Beneficiaries' },
+                                        { key: 'annual', label: 'Annual Budget' },
+                                        { key: 'coverage', label: 'Coverage' },
+                                        { key: 'fundStatus', label: 'Fund Status' }
+                                    ]}
+                                    data={dynamicData?.socialSafetyData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+                                    </Tabs>
+                                    </CategorySection>
+                                    )}
+
+                                    {/* GLOBAL & STRATEGIC POSITIONING */}
+                                    {selectedCountries.length > 0 && (activeCategory === 'all' || activeCategory === 'global') && (
+                    <CategorySection
+                        title={`Global & Strategic Positioning - ${selectedCountries.join(', ')}`}
+                        description="Diplomatic networks, geopolitical assets, soft power, and cyber infrastructure"
+                        icon={Globe}
+                        color="#06B6D4"
+                        stats={[]}
+                    >
+                        <Tabs defaultValue="diplomatic" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="diplomatic" className="gap-2"><Globe className="w-4 h-4" /> Diplomatic</TabsTrigger>
+                                <TabsTrigger value="geopolitical" className="gap-2"><Map className="w-4 h-4" /> Geopolitical</TabsTrigger>
+                                <TabsTrigger value="softpower" className="gap-2"><Award className="w-4 h-4" /> Soft Power</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="diplomatic">
+                                        {loadingSections.global ? (
+                                            <div className="flex items-center justify-center py-16">
+                                                <Loader2 className="w-8 h-8 text-cyan-600 animate-spin mr-3" />
+                                                <span className="text-gray-600">Loading diplomatic data...</span>
+                                            </div>
+                                        ) : (
+                                        <>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                            {(dynamicData?.diplomaticStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Building2, Building2, Shield, Briefcase][i]} color={['#06B6D4', '#3B82F6', '#EF4444', '#10B981'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Diplomatic Networks - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'personnel', label: 'Personnel' },
+                                        { key: 'regions', label: 'Regions' },
+                                        { key: 'budget', label: 'Budget' }
+                                    ]}
+                                    data={dynamicData?.diplomaticData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="geopolitical">
+                                    {loadingSections.global ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-cyan-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading geopolitical data...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.geopoliticalStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Anchor, Plane, Globe, Ship][i]} color={['#3B82F6', '#8B5CF6', '#F59E0B', '#10B981'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Geopolitical Assets - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'asset', label: 'Asset' },
+                                        { key: 'size', label: 'Size/Count' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'rank', label: 'Global Rank' },
+                                        { key: 'control', label: 'Control' }
+                                    ]}
+                                    data={dynamicData?.geopoliticalData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="softpower">
+                                    {loadingSections.global ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-cyan-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading soft power data...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.softPowerStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Award, GraduationCap, Radio, Globe][i]} color={['#EC4899', '#8B5CF6', '#3B82F6', '#10B981'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Soft Power - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'category', label: 'Category' },
+                                        { key: 'value', label: 'Value' },
+                                        { key: 'reach', label: 'Reach' },
+                                        { key: 'rank', label: 'Global Rank' },
+                                        { key: 'growth', label: 'Growth', render: (val) => (
+                                            <span className="text-emerald-600">{val}</span>
+                                        )}
+                                    ]}
+                                    data={dynamicData?.softPowerData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+                                    </Tabs>
+                                    </CategorySection>
+                                    )}
+
+                                    {/* ENVIRONMENTAL & SUSTAINABILITY */}
+                                    {selectedCountries.length > 0 && (activeCategory === 'all' || activeCategory === 'environment') && (
+                    <CategorySection
+                        title={`Environmental & Sustainability - ${selectedCountries.join(', ')}`}
+                        description="Climate resilience, protected areas, and renewable energy potential"
+                        icon={Leaf}
+                        color="#84CC16"
+                        stats={[]}
+                    >
+                        <Tabs defaultValue="climate" className="mt-4">
+                            <TabsList className="mb-4 flex-wrap">
+                                <TabsTrigger value="climate" className="gap-2"><Shield className="w-4 h-4" /> Climate Resilience</TabsTrigger>
+                                <TabsTrigger value="protected" className="gap-2"><TreePine className="w-4 h-4" /> Protected Areas</TabsTrigger>
+                                <TabsTrigger value="renewable" className="gap-2"><Sun className="w-4 h-4" /> Renewable Potential</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="climate">
+                                        {loadingSections.global ? (
+                                            <div className="flex items-center justify-center py-16">
+                                                <Loader2 className="w-8 h-8 text-lime-600 animate-spin mr-3" />
+                                                <span className="text-gray-600">Loading climate resilience...</span>
+                                            </div>
+                                        ) : (
+                                        <>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                            {(dynamicData?.climateStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Droplets, Zap, Shield, Shield][i]} color={['#06B6D4', '#EF4444', '#3B82F6', '#10B981'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Climate Resilience - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'system', label: 'System' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'capacity', label: 'Capacity' },
+                                        { key: 'investment', label: 'Investment' },
+                                        { key: 'condition', label: 'Condition', render: (val) => (
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${val === 'Excellent' ? 'bg-emerald-100 text-emerald-700' : val === 'Good' ? 'bg-blue-100 text-blue-700' : val === 'Strained' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{val}</span>
+                                        )}
+                                    ]}
+                                    data={dynamicData?.climateResilienceData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="protected">
+                                    {loadingSections.global ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-lime-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading protected areas...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.protectedStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[TreePine, TreePine, Leaf, Anchor][i]} color={['#84CC16', '#10B981', '#059669', '#06B6D4'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Protected Areas - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'type', label: 'Type' },
+                                        { key: 'count', label: 'Count' },
+                                        { key: 'area', label: 'Area' },
+                                        { key: 'visitors', label: 'Annual Visitors' },
+                                        { key: 'budget', label: 'Budget' }
+                                    ]}
+                                    data={dynamicData?.protectedAreasData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+
+                                    <TabsContent value="renewable">
+                                    {loadingSections.global ? (
+                                    <div className="flex items-center justify-center py-16">
+                                        <Loader2 className="w-8 h-8 text-lime-600 animate-spin mr-3" />
+                                        <span className="text-gray-600">Loading renewable potential...</span>
+                                    </div>
+                                    ) : (
+                                    <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    {(dynamicData?.renewableStats || []).map((stat, i) => (
+                                        <AssetCard key={i} title={stat.title} value={stat.value} unit={stat.unit} icon={[Sun, Wind, Droplets, Zap][i]} color={['#F59E0B', '#3B82F6', '#06B6D4', '#EF4444'][i]} />
+                                    ))}
+                                </div>
+                                <DataTable
+                                    title={`Renewable Energy - ${selectedCountries.join(', ')}`}
+                                    columns={[
+                                        { key: 'source', label: 'Source' },
+                                        { key: 'potential', label: 'Potential' },
+                                        { key: 'installed', label: 'Installed' },
+                                        { key: 'utilization', label: 'Utilization' },
+                                        { key: 'growth', label: 'Growth', render: (val) => (
+                                            <span className="text-emerald-600">{val}</span>
+                                        )}
+                                    ]}
+                                    data={dynamicData?.renewablePotentialData || []}/>
+                                    </>
+                                    )}
+                                    </TabsContent>
+                                    </Tabs>
+                                    </CategorySection>
+                                    )}
+                                    </>
+                                    )
+                                    )}
+
                 {/* Anomaly Detection Tab */}
                 {mainTab === 'anomaly' && (
                     <AnomalyDetection selectedCountries={selectedCountries} />
@@ -591,7 +1660,7 @@ export default function Geospatial() {
                     <GeographicalModels selectedCountries={selectedCountries} />
                 )}
 
-                {/* Geographical Models Tab - Instruction or Selected Countries Display */}
+                {/* Country Data Tab - removed duplicate content */}
                 {mainTab === 'geographical' && (
                     selectedCountries.length === 0 ? (
                     <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
