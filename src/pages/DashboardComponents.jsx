@@ -243,6 +243,36 @@ export default function DashboardComponents() {
                                 <Island18 className="w-20 h-20" color="#CA8A04" />
                             </div>
                         </div>
+                        <h3 className="text-lg font-medium text-gray-600 mt-6 mb-4">Adventure Collection</h3>
+                        <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-4">
+                            <div className="bg-white rounded-xl p-4 border border-gray-200 flex items-center justify-center">
+                                <Island19 className="w-20 h-20" color="#E11D48" />
+                            </div>
+                            <div className="bg-white rounded-xl p-4 border border-gray-200 flex items-center justify-center">
+                                <Island20 className="w-20 h-20" color="#0284C7" />
+                            </div>
+                            <div className="bg-white rounded-xl p-4 border border-gray-200 flex items-center justify-center">
+                                <Island21 className="w-20 h-20" color="#7C3AED" />
+                            </div>
+                            <div className="bg-white rounded-xl p-4 border border-gray-200 flex items-center justify-center">
+                                <Island22 className="w-20 h-20" color="#0891B2" />
+                            </div>
+                            <div className="bg-white rounded-xl p-4 border border-gray-200 flex items-center justify-center">
+                                <Island23 className="w-20 h-20" color="#16A34A" />
+                            </div>
+                            <div className="bg-white rounded-xl p-4 border border-gray-200 flex items-center justify-center">
+                                <Island24 className="w-20 h-20" color="#2563EB" />
+                            </div>
+                            <div className="bg-white rounded-xl p-4 border border-gray-200 flex items-center justify-center">
+                                <Island25 className="w-20 h-20" color="#65A30D" />
+                            </div>
+                            <div className="bg-white rounded-xl p-4 border border-gray-200 flex items-center justify-center">
+                                <Island26 className="w-20 h-20" color="#EA580C" />
+                            </div>
+                            <div className="bg-white rounded-xl p-4 border border-gray-200 flex items-center justify-center">
+                                <Island27 className="w-20 h-20" color="#4F46E5" />
+                            </div>
+                        </div>
                     </section>
                 </div>
             </div>
