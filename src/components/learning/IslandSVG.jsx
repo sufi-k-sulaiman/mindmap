@@ -10,12 +10,13 @@ const ALL_ISLANDS = [
     Island19, Island20, Island21, Island22, Island23, Island24, Island25, Island26, Island27
 ];
 
-// Color palette for islands
-const ISLAND_COLORS = [
-    '#6B4EE6', '#50C8E8', '#8BC34A', '#F59E0B', '#EC4899', '#14B8A6', '#A78BFA', '#F97316', '#3B82F6',
-    '#DC2626', '#059669', '#D97706', '#065F46', '#1D4ED8', '#B91C1C', '#7C3AED', '#0891B2', '#CA8A04',
-    '#E11D48', '#0284C7', '#7C3AED', '#0891B2', '#16A34A', '#2563EB', '#65A30D', '#EA580C', '#4F46E5'
-];
+// App theme colors
+const APP_COLORS = {
+    primary: '#6B4EE6',
+    secondary: '#8B5CF6',
+    accent: '#F59E0B',
+    success: '#10B981',
+};
 
 // Simple hash function for consistent randomization
 function hashIndex(index, seed = 0) {
