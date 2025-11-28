@@ -2086,7 +2086,6 @@ export default function StockDetailModal({ stock, isOpen, onClose }) {
                     { id: 'pnl', label: 'P&L Statements', count: 3, icon: DollarSign, color: 'orange' },
                     { id: 'fiscal', label: 'Fiscal Year Data', count: 3, icon: Calendar, color: 'indigo' },
                 ];
-                const [activeReportTab, setActiveReportTab] = useState('annual');
                 
                 return (
                     <div className="space-y-6">
