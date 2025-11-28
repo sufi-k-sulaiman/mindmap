@@ -35,23 +35,23 @@ export default function LearningIslandCard({ topic, index, progress = 0, onExplo
             onMouseLeave={() => setHovered(false)}
             onClick={() => !locked && onExplore(topic)}
         >
-            {/* XP Badge with Play and Graduation Cap */}
-            <div className="absolute -top-1 -right-1 z-20 flex items-center gap-1.5">
-                <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-400 rounded-full text-xs font-bold text-amber-900">
-                    <GraduationCap className="w-3 h-3" />
-                    {xpReward} XP
-                </div>
-                <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center shadow-md">
-                    <Play className="w-3 h-3 text-white ml-0.5" fill="currentColor" />
-                </div>
+            {/* Graduation cap on top */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
+                <GraduationCap className="w-10 h-10 text-purple-600" fill="currentColor" />
             </div>
             
-            {/* Priority number */}
+            {/* Priority number bubble */}
             <div 
-                className="absolute top-0 left-1/2 -translate-x-1/2 z-20 w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg"
-                style={{ backgroundColor: topic.color }}
+                className="absolute top-6 left-1/2 -translate-x-1/2 z-20 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg"
+                style={{ backgroundColor: '#14B8A6' }}
             >
                 {index + 1}
+            </div>
+            
+            {/* XP Badge */}
+            <div className="absolute top-4 right-0 z-20 flex items-center gap-1 px-3 py-1 bg-amber-400 rounded-full text-sm font-bold text-amber-900">
+                <GraduationCap className="w-4 h-4" />
+                {xpReward} XP
             </div>
             
             {/* Island SVG - varied by index for unique look */}
