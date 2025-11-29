@@ -1,5 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 
+const NEWSAPI_KEY = Deno.env.get('NEWSAPI_KEY');
+
 function formatTime(dateStr) {
     if (!dateStr) return 'Recently';
     try {
@@ -24,7 +26,6 @@ Deno.serve(async (req) => {
     
     try {
         const user = await base44.auth.me();
-        
         if (!user) {
             return Response.json({ error: 'Unauthorized', articles: [] }, { status: 401 });
         }
@@ -32,60 +33,104 @@ Deno.serve(async (req) => {
         let body = {};
         try {
             body = await req.json();
-        } catch (e) {
-            // Empty body is fine
-        }
+        } catch (e) {}
         
-        const { query, category, limit = 15 } = body;
+        const { query, category, limit = 15, refresh = false } = body;
         const searchTerm = query || category || 'technology';
         
-        try {
-            const llmResponse = await base44.integrations.Core.InvokeLLM({
-                prompt: `Search the web and find ${limit} recent real news articles about "${searchTerm}". For each article provide: title, source name, a brief summary, the actual URL, and approximate publish date.`,
-                add_context_from_internet: true,
-                response_json_schema: {
-                    type: "object",
-                    properties: {
-                        articles: {
-                            type: "array",
-                            items: {
-                                type: "object",
-                                properties: {
-                                    title: { type: "string" },
-                                    source: { type: "string" },
-                                    summary: { type: "string" },
-                                    url: { type: "string" },
-                                    publishedAt: { type: "string" }
-                                }
-                            }
-                        }
-                    }
+        // First, try to get cached articles from database
+        if (!refresh) {
+            try {
+                const cached = await base44.asServiceRole.entities.NewsArticle.filter(
+                    { category: searchTerm },
+                    '-created_date',
+                    limit
+                );
+                
+                if (cached && cached.length > 0) {
+                    const articles = cached.map(a => ({
+                        title: a.title,
+                        source: a.source || 'News',
+                        summary: a.summary || '',
+                        url: a.url || '',
+                        time: formatTime(a.published_at),
+                        image_url: a.image_url
+                    }));
+                    
+                    return Response.json({
+                        success: true,
+                        count: articles.length,
+                        articles: articles,
+                        cached: true
+                    });
                 }
-            });
-            
-            const articles = (llmResponse?.articles || [])
-                .filter(a => a && a.title)
-                .map(a => ({
-                    title: a.title || '',
-                    source: a.source || 'News',
-                    summary: a.summary || '',
-                    url: a.url || '',
-                    time: formatTime(a.publishedAt)
-                }));
-            
-            return Response.json({
-                success: true,
-                count: articles.length,
-                articles: articles,
-            });
-        } catch (llmError) {
-            console.error('LLM error:', llmError.message);
+            } catch (cacheError) {
+                console.log('Cache check failed:', cacheError.message);
+            }
+        }
+        
+        // If no cache or refresh requested, fetch from NewsAPI
+        if (!NEWSAPI_KEY) {
             return Response.json({
                 success: false,
-                error: llmError.message,
+                error: 'NewsAPI key not configured',
                 articles: []
             });
         }
+        
+        const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(searchTerm)}&sortBy=publishedAt&pageSize=${limit}&language=en&apiKey=${NEWSAPI_KEY}`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.status !== 'ok' || !data.articles) {
+            return Response.json({
+                success: false,
+                error: data.message || 'Failed to fetch news',
+                articles: []
+            });
+        }
+        
+        const articles = data.articles
+            .filter(a => a.title && a.title !== '[Removed]')
+            .map(a => ({
+                title: a.title,
+                source: a.source?.name || 'News',
+                summary: a.description || '',
+                url: a.url || '',
+                time: formatTime(a.publishedAt),
+                published_at: a.publishedAt
+            }));
+        
+        // Save to database for caching
+        try {
+            // Delete old articles for this category
+            const oldArticles = await base44.asServiceRole.entities.NewsArticle.filter({ category: searchTerm });
+            for (const old of oldArticles) {
+                await base44.asServiceRole.entities.NewsArticle.delete(old.id);
+            }
+            
+            // Save new articles
+            for (const article of articles.slice(0, limit)) {
+                await base44.asServiceRole.entities.NewsArticle.create({
+                    title: article.title,
+                    source: article.source,
+                    summary: article.summary,
+                    url: article.url,
+                    category: searchTerm,
+                    published_at: article.published_at
+                });
+            }
+        } catch (saveError) {
+            console.log('Failed to cache articles:', saveError.message);
+        }
+        
+        return Response.json({
+            success: true,
+            count: articles.length,
+            articles: articles,
+            cached: false
+        });
         
     } catch (error) {
         console.error('fetchNews error:', error.message);
