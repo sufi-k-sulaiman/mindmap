@@ -229,12 +229,24 @@ export default function Geospatial() {
                     </TabsList>
                 </Tabs>
 
+                {/* Selected categories summary */}
+                {activeUseCases.length > 0 && (
+                    <div className="flex items-center gap-2 mb-4 flex-wrap">
+                        <span className="text-sm text-gray-500">Viewing:</span>
+                        {selectedUseCases.map(uc => (
+                            <span key={uc.id} className="px-2 py-1 rounded-full text-xs font-medium text-white" style={{ backgroundColor: uc.color }}>
+                                {uc.name}
+                            </span>
+                        ))}
+                    </div>
+                )}
+
                 {/* Main Map Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     {/* Large Map */}
                     <div className="lg:col-span-3">
                         <GeospatialMap 
-                            useCase={activeUseCase}
+                            useCase={currentUseCase?.id || 'greenhouse'}
                             mapType={activeTab}
                             searchQuery={searchQuery}
                             color={currentUseCase?.color}
