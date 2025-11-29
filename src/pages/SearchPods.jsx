@@ -894,27 +894,53 @@ Do NOT mention any websites, URLs, or external references in the audio script.`
 
                         {/* Captions - fixed height for 3 lines */}
                         {!isGenerating && (
-                            <div className="bg-gray-50 rounded-xl p-4 mb-6 h-[84px] border border-gray-200 flex items-center justify-center overflow-hidden">
-                                <p className="text-center leading-relaxed text-sm line-clamp-3">
-                                    {captionWords.length > 0 ? (
-                                        captionWords.map((word, idx) => (
-                                            <span
-                                                key={idx}
-                                                className={`transition-colors duration-100 ${
-                                                    idx === currentWordIndex 
-                                                        ? 'text-purple-600 font-semibold' 
-                                                        : idx < currentWordIndex 
-                                                            ? 'text-gray-500' 
-                                                            : 'text-gray-700'
-                                                }`}
-                                            >
-                                                {word}{idx < captionWords.length - 1 ? ' ' : ''}
-                                            </span>
-                                        ))
+                            <div className="mb-6">
+                                <div className="bg-gray-50 rounded-xl p-4 h-[84px] border border-gray-200 flex items-center justify-center overflow-hidden">
+                                    {showBraille ? (
+                                        <p className="text-center leading-relaxed text-lg font-mono text-gray-700 line-clamp-3">
+                                            {toBraille(currentCaption)}
+                                        </p>
                                     ) : (
-                                        <span className="text-gray-700">{currentCaption}</span>
+                                        <p className="text-center leading-relaxed text-sm line-clamp-3">
+                                            {captionWords.length > 0 ? (
+                                                captionWords.map((word, idx) => (
+                                                    <span
+                                                        key={idx}
+                                                        className={`transition-colors duration-100 ${
+                                                            idx === currentWordIndex 
+                                                                ? 'text-purple-600 font-semibold' 
+                                                                : idx < currentWordIndex 
+                                                                    ? 'text-gray-500' 
+                                                                    : 'text-gray-700'
+                                                        }`}
+                                                    >
+                                                        {word}{idx < captionWords.length - 1 ? ' ' : ''}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="text-gray-700">{currentCaption}</span>
+                                            )}
+                                        </p>
                                     )}
-                                </p>
+                                </div>
+                                {/* Tell me more button */}
+                                <button
+                                    onClick={extendPodcast}
+                                    disabled={isExtending || isGenerating}
+                                    className="mt-2 w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 text-sm font-medium transition-colors disabled:opacity-50"
+                                >
+                                    {isExtending ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Extending podcast...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <MessageSquarePlus className="w-4 h-4" />
+                                            Tell me more
+                                        </>
+                                    )}
+                                </button>
                             </div>
                         )}
 
