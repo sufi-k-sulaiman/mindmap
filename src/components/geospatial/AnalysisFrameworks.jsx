@@ -356,7 +356,7 @@ const DMAICDisplay = ({ data }) => {
                     </div>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 border">
-                    <h4 className="font-semibold text-gray-700 mb-2">Progress Timeline</h4>
+                    <h4 className="font-semibold text-gray-700 mb-2">Progress Timeline (2020-2024)</h4>
                     <div className="h-56">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={timelineData}>
@@ -370,20 +370,43 @@ const DMAICDisplay = ({ data }) => {
                     </div>
                 </div>
             </div>
-            <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
-                <h4 className="font-semibold text-purple-800 mb-2">DMAIC Analysis</h4>
-                <p className="text-gray-700">{data.insight}</p>
-                <div className="mt-3 space-y-2">
+
+            {/* Phase Details with Data Points */}
+            <div className="bg-white rounded-xl p-4 border border-gray-200">
+                <h4 className="font-semibold text-gray-800 mb-3">Phase Breakdown & Key Metrics</h4>
+                <div className="space-y-3">
                     {data.phases?.map((phase, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                            <span className="w-20 font-medium text-gray-800">{phase.phase}</span>
-                            <div className="flex-1 h-2 bg-gray-200 rounded-full">
-                                <div className="h-full rounded-full" style={{ width: `${phase.score}%`, backgroundColor: COLORS[i] }} />
+                        <div key={i} className="bg-gray-50 rounded-lg p-3 border">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i] }} />
+                                    <span className="font-semibold text-gray-800">{phase.phase}</span>
+                                </div>
+                                <span className="text-sm font-bold px-2 py-0.5 rounded" style={{ backgroundColor: `${COLORS[i]}20`, color: COLORS[i] }}>
+                                    {phase.score}%
+                                </span>
                             </div>
-                            <span className="text-sm font-semibold text-gray-600">{phase.score}%</span>
+                            <div className="h-1.5 bg-gray-200 rounded-full mb-2">
+                                <div className="h-full rounded-full transition-all" style={{ width: `${phase.score}%`, backgroundColor: COLORS[i] }} />
+                            </div>
+                            {phase.points && phase.points.length > 0 && (
+                                <ul className="space-y-1 mt-2">
+                                    {phase.points.map((point, j) => (
+                                        <li key={j} className="text-xs text-gray-600 flex items-start gap-1.5">
+                                            <span className="text-gray-400 mt-0.5">•</span>
+                                            <span>{point}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
                     ))}
                 </div>
+            </div>
+
+            <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+                <h4 className="font-semibold text-purple-800 mb-2">DMAIC Analysis & Recommendations</h4>
+                <p className="text-gray-700 text-sm leading-relaxed">{data.insight}</p>
             </div>
         </div>
     );
