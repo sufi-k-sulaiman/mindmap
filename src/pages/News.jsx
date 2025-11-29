@@ -530,17 +530,7 @@ export default function News() {
                 {!expandedCategory && <div className="mb-4" />}
 
                 {/* Refresh Button */}
-                <div className="flex justify-end gap-2 mb-4">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handlePopulateCache}
-                        disabled={populatingCache}
-                        className="gap-2 border-orange-300 text-orange-700 hover:bg-orange-50"
-                    >
-                        <Database className={`w-4 h-4 ${populatingCache ? 'animate-pulse' : ''}`} />
-                        {populatingCache ? 'Populating...' : 'Populate Cache'}
-                    </Button>
+                <div className="flex justify-end mb-4">
                     <Button
                         variant="outline"
                         size="sm"
