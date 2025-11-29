@@ -221,75 +221,16 @@ export default function Geospatial() {
                     </div>
                 )}
 
-                {/* Main Map Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    {/* Large Map */}
-                    <div className="lg:col-span-3">
-                        <GeospatialMap 
-                            useCase={currentUseCase?.id || 'greenhouse'}
-                            mapType={activeTab}
-                            searchQuery={searchQuery}
-                            color={currentUseCase?.color}
-                        />
-                    </div>
-
-                    {/* Sidebar */}
-                    <div className="space-y-4">
-                        {/* Current Use Case Info */}
-                        <div className="bg-white rounded-xl border border-gray-200 p-4">
-                            <div className="flex items-center gap-2 mb-3">
-                                {currentUseCase && <currentUseCase.icon className="w-5 h-5" style={{ color: currentUseCase?.color }} />}
-                                <h3 className="font-semibold text-gray-900">{currentUseCase?.name}</h3>
-                            </div>
-                            <p className="text-sm text-gray-500 mb-4">{currentUseCase?.description}</p>
-                            
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-gray-500">Data Layers</span>
-                                    <span className="font-medium text-gray-900">12 active</span>
-                                </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-gray-500">Last Updated</span>
-                                    <span className="font-medium text-gray-900">2 min ago</span>
-                                </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-gray-500">Coverage</span>
-                                    <span className="font-medium text-gray-900">Global</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Applications */}
-                        <div className="bg-white rounded-xl border border-gray-200 p-4">
-                            <h3 className="font-semibold text-gray-900 mb-3 text-sm">Applications</h3>
-                            <div className="space-y-2">
-                                {APPLICATIONS.map((app, i) => (
-                                    <div key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                        <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
-                                            <app.icon className="w-4 h-4 text-purple-600" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-gray-900">{app.title}</p>
-                                            <p className="text-xs text-gray-500">{app.desc}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Quick Actions */}
-                        <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border border-purple-100 p-4">
-                            <div className="flex items-center gap-2 mb-3">
-                                <Sparkles className="w-4 h-4 text-purple-600" />
-                                <h3 className="font-semibold text-gray-900 text-sm">AI Analysis</h3>
-                            </div>
-                            <p className="text-xs text-gray-600 mb-3">Run AI-powered spatial analysis on the current view.</p>
-                            <Button className="w-full bg-purple-600 hover:bg-purple-700" size="sm">
-                                <Activity className="w-4 h-4 mr-2" />
-                                Analyze Region
-                            </Button>
-                        </div>
-                    </div>
+                {/* World Map - Full Width */}
+                <div className="mb-6">
+                    <GeospatialMap 
+                        useCase={currentUseCase?.id || 'greenhouse'}
+                        mapType={activeTab}
+                        searchQuery={searchQuery}
+                        color={currentUseCase?.color}
+                        height="500px"
+                        isWorldMap={true}
+                    />
                 </div>
 
                 {/* Secondary Maps Grid */}
