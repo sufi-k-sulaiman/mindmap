@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Globe, Paperclip, Mic, MicOff, X, Loader2, Copy, Check, FileText, Image as ImageIcon, ExternalLink, ChevronRight, AlertTriangle } from 'lucide-react';
+import { Globe, Paperclip, Mic, MicOff, X, Loader2, Copy, Check, FileText, Image as ImageIcon, ExternalLink, ChevronRight, AlertTriangle, Download, Maximize2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
