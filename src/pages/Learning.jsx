@@ -283,29 +283,6 @@ export default function Learning() {
                         </div>
                     </div>
 
-                    {/* Category tabs */}
-                    <div className="flex gap-2 overflow-x-auto pb-3 mb-3 border-b border-gray-100">
-                        <button
-                            onClick={() => setActiveCategory(null)}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                                !activeCategory ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:bg-gray-100'
-                            }`}
-                        >
-                            All
-                        </button>
-                        {CATEGORIES.map(cat => (
-                            <button
-                                key={cat}
-                                onClick={() => setActiveCategory(cat)}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                                    activeCategory === cat ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:bg-gray-100'
-                                }`}
-                            >
-                                {cat}
-                            </button>
-                        ))}
-                    </div>
-
                     {/* Subjects list */}
                     <div className="flex-1 overflow-y-auto max-h-[200px]">
                         {Object.entries(groupedSubjects).map(([category, subjects]) => (
