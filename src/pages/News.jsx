@@ -250,10 +250,10 @@ const NewsCardSimple = ({ article, index }) => {
                     )}
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors">
-                    {article.title}
+                    {cleanTitle}
                 </h3>
                 <p className="text-gray-600 text-sm line-clamp-3 mb-4">
-                    {article.summary}
+                    {cleanSummary || `Read the full story: ${cleanTitle}`}
                 </p>
                 <span className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-medium">
                     Read more <ExternalLink className="w-3 h-3" />
