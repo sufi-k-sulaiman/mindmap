@@ -254,13 +254,9 @@ const NewsCardSimple = ({ article, index }) => {
                 <p className="text-gray-600 text-sm line-clamp-3 mb-4">
                     {article.summary}
                 </p>
-                <div className="inline-flex items-center gap-2 text-gray-600 text-sm font-medium">
-                    {faviconUrl && (
-                        <img src={faviconUrl} alt="" className="w-4 h-4" />
-                    )}
-                    <span className="text-gray-500">{domain}</span>
-                    <ExternalLink className="w-3 h-3" />
-                </div>
+                <span className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-medium">
+                    Read more <ExternalLink className="w-3 h-3" />
+                </span>
             </div>
         </a>
     );
