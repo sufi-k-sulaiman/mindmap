@@ -312,14 +312,25 @@ Deno.serve(async (req) => {
             });
         }
         
-        // If no cache found, return empty with message
+        // If no cache found, fetch live from Google News RSS
+        if (query) {
+            const liveArticles = await fetchGoogleNewsRSS(query);
+            return Response.json({
+                success: true,
+                count: liveArticles.length,
+                query: query,
+                category: category || null,
+                articles: liveArticles.slice(0, limit),
+            });
+        }
+
         return Response.json({
             success: true,
             count: 0,
             query: query || null,
             category: category || null,
             articles: [],
-            message: 'No cached data available. Admin needs to run populateNewsCache.',
+            message: 'No cached data available. Try searching for a topic.',
         });
         
     } catch (error) {
