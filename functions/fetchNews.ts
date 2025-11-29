@@ -195,35 +195,13 @@ function generateImagePrompt(title) {
     return 'Professional news photography, neutral tones, journalistic style';
 }
 
-// Fetch from RSS
-async function fetchRSS(feedKey, query = null) {
+// Fetch from Google News RSS
+async function fetchGoogleNewsRSS(queryOrCategory, isCategory = false) {
     try {
-        let url = RSS_SOURCES[feedKey];
-        if (typeof url === 'function') {
-            url = url(query || 'news');
-        }
-        
-        const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'Accept': 'application/rss+xml, application/xml, text/xml, */*',
-            },
-        });
-        
-        if (!response.ok) return [];
-        
-        const xml = await response.text();
-        return await parseRSS(xml, feedKey);
-    } catch (error) {
-        console.error(`RSS fetch failed for ${feedKey}:`, error.message);
-        return [];
-    }
-}
-
-// Fetch from Google News RSS (free, no rate limits)
-async function fetchGoogleNewsRSS(query) {
-    try {
-        const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
+        const url = isCategory 
+            ? getGoogleNewsCategoryURL(queryOrCategory)
+            : getGoogleNewsURL(queryOrCategory);
+            
         const response = await fetch(url, {
             headers: { 'User-Agent': 'Mozilla/5.0 (compatible; NewsBot/1.0)' },
         });
@@ -231,30 +209,9 @@ async function fetchGoogleNewsRSS(query) {
         if (!response.ok) return [];
         
         const xml = await response.text();
-        return await parseRSS(xml, 'google');
+        return await parseRSS(xml, 'Google News');
     } catch (error) {
         console.error('Google News RSS fetch failed:', error.message);
-        return [];
-    }
-}
-
-// Fetch from external scraper (if configured)
-async function fetchExternalScraper(query, scraperUrl) {
-    if (!scraperUrl) return [];
-    
-    try {
-        const response = await fetch(scraperUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query, count: 20 }),
-        });
-        
-        if (!response.ok) return [];
-        
-        const data = await response.json();
-        return data.articles || [];
-    } catch (error) {
-        console.error('External scraper failed:', error.message);
         return [];
     }
 }
