@@ -46,7 +46,7 @@ export default function TopicThumbnail({ topic, onClick }) {
     return (
         <button
             onClick={() => onClick(topic)}
-            className="group relative bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg hover:border-purple-300 transition-all duration-300 text-left col-span-2 min-w-[220px]"
+            className="group relative bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg hover:border-purple-300 transition-all duration-300 text-left min-w-[260px]"
         >
             {/* Mini mind map visualization */}
             <div className="relative h-36 mb-2">
