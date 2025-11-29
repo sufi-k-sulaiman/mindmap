@@ -29,7 +29,7 @@ export default function Geospatial() {
         document.querySelector('meta[name="keywords"]')?.setAttribute('content', 'Geospatial, GIS, mapping, spatial analysis, satellite imagery');
     }, []);
 
-    const [activeUseCases, setActiveUseCases] = useState(['greenhouse']);
+    const [activeUseCases, setActiveUseCases] = useState(['carbon']);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState('explore');
     const [loading, setLoading] = useState(false);
