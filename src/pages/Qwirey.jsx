@@ -410,6 +410,18 @@ export default function Qwirey() {
                     resultData.tabledData = responses[1];
                 } else if (responseFormat === 'reviews') {
                     resultData.reviewsData = responses[1];
+                } else if (responseFormat === 'images') {
+                    const imagesResponse = responses[1];
+                    const imagePrompts = imagesResponse?.imagePrompts?.slice(0, 8) || [];
+                    const generatedImages = await Promise.all(
+                        imagePrompts.map(async (imgPrompt) => {
+                            try {
+                                const img = await base44.integrations.Core.GenerateImage({ prompt: imgPrompt });
+                                return { prompt: imgPrompt, url: img.url };
+                            } catch (e) { return null; }
+                        })
+                    );
+                    resultData.imagesData = generatedImages.filter(Boolean);
                 }
 
                 setResult(resultData);
