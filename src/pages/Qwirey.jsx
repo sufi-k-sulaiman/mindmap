@@ -461,6 +461,7 @@ export default function Qwirey() {
         if (newFormat === 'reviews' && result.reviewsData) return;
         if (newFormat === 'short' && result.shortData) return;
         if (newFormat === 'long' && result.longData) return;
+        if (newFormat === 'images' && result.imagesData) return;
         
         // Generate data for the new format
         setFormatLoading(true);
