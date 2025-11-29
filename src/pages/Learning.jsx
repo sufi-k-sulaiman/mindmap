@@ -402,50 +402,7 @@ export default function Learning() {
                 )}
             </div>
 
-            {/* Summary Stats */}
-            {subTopics.length > 0 && (
-                <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME.primary}20` }}>
-                                    <Star className="w-6 h-6" style={{ color: THEME.primary }} />
-                                </div>
-                                <div>
-                                    <p className="text-3xl font-bold text-gray-900">{subTopics.length}</p>
-                                    <p className="text-sm text-gray-500">Learning Islands</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME.success}20` }}>
-                                    <Target className="w-6 h-6" style={{ color: THEME.success }} />
-                                </div>
-                                <div>
-                                    <p className="text-3xl font-bold text-gray-900">
-                                        {Object.values(userProgress).filter(p => p === 100).length}
-                                    </p>
-                                    <p className="text-sm text-gray-500">Islands Completed</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME.accent}20` }}>
-                                    <Zap className="w-6 h-6" style={{ color: THEME.accent }} />
-                                </div>
-                                <div>
-                                    <p className="text-3xl font-bold text-gray-900">
-                                        {subTopics.length * 500}
-                                    </p>
-                                    <p className="text-sm text-gray-500">Potential XP</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+
             {/* Course Modal */}
             <CourseModal 
                 isOpen={showCourseModal}
