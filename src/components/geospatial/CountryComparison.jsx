@@ -124,7 +124,7 @@ Consider factors like: emissions data, renewable energy %, forest coverage, air 
                     </div>
                 </div>
                 <div className="space-y-3">
-                    {TOP_COUNTRIES.map((country, i) => (
+                    {topCountries.map((country, i) => (
                         <div 
                             key={country.name}
                             className="bg-white rounded-lg p-3 border border-emerald-100 hover:border-emerald-300 transition-colors cursor-pointer"
@@ -159,7 +159,7 @@ Consider factors like: emissions data, renewable energy %, forest coverage, air 
                     </div>
                 </div>
                 <div className="space-y-3">
-                    {BOTTOM_COUNTRIES.map((country, i) => (
+                    {bottomCountries.map((country, i) => (
                         <div 
                             key={country.name}
                             className="bg-white rounded-lg p-3 border border-amber-100 hover:border-amber-300 transition-colors cursor-pointer"
