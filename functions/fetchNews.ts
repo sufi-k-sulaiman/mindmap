@@ -227,41 +227,20 @@ async function fetchRSS(feedKey, query = null) {
     }
 }
 
-// Fetch from NewsAPI
-async function fetchNewsAPI(query, category = null) {
-    const apiKey = Deno.env.get('NEWSAPI_KEY');
-    if (!apiKey) return [];
-    
+// Fetch from Google News RSS (free, no rate limits)
+async function fetchGoogleNewsRSS(query) {
     try {
-        let url = 'https://newsapi.org/v2/';
-        
-        if (query) {
-            url += `everything?q=${encodeURIComponent(query)}&sortBy=publishedAt&pageSize=20`;
-        } else if (category) {
-            url += `top-headlines?category=${category}&country=us&pageSize=20`;
-        } else {
-            url += 'top-headlines?country=us&pageSize=20';
-        }
-        
+        const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
         const response = await fetch(url, {
-            headers: { 'X-Api-Key': apiKey },
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; NewsBot/1.0)' },
         });
         
         if (!response.ok) return [];
         
-        const data = await response.json();
-        
-        return (data.articles || []).map(art => ({
-            title: art.title || 'No title',
-            url: art.url,
-            source: art.source?.name || 'NewsAPI',
-            summary: art.description || '',
-            time: formatTime(art.publishedAt),
-            imagePrompt: generateImagePrompt(art.title || ''),
-            imageUrl: art.urlToImage, // NewsAPI sometimes has images
-        }));
+        const xml = await response.text();
+        return await parseRSS(xml, 'google');
     } catch (error) {
-        console.error('NewsAPI fetch failed:', error.message);
+        console.error('Google News RSS fetch failed:', error.message);
         return [];
     }
 }
