@@ -220,12 +220,12 @@ export default function Geospatial() {
                         <div className="p-3 border-b border-gray-100 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Cloud className="w-4 h-4 text-red-600" />
-                                <span className="font-medium text-sm text-gray-900">Emissions Hotspots</span>
+                                <span className="font-medium text-sm text-gray-900">Carbon Hotspots</span>
                             </div>
-                            <span className="text-xs text-gray-500">Live</span>
+                            <span className="text-xs text-gray-500">Heatmap</span>
                         </div>
                         <GeospatialMap 
-                            useCase="greenhouse"
+                            useCase="carbon"
                             mapType="heatmap"
                             height="200px"
                             mini={true}
@@ -237,12 +237,12 @@ export default function Geospatial() {
                         <div className="p-3 border-b border-gray-100 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <TreePine className="w-4 h-4 text-emerald-600" />
-                                <span className="font-medium text-sm text-gray-900">Renewable Sources</span>
+                                <span className="font-medium text-sm text-gray-900">Forest Coverage</span>
                             </div>
                             <span className="text-xs text-gray-500">Satellite</span>
                         </div>
                         <GeospatialMap 
-                            useCase="renewables"
+                            useCase="forests"
                             mapType="satellite"
                             height="200px"
                             mini={true}
@@ -253,17 +253,17 @@ export default function Geospatial() {
                     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                         <div className="p-3 border-b border-gray-100 flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Layers className="w-4 h-4 text-indigo-600" />
-                                <span className="font-medium text-sm text-gray-900">Power Grid</span>
+                                <Mountain className="w-4 h-4 text-orange-600" />
+                                <span className="font-medium text-sm text-gray-900">Natural Resources</span>
                             </div>
-                            <span className="text-xs text-gray-500">Grid</span>
+                            <span className="text-xs text-gray-500">Terrain</span>
                         </div>
                         <GeospatialMap 
-                            useCase="grid"
-                            mapType="default"
+                            useCase="resources"
+                            mapType="terrain"
                             height="200px"
                             mini={true}
-                            color="#6366F1"
+                            color="#F97316"
                         />
                     </div>
                 </div>
