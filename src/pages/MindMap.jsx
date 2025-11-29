@@ -533,7 +533,7 @@ export default function MindMapPage() {
     return (
         <div
             ref={containerRef}
-            className={`min-h-screen bg-gray-50 ${isFullscreen ? 'p-4 overflow-auto' : 'p-4 md:p-6'}`}
+            className={`min-h-screen bg-gray-50 ${isFullscreen ? 'p-2 overflow-auto' : 'p-2 md:p-3'}`}
         >
             <div className={`${isFullscreen ? 'max-w-none' : 'max-w-7xl mx-auto'}`}>
                 {/* Mind Map Content */}
@@ -708,7 +708,7 @@ export default function MindMapPage() {
                                 Search for any topic to generate an interactive knowledge tree. Click Explore to dive deeper or Learn for detailed insights.
                             </p>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4 max-w-6xl">
+                            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3 w-full px-2">
                                 {[
                                     'Geography', 'Psychology', 'Music', 'Business', 'Sociology', 'Environment',
                                     'Mathematics', 'History', 'Literature', 'Sports', 'Science', 'Culture & Anthropology',
