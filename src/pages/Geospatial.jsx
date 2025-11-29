@@ -254,67 +254,38 @@ export default function Geospatial() {
                 {/* Country Comparison */}
                 <CountryComparison selectedCategories={activeUseCases} />
 
-                {/* Secondary Maps Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div 
-                        className="bg-white rounded-xl border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg hover:border-red-300 transition-all"
-                        onClick={() => setModalMap({ title: 'Carbon Hotspots', icon: Cloud, color: '#EF4444', useCase: 'carbon', mapType: 'heatmap' })}
-                    >
-                        <div className="p-3 border-b border-gray-100 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Cloud className="w-4 h-4 text-red-600" />
-                                <span className="font-medium text-sm text-gray-900">Carbon Hotspots</span>
+                {/* Secondary Maps Grid - Dynamic based on all categories */}
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {USE_CASES.map((useCase, index) => {
+                        const Icon = useCase.icon;
+                        const mapTypes = ['heatmap', 'satellite', 'terrain', 'default'];
+                        const mapType = mapTypes[index % mapTypes.length];
+                        return (
+                            <div 
+                                key={useCase.id}
+                                className="bg-white rounded-xl border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition-all"
+                                style={{ '--hover-color': useCase.color }}
+                                onClick={() => setModalMap({ title: useCase.name, icon: Icon, color: useCase.color, useCase: useCase.id, mapType })}
+                            >
+                                <div className="p-3 border-b border-gray-100 flex items-center justify-between">
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${useCase.color}20` }}>
+                                            <Icon className="w-3 h-3" style={{ color: useCase.color }} />
+                                        </div>
+                                        <span className="font-medium text-sm text-gray-900 truncate">{useCase.name}</span>
+                                    </div>
+                                    <span className="text-xs text-gray-500 capitalize flex-shrink-0 ml-2">{mapType === 'default' ? 'Map' : mapType}</span>
+                                </div>
+                                <GeospatialMap 
+                                    useCase={useCase.id}
+                                    mapType={mapType}
+                                    height="160px"
+                                    mini={true}
+                                    color={useCase.color}
+                                />
                             </div>
-                            <span className="text-xs text-gray-500">Heatmap</span>
-                        </div>
-                        <GeospatialMap 
-                            useCase="carbon"
-                            mapType="heatmap"
-                            height="200px"
-                            mini={true}
-                            color="#EF4444"
-                        />
-                    </div>
-
-                    <div 
-                        className="bg-white rounded-xl border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg hover:border-emerald-300 transition-all"
-                        onClick={() => setModalMap({ title: 'Forest Coverage', icon: TreePine, color: '#22C55E', useCase: 'forests', mapType: 'satellite' })}
-                    >
-                        <div className="p-3 border-b border-gray-100 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <TreePine className="w-4 h-4 text-emerald-600" />
-                                <span className="font-medium text-sm text-gray-900">Forest Coverage</span>
-                            </div>
-                            <span className="text-xs text-gray-500">Satellite</span>
-                        </div>
-                        <GeospatialMap 
-                            useCase="forests"
-                            mapType="satellite"
-                            height="200px"
-                            mini={true}
-                            color="#22C55E"
-                        />
-                    </div>
-
-                    <div 
-                        className="bg-white rounded-xl border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg hover:border-orange-300 transition-all"
-                        onClick={() => setModalMap({ title: 'Natural Resources', icon: Mountain, color: '#F97316', useCase: 'resources', mapType: 'terrain' })}
-                    >
-                        <div className="p-3 border-b border-gray-100 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Mountain className="w-4 h-4 text-orange-600" />
-                                <span className="font-medium text-sm text-gray-900">Natural Resources</span>
-                            </div>
-                            <span className="text-xs text-gray-500">Terrain</span>
-                        </div>
-                        <GeospatialMap 
-                            useCase="resources"
-                            mapType="terrain"
-                            height="200px"
-                            mini={true}
-                            color="#F97316"
-                        />
-                    </div>
+                        );
+                    })}
                 </div>
             </div>
 
