@@ -169,10 +169,11 @@ export default function SearchPods() {
         const loadVoices = () => {
             const availableVoices = window.speechSynthesis?.getVoices() || [];
             
-            // Whitelist of known good quality voices
+            // Whitelist of known good quality voices - include all Google variants
             const goodVoiceNames = [
                 'samantha', 'alex', 'victoria', 'karen', 'daniel', 'moira', 'tessa', 'fiona',
-                'google', 'microsoft', 'zira', 'david', 'mark', 'hazel', 'susan', 'george',
+                'google us', 'google uk', 'google australia', 'google india', 'google',
+                'microsoft', 'zira', 'david', 'mark', 'hazel', 'susan', 'george',
                 'catherine', 'arthur', 'martha', 'native', 'premium', 'enhanced', 'neural'
             ];
             
@@ -198,14 +199,20 @@ export default function SearchPods() {
                 return isEnglish && (isGood || v.localService);
             });
             
-            // Deduplicate and sort by quality
+            // Keep all Google voices (don't deduplicate them) but deduplicate others
             const uniqueVoices = [];
             const seenNames = new Set();
             for (const voice of qualityVoices) {
-                const simpleName = voice.name.split('(')[0].trim();
-                if (!seenNames.has(simpleName)) {
-                    seenNames.add(simpleName);
+                const nameLower = voice.name.toLowerCase();
+                // Keep all Google voice variants
+                if (nameLower.includes('google')) {
                     uniqueVoices.push(voice);
+                } else {
+                    const simpleName = voice.name.split('(')[0].trim();
+                    if (!seenNames.has(simpleName)) {
+                        seenNames.add(simpleName);
+                        uniqueVoices.push(voice);
+                    }
                 }
             }
             
