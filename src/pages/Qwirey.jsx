@@ -504,8 +504,8 @@ export default function Qwirey() {
     const handleFormatChange = async (newFormat) => {
         setResponseFormat(newFormat);
         
-        // If no result yet or switching away from current, just change format
-        if (!result || !result.text) return;
+        // If no result yet, just change format
+        if (!result) return;
         
         const currentPrompt = prompt;
         
