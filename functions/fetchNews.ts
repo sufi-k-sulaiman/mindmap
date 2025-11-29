@@ -28,32 +28,41 @@ const CATEGORY_FEEDS = {
 };
 
 // Parse RSS XML
-function parseRSS(xml, source) {
+async function parseRSS(xml, source) {
     const articles = [];
     const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
     let match;
+    const items = [];
     
     while ((match = itemRegex.exec(xml)) !== null) {
-        const item = match[1];
-        
+        items.push(match[1]);
+    }
+    
+    // Process items and resolve Google News URLs in parallel
+    const promises = items.slice(0, 30).map(async (item) => {
         const title = extractTag(item, 'title');
-        const link = extractTag(item, 'link') || extractGoogleLink(item);
+        let link = extractTag(item, 'link') || extractGoogleLink(item);
         const pubDate = extractTag(item, 'pubDate');
         const description = extractTag(item, 'description');
         
         if (title && link) {
-            articles.push({
+            // Resolve Google News redirect URLs to actual article URLs
+            const resolvedUrl = await resolveGoogleNewsUrl(cleanUrl(link));
+            
+            return {
                 title: cleanText(title),
-                url: cleanUrl(link),
-                source: extractSourceFromUrl(link) || source,
+                url: resolvedUrl,
+                source: extractSourceFromUrl(resolvedUrl) || source,
                 summary: cleanText(description || '').slice(0, 300),
                 time: formatTime(pubDate),
                 imagePrompt: generateImagePrompt(title),
-            });
+            };
         }
-    }
+        return null;
+    });
     
-    return articles;
+    const results = await Promise.all(promises);
+    return results.filter(Boolean);
 }
 
 function extractTag(xml, tag) {
