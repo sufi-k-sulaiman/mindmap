@@ -157,26 +157,30 @@ export default function Geospatial() {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
-                {/* Use Case Selector */}
-                <div className="flex gap-2 overflow-x-auto pb-4 mb-6">
+                {/* Use Case Selector - Multi-select */}
+                <div className="mb-2">
+                    <p className="text-xs text-gray-500 mb-2">Select multiple categories to view combined data:</p>
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-4 mb-6 flex-wrap">
                     {USE_CASES.map(useCase => {
                         const Icon = useCase.icon;
+                        const isSelected = activeUseCases.includes(useCase.id);
                         return (
                             <button
                                 key={useCase.id}
-                                onClick={() => setActiveUseCase(useCase.id)}
-                                className={`flex items-center gap-2 px-4 py-3 rounded-xl whitespace-nowrap transition-all ${
-                                    activeUseCase === useCase.id
+                                onClick={() => toggleUseCase(useCase.id)}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-xl whitespace-nowrap transition-all ${
+                                    isSelected
                                         ? 'bg-white shadow-lg border-2 text-gray-900'
                                         : 'bg-white/70 text-gray-600 hover:bg-white border border-gray-200'
                                 }`}
-                                style={{ borderColor: activeUseCase === useCase.id ? useCase.color : undefined }}
+                                style={{ borderColor: isSelected ? useCase.color : undefined }}
                             >
-                                <Icon className="w-5 h-5" style={{ color: useCase.color }} />
-                                <div className="text-left">
-                                    <span className="font-medium text-sm block">{useCase.name}</span>
-                                    <span className="text-xs text-gray-500 hidden md:block">{useCase.description}</span>
-                                </div>
+                                <Icon className="w-4 h-4" style={{ color: useCase.color }} />
+                                <span className="font-medium text-sm">{useCase.name}</span>
+                                {isSelected && (
+                                    <span className="w-4 h-4 rounded-full flex items-center justify-center text-white text-xs" style={{ backgroundColor: useCase.color }}>✓</span>
+                                )}
                             </button>
                         );
                     })}
