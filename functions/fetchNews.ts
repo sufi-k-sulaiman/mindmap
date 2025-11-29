@@ -252,20 +252,7 @@ function deduplicateArticles(articles) {
 
 Deno.serve(async (req) => {
     try {
-        const base44 = createClientFromRequest(req);
-        
-        // Check auth but don't fail - allow the request to proceed
-        let user = null;
-        try {
-            user = await base44.auth.me();
-        } catch (authErr) {
-            console.log('Auth check failed:', authErr.message);
-        }
-
-        if (!user) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
+        // No auth required - public endpoint for news
         const { query, category, limit = 30 } = await req.json();
 
         // Fetch live from Google News RSS - no cache, no entity access
