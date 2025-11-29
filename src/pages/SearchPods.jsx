@@ -1007,9 +1007,20 @@ Do NOT mention any websites, URLs, or external references in the audio script.`
                                 <Slider
                                     value={[isMuted ? 0 : volume]}
                                     max={100}
-                                    onValueChange={([v]) => { setVolume(v); setIsMuted(false); }}
+                                    onValueChange={([v]) => { 
+                                        setVolume(v); 
+                                        setIsMuted(v === 0);
+                                        // Update current utterance volume if playing
+                                        if (utteranceRef.current && window.speechSynthesis.speaking) {
+                                            window.speechSynthesis.cancel();
+                                            if (isPlayingRef.current) {
+                                                setTimeout(() => speakNextSentence(), 100);
+                                            }
+                                        }
+                                    }}
                                     className="w-20"
                                 />
+                                <span className="text-xs text-gray-400 w-8">{volume}%</span>
                             </div>
                             <div className="flex gap-1">
                                 {[0.5, 1, 1.5, 2].map((speed) => (
