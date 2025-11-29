@@ -27,7 +27,7 @@ export default function Sidebar({ isOpen, activePage, onClose }) {
                             }`}
                         >
                             <item.icon className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
-                            <span className="font-medium">{item.label}</span>
+                            <span className="font-medium" style={{ fontSize: '1rem' }}>{item.label}</span>
                         </Link>
                     ))}
                 </nav>
