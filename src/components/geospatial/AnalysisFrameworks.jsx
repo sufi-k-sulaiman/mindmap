@@ -40,93 +40,52 @@ const FRAMEWORK_SCHEMAS = {
     swot: {
         type: "object",
         properties: {
-            strengths: { type: "array", items: { type: "string" } },
-            weaknesses: { type: "array", items: { type: "string" } },
-            opportunities: { type: "array", items: { type: "string" } },
-            threats: { type: "array", items: { type: "string" } }
+            strengths: { type: "array", items: { type: "object", properties: { item: { type: "string" }, score: { type: "number" } } } },
+            weaknesses: { type: "array", items: { type: "object", properties: { item: { type: "string" }, score: { type: "number" } } } },
+            opportunities: { type: "array", items: { type: "object", properties: { item: { type: "string" }, score: { type: "number" } } } },
+            threats: { type: "array", items: { type: "object", properties: { item: { type: "string" }, score: { type: "number" } } } }
         }
     },
     dmaic: {
         type: "object",
         properties: {
-            define: { type: "array", items: { type: "string" } },
-            measure: { type: "array", items: { type: "string" } },
-            analyze: { type: "array", items: { type: "string" } },
-            improve: { type: "array", items: { type: "string" } },
-            control: { type: "array", items: { type: "string" } }
+            phases: { type: "array", items: { type: "object", properties: { phase: { type: "string" }, score: { type: "number" }, points: { type: "array", items: { type: "string" } } } } }
         }
     },
     ice: {
         type: "object",
         properties: {
-            initiatives: {
-                type: "array",
-                items: {
-                    type: "object",
-                    properties: {
-                        name: { type: "string" },
-                        impact: { type: "number" },
-                        confidence: { type: "number" },
-                        ease: { type: "number" },
-                        reasoning: { type: "string" }
-                    }
-                }
-            }
+            initiatives: { type: "array", items: { type: "object", properties: { name: { type: "string" }, impact: { type: "number" }, confidence: { type: "number" }, ease: { type: "number" } } } }
         }
     },
     pareto: {
         type: "object",
         properties: {
-            high_impact_actions: {
-                type: "array",
-                items: {
-                    type: "object",
-                    properties: {
-                        action: { type: "string" },
-                        impact_percentage: { type: "number" },
-                        description: { type: "string" }
-                    }
-                }
-            }
+            actions: { type: "array", items: { type: "object", properties: { action: { type: "string" }, impact: { type: "number" }, cumulative: { type: "number" } } } }
         }
     },
     ansoff: {
         type: "object",
         properties: {
-            market_penetration: { type: "array", items: { type: "string" } },
-            market_development: { type: "array", items: { type: "string" } },
-            product_development: { type: "array", items: { type: "string" } },
-            diversification: { type: "array", items: { type: "string" } }
+            quadrants: { type: "array", items: { type: "object", properties: { quadrant: { type: "string" }, initiatives: { type: "array", items: { type: "object", properties: { name: { type: "string" }, score: { type: "number" } } } } } } }
         }
     },
     pestle: {
         type: "object",
         properties: {
-            political: { type: "array", items: { type: "string" } },
-            economic: { type: "array", items: { type: "string" } },
-            social: { type: "array", items: { type: "string" } },
-            technological: { type: "array", items: { type: "string" } },
-            legal: { type: "array", items: { type: "string" } },
-            environmental: { type: "array", items: { type: "string" } }
+            factors: { type: "array", items: { type: "object", properties: { factor: { type: "string" }, score: { type: "number" }, points: { type: "array", items: { type: "string" } } } } }
         }
     },
     porter: {
         type: "object",
         properties: {
-            competitive_rivalry: { type: "string" },
-            supplier_power: { type: "string" },
-            buyer_power: { type: "string" },
-            threat_of_substitution: { type: "string" },
-            threat_of_new_entry: { type: "string" }
+            forces: { type: "array", items: { type: "object", properties: { force: { type: "string" }, score: { type: "number" }, insight: { type: "string" } } } }
         }
     },
     bcg: {
         type: "object",
         properties: {
-            stars: { type: "array", items: { type: "string" } },
-            cash_cows: { type: "array", items: { type: "string" } },
-            question_marks: { type: "array", items: { type: "string" } },
-            dogs: { type: "array", items: { type: "string" } }
+            initiatives: { type: "array", items: { type: "object", properties: { name: { type: "string" }, quadrant: { type: "string" }, market_share: { type: "number" }, growth_rate: { type: "number" } } } }
         }
     },
 };
