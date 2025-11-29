@@ -5,7 +5,7 @@ import {
     Loader2, RefreshCw, Sparkles, Droplets, Leaf, 
     Beef, Zap, Heart, Gem, Wind, Fish, Volume2, 
     Sun, Flame, Radiation, FlaskConical, Thermometer,
-    Waves, Shell, Bird, Package, GlassWater
+    Waves, Shell, Bird, Package, Milk
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,7 +31,7 @@ const USE_CASES = [
     // Agriculture & Food categories
     { id: 'biomass', name: 'Biomass', icon: Leaf, color: '#84CC16', description: 'Biofuel production, organic matter, composting' },
     { id: 'produce', name: 'Produce & Crops', icon: Leaf, color: '#65A30D', description: 'Agricultural yields, crop health, farming' },
-    { id: 'dairy', name: 'Milk & Dairy', icon: GlassWater, color: '#E5E7EB', description: 'Dairy production, processing, distribution' },
+    { id: 'dairy', name: 'Milk & Dairy', icon: Milk, color: '#60A5FA', description: 'Dairy production, processing, distribution' },
     { id: 'livestock', name: 'Livestock & Protein', icon: Beef, color: '#B45309', description: 'Cattle, poultry, meat production' },
     
     // Energy & Health categories
