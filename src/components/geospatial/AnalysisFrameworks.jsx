@@ -90,141 +90,252 @@ const FRAMEWORK_SCHEMAS = {
     },
 };
 
-// Render components for each framework
-const SWOTDisplay = ({ data }) => (
-    <div className="grid grid-cols-2 gap-3">
-        <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-            <h4 className="font-semibold text-green-800 mb-2 text-sm">Strengths</h4>
-            <ul className="space-y-1">{data.strengths?.map((s, i) => <li key={i} className="text-xs text-green-700">• {s}</li>)}</ul>
-        </div>
-        <div className="bg-red-50 rounded-lg p-3 border border-red-200">
-            <h4 className="font-semibold text-red-800 mb-2 text-sm">Weaknesses</h4>
-            <ul className="space-y-1">{data.weaknesses?.map((w, i) => <li key={i} className="text-xs text-red-700">• {w}</li>)}</ul>
-        </div>
-        <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-            <h4 className="font-semibold text-blue-800 mb-2 text-sm">Opportunities</h4>
-            <ul className="space-y-1">{data.opportunities?.map((o, i) => <li key={i} className="text-xs text-blue-700">• {o}</li>)}</ul>
-        </div>
-        <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
-            <h4 className="font-semibold text-amber-800 mb-2 text-sm">Threats</h4>
-            <ul className="space-y-1">{data.threats?.map((t, i) => <li key={i} className="text-xs text-amber-700">• {t}</li>)}</ul>
-        </div>
-    </div>
-);
+const COLORS = ['#22C55E', '#EF4444', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899'];
 
-const DMAICDisplay = ({ data }) => (
-    <div className="space-y-3">
-        {['define', 'measure', 'analyze', 'improve', 'control'].map((phase) => (
-            <div key={phase} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                <h4 className="font-semibold text-gray-800 mb-2 text-sm capitalize">{phase}</h4>
-                <ul className="space-y-1">{data[phase]?.map((item, i) => <li key={i} className="text-xs text-gray-600">• {item}</li>)}</ul>
+const SWOTDisplay = ({ data }) => {
+    const chartData = [
+        { name: 'Strengths', value: data.strengths?.reduce((a, b) => a + (b.score || 0), 0) / (data.strengths?.length || 1), fill: '#22C55E' },
+        { name: 'Weaknesses', value: data.weaknesses?.reduce((a, b) => a + (b.score || 0), 0) / (data.weaknesses?.length || 1), fill: '#EF4444' },
+        { name: 'Opportunities', value: data.opportunities?.reduce((a, b) => a + (b.score || 0), 0) / (data.opportunities?.length || 1), fill: '#3B82F6' },
+        { name: 'Threats', value: data.threats?.reduce((a, b) => a + (b.score || 0), 0) / (data.threats?.length || 1), fill: '#F59E0B' },
+    ];
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart data={chartData}>
+                        <PolarGrid />
+                        <PolarAngleAxis dataKey="name" tick={{ fontSize: 12 }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                        <Radar name="Score" dataKey="value" stroke="#8B5CF6" fill="#8B5CF6" fillOpacity={0.5} />
+                    </RadarChart>
+                </ResponsiveContainer>
             </div>
-        ))}
-    </div>
-);
+            <div className="grid grid-cols-2 gap-2">
+                {[
+                    { key: 'strengths', label: 'Strengths', color: 'green' },
+                    { key: 'weaknesses', label: 'Weaknesses', color: 'red' },
+                    { key: 'opportunities', label: 'Opportunities', color: 'blue' },
+                    { key: 'threats', label: 'Threats', color: 'amber' },
+                ].map(cat => (
+                    <div key={cat.key} className={`bg-${cat.color}-50 rounded-lg p-2 border border-${cat.color}-200`}>
+                        <h4 className={`font-semibold text-${cat.color}-800 mb-1`}>{cat.label}</h4>
+                        <ul className="space-y-0.5">{data[cat.key]?.map((s, i) => <li key={i} className="text-gray-700 truncate">• {s.item} ({s.score})</li>)}</ul>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
-const ICEDisplay = ({ data }) => (
-    <div className="space-y-2">
-        {data.initiatives?.map((init, i) => (
-            <div key={i} className="bg-white rounded-lg p-3 border border-gray-200">
-                <div className="flex justify-between items-start mb-2">
-                    <span className="font-medium text-gray-800 text-sm">{init.name}</span>
-                    <span className="text-xs font-bold text-purple-600">Score: {init.impact + init.confidence + init.ease}</span>
+const DMAICDisplay = ({ data }) => {
+    const chartData = data.phases?.map(p => ({ name: p.phase, score: p.score })) || [];
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                        <YAxis domain={[0, 100]} />
+                        <Tooltip />
+                        <Bar dataKey="score" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+            <div className="space-y-2">
+                {data.phases?.map((phase, i) => (
+                    <div key={i} className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+                        <div className="flex justify-between items-center mb-1">
+                            <span className="font-semibold text-gray-800">{phase.phase}</span>
+                            <span className="text-purple-600 font-bold">{phase.score}%</span>
+                        </div>
+                        <ul className="text-gray-600">{phase.points?.map((p, j) => <li key={j}>• {p}</li>)}</ul>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const ICEDisplay = ({ data }) => {
+    const chartData = data.initiatives?.map(i => ({ 
+        name: i.name?.substring(0, 15) + '...',
+        fullName: i.name,
+        Impact: i.impact, 
+        Confidence: i.confidence, 
+        Ease: i.ease,
+        total: i.impact + i.confidence + i.ease 
+    })).sort((a, b) => b.total - a.total) || [];
+    return (
+        <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" domain={[0, 10]} />
+                    <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11 }} />
+                    <Tooltip content={({ payload }) => payload?.[0] && (
+                        <div className="bg-white p-2 rounded shadow border text-sm">
+                            <p className="font-semibold">{payload[0].payload.fullName}</p>
+                            <p>Impact: {payload[0].payload.Impact}</p>
+                            <p>Confidence: {payload[0].payload.Confidence}</p>
+                            <p>Ease: {payload[0].payload.Ease}</p>
+                            <p className="font-bold text-purple-600">Total: {payload[0].payload.total}</p>
+                        </div>
+                    )} />
+                    <Legend />
+                    <Bar dataKey="Impact" stackId="a" fill="#22C55E" />
+                    <Bar dataKey="Confidence" stackId="a" fill="#3B82F6" />
+                    <Bar dataKey="Ease" stackId="a" fill="#F59E0B" />
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
+    );
+};
+
+const ParetoDisplay = ({ data }) => {
+    const chartData = data.actions?.map(a => ({ name: a.action?.substring(0, 20), impact: a.impact, cumulative: a.cumulative })) || [];
+    return (
+        <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, angle: -20 }} height={60} />
+                    <YAxis yAxisId="left" orientation="left" domain={[0, 50]} />
+                    <YAxis yAxisId="right" orientation="right" domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="impact" fill="#8B5CF6" name="Impact %" radius={[4, 4, 0, 0]} />
+                    <Line yAxisId="right" type="monotone" dataKey="cumulative" stroke="#EF4444" name="Cumulative %" strokeWidth={2} dot />
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
+    );
+};
+
+const AnsoffDisplay = ({ data }) => {
+    const allData = data.quadrants?.flatMap(q => q.initiatives?.map(i => ({ ...i, quadrant: q.quadrant })) || []) || [];
+    return (
+        <div className="grid grid-cols-2 gap-3">
+            {data.quadrants?.map((q, i) => (
+                <div key={i} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <h4 className="font-semibold text-gray-800 mb-2">{q.quadrant}</h4>
+                    <div className="space-y-1">
+                        {q.initiatives?.map((init, j) => (
+                            <div key={j} className="flex justify-between items-center">
+                                <span className="text-gray-700 truncate flex-1">{init.name}</span>
+                                <div className="w-16 h-2 bg-gray-200 rounded-full ml-2">
+                                    <div className="h-full bg-purple-500 rounded-full" style={{ width: `${init.score}%` }} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                <div className="flex gap-4 mb-1">
-                    <span className="text-xs"><span className="text-gray-500">Impact:</span> {init.impact}/10</span>
-                    <span className="text-xs"><span className="text-gray-500">Confidence:</span> {init.confidence}/10</span>
-                    <span className="text-xs"><span className="text-gray-500">Ease:</span> {init.ease}/10</span>
-                </div>
-                <p className="text-xs text-gray-500">{init.reasoning}</p>
+            ))}
+        </div>
+    );
+};
+
+const PESTLEDisplay = ({ data }) => {
+    const chartData = data.factors?.map(f => ({ name: f.factor, score: f.score })) || [];
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart data={chartData}>
+                        <PolarGrid />
+                        <PolarAngleAxis dataKey="name" tick={{ fontSize: 11 }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                        <Radar name="Impact" dataKey="score" stroke="#8B5CF6" fill="#8B5CF6" fillOpacity={0.5} />
+                    </RadarChart>
+                </ResponsiveContainer>
             </div>
-        ))}
-    </div>
-);
-
-const ParetoDisplay = ({ data }) => (
-    <div className="space-y-2">
-        {data.high_impact_actions?.map((action, i) => (
-            <div key={i} className="bg-white rounded-lg p-3 border border-gray-200">
-                <div className="flex justify-between items-center mb-1">
-                    <span className="font-medium text-gray-800 text-sm">{action.action}</span>
-                    <span className="text-xs font-bold text-green-600">{action.impact_percentage}% impact</span>
-                </div>
-                <p className="text-xs text-gray-500">{action.description}</p>
+            <div className="grid grid-cols-2 gap-2">
+                {data.factors?.map((f, i) => (
+                    <div key={i} className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+                        <div className="flex justify-between items-center mb-1">
+                            <span className="font-semibold text-gray-800">{f.factor}</span>
+                            <span className="text-purple-600 font-bold">{f.score}</span>
+                        </div>
+                        <ul className="text-gray-600">{f.points?.map((p, j) => <li key={j} className="truncate">• {p}</li>)}</ul>
+                    </div>
+                ))}
             </div>
-        ))}
-    </div>
-);
+        </div>
+    );
+};
 
-const AnsoffDisplay = ({ data }) => (
-    <div className="grid grid-cols-2 gap-3">
-        <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-            <h4 className="font-semibold text-blue-800 mb-2 text-sm">Market Penetration</h4>
-            <ul className="space-y-1">{data.market_penetration?.map((m, i) => <li key={i} className="text-xs text-blue-700">• {m}</li>)}</ul>
-        </div>
-        <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
-            <h4 className="font-semibold text-purple-800 mb-2 text-sm">Market Development</h4>
-            <ul className="space-y-1">{data.market_development?.map((m, i) => <li key={i} className="text-xs text-purple-700">• {m}</li>)}</ul>
-        </div>
-        <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-            <h4 className="font-semibold text-green-800 mb-2 text-sm">Product Development</h4>
-            <ul className="space-y-1">{data.product_development?.map((p, i) => <li key={i} className="text-xs text-green-700">• {p}</li>)}</ul>
-        </div>
-        <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
-            <h4 className="font-semibold text-orange-800 mb-2 text-sm">Diversification</h4>
-            <ul className="space-y-1">{data.diversification?.map((d, i) => <li key={i} className="text-xs text-orange-700">• {d}</li>)}</ul>
-        </div>
-    </div>
-);
-
-const PESTLEDisplay = ({ data }) => (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {['political', 'economic', 'social', 'technological', 'legal', 'environmental'].map((factor) => (
-            <div key={factor} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                <h4 className="font-semibold text-gray-800 mb-2 text-sm capitalize">{factor}</h4>
-                <ul className="space-y-1">{data[factor]?.map((item, i) => <li key={i} className="text-xs text-gray-600">• {item}</li>)}</ul>
+const PorterDisplay = ({ data }) => {
+    const chartData = data.forces?.map(f => ({ name: f.force, score: f.score })) || [];
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} layout="vertical">
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" domain={[0, 10]} />
+                        <YAxis dataKey="name" type="category" width={140} tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Bar dataKey="score" fill="#8B5CF6" radius={[0, 4, 4, 0]}>
+                            {chartData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
             </div>
-        ))}
-    </div>
-);
-
-const PorterDisplay = ({ data }) => (
-    <div className="space-y-3">
-        {[
-            { key: 'competitive_rivalry', label: 'Competitive Rivalry', color: 'red' },
-            { key: 'supplier_power', label: 'Supplier Power', color: 'blue' },
-            { key: 'buyer_power', label: 'Buyer Power', color: 'green' },
-            { key: 'threat_of_substitution', label: 'Threat of Substitution', color: 'amber' },
-            { key: 'threat_of_new_entry', label: 'Threat of New Entry', color: 'purple' },
-        ].map((force) => (
-            <div key={force.key} className={`bg-${force.color}-50 rounded-lg p-3 border border-${force.color}-200`}>
-                <h4 className={`font-semibold text-${force.color}-800 mb-1 text-sm`}>{force.label}</h4>
-                <p className="text-xs text-gray-600">{data[force.key]}</p>
+            <div className="space-y-2">
+                {data.forces?.map((f, i) => (
+                    <div key={i} className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+                        <div className="flex justify-between items-center mb-1">
+                            <span className="font-semibold text-gray-800">{f.force}</span>
+                            <span className="text-purple-600 font-bold">{f.score}/10</span>
+                        </div>
+                        <p className="text-gray-600">{f.insight}</p>
+                    </div>
+                ))}
             </div>
-        ))}
-    </div>
-);
+        </div>
+    );
+};
 
-const BCGDisplay = ({ data }) => (
-    <div className="grid grid-cols-2 gap-3">
-        <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
-            <h4 className="font-semibold text-yellow-800 mb-2 text-sm">⭐ Stars</h4>
-            <ul className="space-y-1">{data.stars?.map((s, i) => <li key={i} className="text-xs text-yellow-700">• {s}</li>)}</ul>
+const BCGDisplay = ({ data }) => {
+    const quadrantColors = { Stars: '#F59E0B', 'Cash Cows': '#22C55E', 'Question Marks': '#8B5CF6', Dogs: '#6B7280' };
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="h-64 relative border border-gray-300 rounded-lg p-2">
+                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-300" />
+                <div className="absolute top-1/2 left-0 right-0 h-px bg-gray-300" />
+                <div className="absolute top-1 left-1 text-gray-400">High Growth</div>
+                <div className="absolute bottom-1 left-1 text-gray-400">Low Growth</div>
+                <div className="absolute bottom-1 right-1 text-gray-400">High Share</div>
+                <div className="absolute bottom-1 left-1/2 text-gray-400 -translate-x-1/2">Low Share</div>
+                {data.initiatives?.map((item, i) => (
+                    <div
+                        key={i}
+                        className="absolute w-3 h-3 rounded-full transform -translate-x-1/2 -translate-y-1/2"
+                        style={{
+                            left: `${Math.min(95, Math.max(5, item.market_share))}%`,
+                            top: `${100 - Math.min(95, Math.max(5, item.growth_rate))}%`,
+                            backgroundColor: quadrantColors[item.quadrant] || '#8B5CF6'
+                        }}
+                        title={`${item.name}: ${item.market_share}% share, ${item.growth_rate}% growth`}
+                    />
+                ))}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+                {['Stars', 'Cash Cows', 'Question Marks', 'Dogs'].map(q => (
+                    <div key={q} className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+                        <h4 className="font-semibold mb-1" style={{ color: quadrantColors[q] }}>{q}</h4>
+                        <ul className="text-gray-700">
+                            {data.initiatives?.filter(i => i.quadrant === q).map((item, j) => (
+                                <li key={j} className="truncate">• {item.name}</li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
+            </div>
         </div>
-        <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-            <h4 className="font-semibold text-green-800 mb-2 text-sm">🐄 Cash Cows</h4>
-            <ul className="space-y-1">{data.cash_cows?.map((c, i) => <li key={i} className="text-xs text-green-700">• {c}</li>)}</ul>
-        </div>
-        <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
-            <h4 className="font-semibold text-purple-800 mb-2 text-sm">❓ Question Marks</h4>
-            <ul className="space-y-1">{data.question_marks?.map((q, i) => <li key={i} className="text-xs text-purple-700">• {q}</li>)}</ul>
-        </div>
-        <div className="bg-gray-100 rounded-lg p-3 border border-gray-300">
-            <h4 className="font-semibold text-gray-700 mb-2 text-sm">🐕 Dogs</h4>
-            <ul className="space-y-1">{data.dogs?.map((d, i) => <li key={i} className="text-xs text-gray-600">• {d}</li>)}</ul>
-        </div>
-    </div>
-);
+    );
+};
 
 const DISPLAY_COMPONENTS = {
     swot: SWOTDisplay,
