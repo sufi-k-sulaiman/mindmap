@@ -268,7 +268,7 @@ export default function Learning() {
                 </div>
 
                 {/* Subject Selector - Right */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:w-1/2 flex flex-col">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 lg:w-1/2 flex flex-col">
                     {/* Search Bar */}
                     <div className="mb-4">
                         <div className="relative">
