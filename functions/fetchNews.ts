@@ -253,7 +253,14 @@ function deduplicateArticles(articles) {
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
-        const user = await base44.auth.me();
+        
+        // Check auth but don't fail - allow the request to proceed
+        let user = null;
+        try {
+            user = await base44.auth.me();
+        } catch (authErr) {
+            console.log('Auth check failed:', authErr.message);
+        }
 
         if (!user) {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -261,9 +268,20 @@ Deno.serve(async (req) => {
 
         const { query, category, limit = 30 } = await req.json();
 
-        // Fetch live from Google News RSS - skip cache to avoid auth issues
+        // Fetch live from Google News RSS - no cache, no entity access
         console.log('Fetching live news for:', query || category || 'technology');
-        const liveArticles = await fetchGoogleNewsRSS(query || category || 'technology', !query && !!category);
+        
+        let liveArticles = [];
+        try {
+            liveArticles = await fetchGoogleNewsRSS(query || category || 'technology', !query && !!category);
+        } catch (rssError) {
+            console.error('RSS fetch error:', rssError.message);
+            return Response.json({ 
+                error: rssError.message, 
+                success: false,
+                articles: [] 
+            }, { status: 200 });
+        }
         
         if (!liveArticles || liveArticles.length === 0) {
             return Response.json({ 
