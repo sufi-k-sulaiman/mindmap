@@ -517,18 +517,16 @@ export default function News() {
 
                 {/* Refresh Button */}
                 <div className="flex justify-end gap-2 mb-4">
-                    {isDev && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handlePopulateCache}
-                            disabled={populatingCache}
-                            className="gap-2 border-orange-300 text-orange-700 hover:bg-orange-50"
-                        >
-                            <Database className={`w-4 h-4 ${populatingCache ? 'animate-pulse' : ''}`} />
-                            {populatingCache ? 'Populating...' : 'Populate Cache'}
-                        </Button>
-                    )}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePopulateCache}
+                        disabled={populatingCache}
+                        className="gap-2 border-orange-300 text-orange-700 hover:bg-orange-50"
+                    >
+                        <Database className={`w-4 h-4 ${populatingCache ? 'animate-pulse' : ''}`} />
+                        {populatingCache ? 'Populating...' : 'Populate Cache'}
+                    </Button>
                     <Button
                         variant="outline"
                         size="sm"
