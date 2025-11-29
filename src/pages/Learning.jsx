@@ -209,20 +209,20 @@ export default function Learning() {
                     {/* Stats */}
                     <div className="flex flex-wrap gap-6 mt-4">
                         <div className="text-center">
-                            <p className="text-2xl font-bold text-white">{totalXP.toLocaleString()}</p>
-                            <p className="text-xs text-purple-200">Total XP</p>
+                            <p className="text-2xl font-bold text-white">{subTopics.length}</p>
+                            <p className="text-xs text-purple-200">Learning Islands</p>
                         </div>
                         <div className="text-center">
-                            <p className="text-2xl font-bold text-white">{streak}</p>
-                            <p className="text-xs text-purple-200">Day Streak</p>
-                        </div>
-                        <div className="text-center">
-                            <p className="text-2xl font-bold text-white">{completedCourses}</p>
+                            <p className="text-2xl font-bold text-white">{Object.values(userProgress).filter(p => p === 100).length}</p>
                             <p className="text-xs text-purple-200">Completed</p>
                         </div>
                         <div className="text-center">
-                            <p className="text-2xl font-bold text-white">{certificates}</p>
-                            <p className="text-xs text-purple-200">Certificates</p>
+                            <p className="text-2xl font-bold text-white">{subTopics.length * 500}</p>
+                            <p className="text-xs text-purple-200">Potential XP</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-2xl font-bold text-white">{totalXP.toLocaleString()}</p>
+                            <p className="text-xs text-purple-200">Total XP</p>
                         </div>
                     </div>
 
