@@ -309,7 +309,15 @@ export default function News() {
             setLastUpdated(new Date());
         } catch (err) {
             console.error('Error fetching news:', err);
-            setError(getErrorCode(err));
+            // Check if it's actually an AI error or a network/backend error
+            const errorMessage = err?.message?.toLowerCase() || '';
+            if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('timeout')) {
+                setError('E100'); // Network error
+            } else if (err?.response?.status === 401) {
+                setError('E400'); // Auth error
+            } else {
+                setError('E200'); // Data load failed (more accurate for backend function errors)
+            }
             setNews([]);
         } finally {
             setLoading(false);
