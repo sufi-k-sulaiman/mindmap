@@ -14,19 +14,19 @@ export default function Sidebar({ isOpen, activePage, onClose }) {
         <>
             {isOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={onClose} />}
             <aside className={`${isOpen ? 'w-56 translate-x-0' : 'w-0 -translate-x-full md:translate-x-0'} transition-all duration-300 overflow-y-auto overflow-x-hidden bg-white border-r border-gray-200 flex-shrink-0 fixed md:relative z-50 md:z-auto h-[calc(100vh-72px)] md:h-auto`}>
-                <nav className="p-2 space-y-0.5">
+                <nav className="p-1 md:p-4 space-y-0.5 md:space-y-2">
                     {menuItems.map((item, index) => (
                         <Link
                             key={index}
                             to={item.href}
                             onClick={handleMobileClose}
-                            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors text-sm ${
+                            className={`flex items-center gap-2 md:gap-3 px-2 md:px-4 py-1.5 md:py-3 rounded-lg transition-colors text-sm ${
                                 item.label === activePage
                                     ? 'bg-purple-100 text-purple-700'
                                     : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'
                             }`}
                         >
-                            <item.icon className="w-4 h-4 text-purple-600" />
+                            <item.icon className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
                             <span className="font-medium">{item.label}</span>
                         </Link>
                     ))}
