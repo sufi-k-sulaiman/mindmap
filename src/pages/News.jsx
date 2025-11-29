@@ -15,8 +15,28 @@ import ErrorDisplay, { LoadingState, getErrorCode } from '@/components/ErrorDisp
 const NewsCard = ({ article, index }) => {
     const [imageUrl, setImageUrl] = useState(null);
     const [imageLoading, setImageLoading] = useState(true);
+    const [isValidUrl, setIsValidUrl] = useState(null); // null = checking, true = valid, false = invalid
 
     useEffect(() => {
+        const validateUrl = async () => {
+            if (!article.url || !article.url.startsWith('http')) {
+                setIsValidUrl(false);
+                return;
+            }
+            try {
+                const response = await fetch(article.url, { method: 'HEAD', mode: 'no-cors' });
+                // no-cors mode always succeeds if the server responds, so we assume it's valid
+                setIsValidUrl(true);
+            } catch (error) {
+                setIsValidUrl(false);
+            }
+        };
+        validateUrl();
+    }, [article.url]);
+
+    useEffect(() => {
+        if (isValidUrl === false) return; // Don't generate image for invalid articles
+        
         const generateImage = async () => {
             setImageLoading(true);
             try {
@@ -34,7 +54,24 @@ const NewsCard = ({ article, index }) => {
             }
         };
         generateImage();
-    }, [article.title, article.imagePrompt]);
+    }, [article.title, article.imagePrompt, isValidUrl]);
+
+    // Don't render if URL is invalid
+    if (isValidUrl === false) return null;
+    
+    // Show loading state while checking URL
+    if (isValidUrl === null) {
+        return (
+            <article className="bg-white rounded-xl border border-gray-200 overflow-hidden animate-pulse">
+                <div className="aspect-video bg-gray-200" />
+                <div className="p-5 space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-1/4" />
+                    <div className="h-5 bg-gray-200 rounded w-3/4" />
+                    <div className="h-4 bg-gray-200 rounded w-full" />
+                </div>
+            </article>
+        );
+    }
 
     return (
         <article className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group">
