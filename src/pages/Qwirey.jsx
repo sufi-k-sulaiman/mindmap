@@ -103,6 +103,9 @@ export default function Qwirey() {
     // Response format
     const [responseFormat, setResponseFormat] = useState('short');
     const [formatLoading, setFormatLoading] = useState(false);
+    
+    // Image preview modal
+    const [previewImage, setPreviewImage] = useState(null);
 
     // Initialize speech recognition
     useEffect(() => {
@@ -460,7 +463,21 @@ export default function Qwirey() {
     };
 
     const handleCopy = () => {
-        navigator.clipboard.writeText(result?.text || '');
+        let textToCopy = '';
+        if (result?.shortData) {
+            textToCopy = result.shortData.blurb + '\n\n' + (result.shortData.bullets || []).map(b => '• ' + b).join('\n');
+        } else if (result?.longData) {
+            textToCopy = (result.longData.paragraphs || []).join('\n\n');
+        } else if (result?.reviewsData) {
+            textToCopy = result.reviewsData.title + '\n\n' + result.reviewsData.intro + '\n\n' + 
+                (result.reviewsData.reviews || []).map(r => `${r.name} (${r.rating}/10): ${r.text}`).join('\n\n');
+        } else if (result?.tabledData) {
+            textToCopy = result.tabledData.summary + '\n\n' + 
+                (result.tabledData.items || []).map(i => `${i.name}: Pros - ${i.pros?.join(', ')} | Cons - ${i.cons?.join(', ')} | Rating: ${i.rating}/10`).join('\n');
+        } else if (result?.text) {
+            textToCopy = result.text;
+        }
+        navigator.clipboard.writeText(textToCopy);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -903,14 +920,14 @@ export default function Qwirey() {
                                     )}
                                     
                                     {/* REVIEWS FORMAT */}
-                                    {responseFormat === 'reviews' && result.reviewsData && (
+                                    {responseFormat === 'reviews' && result.reviewsData && result.reviewsData.reviews && (
                                         <div className="space-y-6">
                                             <div className="mb-6">
                                                 <h2 className="text-xl font-bold text-gray-900 mb-2">{result.reviewsData.title || 'User Reviews'}</h2>
                                                 <p className="text-gray-600 leading-relaxed">{(result.reviewsData.intro || '').slice(0, 400)}</p>
                                             </div>
                                             <div className="space-y-4">
-                                                {result.reviewsData.reviews?.slice(0, 5).map((review, i) => (
+                                                {result.reviewsData.reviews.slice(0, 5).map((review, i) => (
                                                     <div key={i} className="bg-gray-50 rounded-xl p-5 border border-gray-200">
                                                         <div className="flex items-start justify-between mb-3">
                                                             <div className="flex items-center gap-3">
@@ -942,28 +959,15 @@ export default function Qwirey() {
                                         <div className="space-y-4">
                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                                 {result.imagesData.map((img, i) => (
-                                                    <div key={i} className="group relative aspect-square rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all">
+                                                    <div 
+                                                        key={i} 
+                                                        className="group relative aspect-square rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all cursor-pointer"
+                                                        onClick={() => setPreviewImage(img)}
+                                                    >
                                                         <img src={img.url} alt={img.prompt} className="w-full h-full object-cover" />
-                                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                                                            <button
-                                                                onClick={() => window.open(img.url, '_blank')}
-                                                                className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                                                                title="Preview"
-                                                            >
-                                                                <Maximize2 className="w-5 h-5 text-gray-700" />
-                                                            </button>
-                                                            <a
-                                                                href={img.url}
-                                                                download={`qwirey-image-${i + 1}.png`}
-                                                                className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                                                                title="Download"
-                                                            >
-                                                                <Download className="w-5 h-5 text-gray-700" />
-                                                            </a>
+                                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                            <Maximize2 className="w-8 h-8 text-white" />
                                                         </div>
-                                                        <p className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent text-white text-xs line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            {img.prompt}
-                                                        </p>
                                                     </div>
                                                 ))}
                                             </div>
@@ -1220,6 +1224,35 @@ export default function Qwirey() {
                                           </div>
                                       )}
             </div>
+
+            {/* Image Preview Modal */}
+            <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
+                <DialogContent className="max-w-4xl p-0 overflow-hidden">
+                    <DialogHeader className="p-4 pb-0">
+                        <DialogTitle className="text-lg">Image Preview</DialogTitle>
+                    </DialogHeader>
+                    {previewImage && (
+                        <div className="p-4">
+                            <img 
+                                src={previewImage.url} 
+                                alt={previewImage.prompt} 
+                                className="w-full max-h-[70vh] object-contain rounded-lg"
+                            />
+                            <p className="text-sm text-gray-500 mt-3 mb-4">{previewImage.prompt}</p>
+                            <a
+                                href={previewImage.url}
+                                download="qwirey-image.png"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                            >
+                                <Download className="w-4 h-4" />
+                                Download Image
+                            </a>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
 
             <Dialog open={showUrlDialog} onOpenChange={setShowUrlDialog}>
                 <DialogContent className="sm:max-w-md">
