@@ -156,8 +156,9 @@ export default function GeospatialMap({
                 dragging={!mini}
             >
                 <TileLayer
+                    key={activeTileStyle}
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                    url={mini ? tileUrl : (MAP_TILES[selectedStyle] || tileUrl)}
+                    url={tileUrl}
                 />
                 <MapController center={config.center} zoom={mini ? config.zoom - 1 : config.zoom} />
                 <ZoomControls mini={mini} />
