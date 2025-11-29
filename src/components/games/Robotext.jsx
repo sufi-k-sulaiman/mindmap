@@ -345,7 +345,8 @@ export default function Robotext({ onBack }) {
             if (e.health <= 0) {
                 // Word explosion!
                 spawnWord(e.x + e.width / 2, e.y, e.wordCategory);
-                setScore(prev => prev + 100);
+                scoreRef.current += 100;
+                setScore(scoreRef.current);
 
                 // Chain reaction
                 if (robot.chainReaction) {
