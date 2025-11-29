@@ -369,31 +369,20 @@ export default function News() {
         setLoading(true);
         setError(null);
         try {
-            // Use backend function with RSS + NewsAPI
+            // Use backend function with LLM + NewsAPI fallback
             const response = await base44.functions.invoke('fetchNews', {
                 query: keyword,
                 category: CATEGORIES.find(c => c.id === keyword)?.id || null,
                 limit: 30
             });
 
+            console.log('News response:', response.data);
             const articles = response.data?.articles || [];
-            if (articles.length === 0 && response.data?.error) {
-                console.error('Backend error:', response.data.error);
-                setError('E200');
-            } else {
-                setNews(articles);
-                setLastUpdated(new Date());
-            }
+            setNews(articles);
+            setLastUpdated(new Date());
         } catch (err) {
             console.error('Error fetching news:', err);
-            const errorMessage = err?.message?.toLowerCase() || '';
-            if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('timeout')) {
-                setError('E100');
-            } else if (err?.response?.status === 401) {
-                setError('E400');
-            } else {
-                setError('E200');
-            }
+            setError('E200');
             setNews([]);
         } finally {
             setLoading(false);
