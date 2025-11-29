@@ -220,7 +220,7 @@ export default function Geospatial() {
                 </div>
 
                 {/* Secondary Maps Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                         <div className="p-3 border-b border-gray-100 flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -270,69 +270,6 @@ export default function Geospatial() {
                             mini={true}
                             color="#6366F1"
                         />
-                    </div>
-                </div>
-
-                {/* Info Section */}
-                <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-6">
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">About Geospatial Intelligence</h2>
-                    <p className="text-gray-600 mb-6">
-                        Geospatial data and information is associated with specific geographic locations on Earth's surface, 
-                        enabling analysis and visualization of spatial relationships across multiple domains.
-                    </p>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 mb-3">What is Geospatial?</h3>
-                            <ul className="space-y-2">
-                                <li className="flex items-start gap-2 text-sm text-gray-600">
-                                    <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">1</span>
-                                    Data tied to specific geographic locations
-                                </li>
-                                <li className="flex items-start gap-2 text-sm text-gray-600">
-                                    <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">2</span>
-                                    Enables spatial analysis and visualization
-                                </li>
-                                <li className="flex items-start gap-2 text-sm text-gray-600">
-                                    <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">3</span>
-                                    Utilized in Geographic Information Systems (GIS)
-                                </li>
-                                <li className="flex items-start gap-2 text-sm text-gray-600">
-                                    <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">4</span>
-                                    Supports decision-making in various fields
-                                </li>
-                                <li className="flex items-start gap-2 text-sm text-gray-600">
-                                    <span className="w-5 h-5 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">5</span>
-                                    Involves technologies like GPS and satellite imagery
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <h3 className="font-semibold text-gray-900 mb-3">Applications</h3>
-                            <ul className="space-y-2">
-                                <li className="flex items-start gap-2 text-sm text-gray-600">
-                                    <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">1</span>
-                                    Analyze spatial data for informed decisions
-                                </li>
-                                <li className="flex items-start gap-2 text-sm text-gray-600">
-                                    <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">2</span>
-                                    Support sectors like urban planning and disaster response
-                                </li>
-                                <li className="flex items-start gap-2 text-sm text-gray-600">
-                                    <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">3</span>
-                                    Utilize tools like GIS and remote sensing
-                                </li>
-                                <li className="flex items-start gap-2 text-sm text-gray-600">
-                                    <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">4</span>
-                                    Enhance resource management and environmental monitoring
-                                </li>
-                                <li className="flex items-start gap-2 text-sm text-gray-600">
-                                    <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">5</span>
-                                    Facilitate location-based services and navigation
-                                </li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
             </div>
