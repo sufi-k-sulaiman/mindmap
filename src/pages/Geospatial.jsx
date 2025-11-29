@@ -12,12 +12,17 @@ import { base44 } from '@/api/base44Client';
 import GeospatialMap from '@/components/geospatial/GeospatialMap';
 
 const USE_CASES = [
-    { id: 'urban', name: 'Urban Planning', icon: Building2, color: '#6366F1', description: 'City infrastructure, zoning, development analysis' },
-    { id: 'environment', name: 'Environmental', icon: TreePine, color: '#22C55E', description: 'Deforestation, land use, conservation monitoring' },
-    { id: 'disaster', name: 'Disaster Response', icon: Cloud, color: '#EF4444', description: 'Flood mapping, earthquake damage, emergency routing' },
-    { id: 'logistics', name: 'Logistics', icon: Truck, color: '#F59E0B', description: 'Route optimization, supply chain, fleet tracking' },
-    { id: 'agriculture', name: 'Agriculture', icon: Mountain, color: '#10B981', description: 'Crop health, irrigation, yield prediction' },
-    { id: 'maritime', name: 'Maritime', icon: Waves, color: '#0EA5E9', description: 'Vessel tracking, port analytics, ocean monitoring' },
+    { id: 'greenhouse', name: 'Greenhouse Issues', icon: Cloud, color: '#EF4444', description: 'Emissions tracking, climate impact analysis' },
+    { id: 'carbon', name: 'Carbon Footprint', icon: Activity, color: '#F97316', description: 'Carbon emissions, offset tracking, net zero' },
+    { id: 'grid', name: 'Grid Map', icon: Layers, color: '#6366F1', description: 'Power grid infrastructure, transmission lines' },
+    { id: 'production', name: 'Production & Consumption', icon: TrendingUp, color: '#3B82F6', description: 'Energy production, consumption patterns' },
+    { id: 'renewables', name: 'Renewables & Sustainability', icon: TreePine, color: '#22C55E', description: 'Solar, wind, hydro, sustainable sources' },
+    { id: 'reliability', name: 'Grid Reliability', icon: Activity, color: '#8B5CF6', description: 'Outages, maintenance, uptime monitoring' },
+    { id: 'provincial', name: 'Provincial Usage', icon: Map, color: '#0EA5E9', description: 'Regional energy consumption data' },
+    { id: 'towns', name: 'Towns & Cities', icon: Building2, color: '#EC4899', description: 'Urban energy distribution, smart cities' },
+    { id: 'smart', name: 'Smart Systems', icon: Compass, color: '#10B981', description: 'IoT, smart meters, automation' },
+    { id: 'environmental', name: 'Environmental Impact', icon: Mountain, color: '#14B8A6', description: 'Ecosystem effects, biodiversity' },
+    { id: 'future', name: 'Future & Innovation', icon: Sparkles, color: '#A855F7', description: 'Emerging tech, innovation projects' },
 ];
 
 const KEY_POINTS = [
