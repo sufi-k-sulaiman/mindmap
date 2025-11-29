@@ -365,15 +365,16 @@ export default function News() {
     const [error, setError] = useState(null);
     const [lastUpdated, setLastUpdated] = useState(null);
 
-    const fetchNews = async (keyword) => {
+    const fetchNews = async (keyword, refresh = false) => {
         setLoading(true);
         setError(null);
         try {
-            // Use backend function with LLM
+            // Use backend function - fetches from cache or NewsAPI
             const response = await base44.functions.invoke('fetchNews', {
                 query: keyword,
                 category: CATEGORIES.find(c => c.id === keyword)?.id || null,
-                limit: 30
+                limit: 30,
+                refresh: refresh
             });
 
             console.log('News response:', response);
@@ -510,7 +511,7 @@ export default function News() {
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => fetchNews(searchQuery || activeCategory)}
+                        onClick={() => fetchNews(searchQuery || activeCategory, true)}
                         disabled={loading}
                         className="gap-2"
                     >
