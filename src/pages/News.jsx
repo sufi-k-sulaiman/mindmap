@@ -159,9 +159,30 @@ const NewsGrid = ({ news }) => {
     );
 };
 
+const getDomainFromUrl = (url) => {
+    try {
+        const hostname = new URL(url).hostname.replace('www.', '');
+        return hostname;
+    } catch {
+        return 'news';
+    }
+};
+
+const getFaviconUrl = (url) => {
+    try {
+        const hostname = new URL(url).hostname;
+        return `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`;
+    } catch {
+        return null;
+    }
+};
+
 const NewsCardSimple = ({ article, index }) => {
     const [imageUrl, setImageUrl] = useState(null);
     const [imageLoading, setImageLoading] = useState(true);
+    
+    const domain = getDomainFromUrl(article.url);
+    const faviconUrl = getFaviconUrl(article.url);
 
     useEffect(() => {
         const generateImage = async () => {
@@ -234,9 +255,13 @@ const NewsCardSimple = ({ article, index }) => {
                     href={article.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-medium"
+                    className="inline-flex items-center gap-2 text-gray-600 hover:text-red-600 text-sm font-medium transition-colors"
                 >
-                    Read more <ExternalLink className="w-3 h-3" />
+                    {faviconUrl && (
+                        <img src={faviconUrl} alt="" className="w-4 h-4" />
+                    )}
+                    <span className="text-gray-500">{domain}</span>
+                    <ExternalLink className="w-3 h-3" />
                 </a>
             </div>
         </article>
