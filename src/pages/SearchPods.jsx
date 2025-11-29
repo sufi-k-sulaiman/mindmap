@@ -221,8 +221,10 @@ export default function SearchPods() {
             
             setVoices(uniqueVoices);
             if (uniqueVoices.length > 0 && !selectedVoice) {
-                // Prefer Samantha, then Google, then first available
-                const preferred = uniqueVoices.find(v => v.name.toLowerCase().includes('samantha')) 
+                // Prefer Google US English, then Samantha, then first available
+                const preferred = uniqueVoices.find(v => v.name.toLowerCase().includes('google') && v.lang === 'en-US')
+                    || uniqueVoices.find(v => v.name.toLowerCase().includes('google us'))
+                    || uniqueVoices.find(v => v.name.toLowerCase().includes('samantha')) 
                     || uniqueVoices.find(v => v.name.toLowerCase().includes('google'))
                     || uniqueVoices[0];
                 setSelectedVoice(preferred);
@@ -500,54 +502,74 @@ Do NOT mention any websites, URLs, or external references in the audio script.`
         }
     };
 
-    // Download MP3 using ElevenLabs
+    // Download MP3 - generate audio file from script using browser TTS and MediaRecorder
     const downloadMp3 = async () => {
         if (!sentencesRef.current.length) return;
         setIsDownloadingMp3(true);
+        
         try {
             const fullScript = sentencesRef.current.join(' ');
-            const response = await base44.functions.invoke('elevenlabsTTS', { 
-                text: fullScript,
-                voice_id: 'EXAVITQu4vr4xnSDxMaL' // Sarah voice
-            }, { responseType: 'arraybuffer' });
             
-            // Response is raw audio buffer
-            if (response.data) {
-                const blob = new Blob([response.data], { type: 'audio/mpeg' });
+            // Use Web Audio API to capture speech synthesis output
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const destination = audioContext.createMediaStreamDestination();
+            const mediaRecorder = new MediaRecorder(destination.stream, { mimeType: 'audio/webm' });
+            const chunks = [];
+            
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) chunks.push(e.data);
+            };
+            
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'audio/webm' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `${currentEpisode.title.replace(/[^a-z0-9]/gi, '_')}.mp3`;
+                a.download = `${currentEpisode.title.replace(/[^a-z0-9]/gi, '_')}.webm`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-            }
+                audioContext.close();
+                setIsDownloadingMp3(false);
+            };
+            
+            // Create speech utterance
+            const utterance = new SpeechSynthesisUtterance(fullScript);
+            utterance.rate = playbackSpeed;
+            utterance.volume = 1;
+            if (selectedVoice) utterance.voice = selectedVoice;
+            
+            // Start recording
+            mediaRecorder.start();
+            
+            utterance.onend = () => {
+                setTimeout(() => {
+                    mediaRecorder.stop();
+                }, 500);
+            };
+            
+            utterance.onerror = () => {
+                mediaRecorder.stop();
+                setIsDownloadingMp3(false);
+            };
+            
+            // Speak (this plays through speakers - inform user)
+            window.speechSynthesis.speak(utterance);
+            
         } catch (err) {
             console.error('MP3 download error:', err);
-            // Fallback: try with fetch directly
-            try {
-                const fullScript = sentencesRef.current.join(' ');
-                const resp = await fetch('/api/functions/elevenlabsTTS', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: fullScript, voice_id: 'EXAVITQu4vr4xnSDxMaL' })
-                });
-                if (resp.ok) {
-                    const blob = await resp.blob();
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${currentEpisode.title.replace(/[^a-z0-9]/gi, '_')}.mp3`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                }
-            } catch (fallbackErr) {
-                console.error('Fallback MP3 download also failed:', fallbackErr);
-            }
-        } finally {
+            // Fallback: just download the text script
+            const fullScript = sentencesRef.current.join(' ');
+            const blob = new Blob([fullScript], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentEpisode.title.replace(/[^a-z0-9]/gi, '_')}_script.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
             setIsDownloadingMp3(false);
         }
     };
