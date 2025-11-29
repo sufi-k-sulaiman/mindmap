@@ -537,7 +537,7 @@ export default function MindMapPage() {
         >
             <div className={`${isFullscreen ? 'max-w-none' : 'max-w-7xl mx-auto'}`}>
                 {/* Mind Map Content */}
-                <div className={`bg-white rounded-2xl border border-gray-200 ${isFullscreen ? 'h-[calc(100vh-32px)]' : 'h-[calc(100vh-80px)]'} overflow-hidden p-8`}>
+                <div className={`bg-white rounded-xl border border-gray-200 ${isFullscreen ? 'h-[calc(100vh-16px)]' : 'h-[calc(100vh-32px)]'} overflow-hidden p-3`}>
                     {/* Header inside the card */}
                     <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                         <div className="flex items-center gap-3">
