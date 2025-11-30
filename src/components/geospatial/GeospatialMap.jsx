@@ -533,10 +533,6 @@ export default function GeospatialMap({
 
                 {/* Data points */}
                 {dataPoints.map(point => {
-                    const rationale = USE_CASE_RATIONALE[point.type] || USE_CASE_RATIONALE.default;
-                    const bullets = point.value >= 50 ? rationale.high : rationale.low;
-                    const impactLabel = point.value >= 80 ? 'Critical' : point.value >= 70 ? 'High' : point.value >= 50 ? 'Moderate' : point.value >= 30 ? 'Low' : 'Minimal';
-                    
                     return (
                         <CircleMarker
                             key={point.id}
@@ -548,38 +544,15 @@ export default function GeospatialMap({
                                 color: point.value >= 80 ? '#991B1B' : point.value <= 20 ? '#166534' : '#fff',
                                 weight: mini ? 1 : (point.value >= 80 || point.value <= 20 ? 3 : 2)
                             }}
-                        >
-                            {!mini && (
-                                <Popup>
-                                    <div className="p-2 min-w-[220px] max-w-[280px]">
-                                        <h4 className="font-bold text-gray-900 text-sm">{point.name}</h4>
-                                        <p className="text-xs text-gray-500 capitalize mb-2">{point.type.replace(/pollution/g, ' pollution')}</p>
-                                        
-                                        <div className="flex items-center justify-between mb-1">
-                                            <span className="text-xs text-gray-600">Impact Score:</span>
-                                            <span className="text-sm font-bold" style={{ color: getColor(point.value, point) }}>
-                                                {point.value} - {impactLabel}
-                                            </span>
-                                        </div>
-                                        <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden mb-3">
-                                            <div className="h-full rounded-full" style={{ width: `${point.value}%`, backgroundColor: getColor(point.value, point) }} />
-                                        </div>
-                                        
-                                        <p className="text-xs text-gray-600 mb-2">
-                                            {point.value >= 50 ? 'Key factors contributing to elevated levels:' : 'Factors maintaining low impact:'}
-                                        </p>
-                                        <ul className="space-y-0.5">
-                                            {bullets.map((b, i) => (
-                                                <li key={i} className="text-xs text-gray-700 flex items-start gap-1">
-                                                    <span className="mt-0.5" style={{ color: getColor(point.value, point) }}>•</span>
-                                                    {b}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </Popup>
-                            )}
-                        </CircleMarker>
+                            eventHandlers={{
+                                click: () => {
+                                    if (!mini) {
+                                        setSelectedLocation(point);
+                                        setModalOpen(true);
+                                    }
+                                }
+                            }}
+                        />
                     );
                 })}
             </MapContainer>
