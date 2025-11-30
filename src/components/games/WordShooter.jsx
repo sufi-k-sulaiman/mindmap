@@ -216,6 +216,54 @@ export default function WordShooter({ onExit }) {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
+    // Mobile touch controls
+    let touchStartX = null;
+    let touchStartY = null;
+    let autoShootInterval = null;
+    const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    const handleTouchStart = (e) => {
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      // Start auto-shooting on mobile
+      if (!autoShootInterval) {
+        autoShootInterval = setInterval(() => {
+          if (!state.paused && !state.gameOver) shootBullet();
+        }, 300);
+      }
+    };
+    
+    const handleTouchMove = (e) => {
+      if (!touchStartX || !touchStartY) return;
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+      
+      // Move player based on touch position relative to start
+      state.playerX = Math.max(40, Math.min(canvas.width - 40, state.playerX + deltaX * 0.3));
+      state.playerY = Math.max(canvas.height * 0.5, Math.min(canvas.height - 50, state.playerY + deltaY * 0.3));
+      
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    };
+    
+    const handleTouchEnd = () => {
+      touchStartX = null;
+      touchStartY = null;
+      // Stop auto-shooting
+      if (autoShootInterval) {
+        clearInterval(autoShootInterval);
+        autoShootInterval = null;
+      }
+    };
+    
+    if (isMobile) {
+      canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+      canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+      canvas.addEventListener('touchend', handleTouchEnd);
+    }
+
     function shootBullet() {
       state.bullets.push({ x: state.playerX, y: state.playerY - 40, speed: 15, width: 4, height: 25, color: '#8b5cf6' });
       for(let i=0; i<5; i++) {
@@ -465,6 +513,12 @@ export default function WordShooter({ onExit }) {
       window.removeEventListener('resize', resize);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      if (isMobile) {
+        canvas.removeEventListener('touchstart', handleTouchStart);
+        canvas.removeEventListener('touchmove', handleTouchMove);
+        canvas.removeEventListener('touchend', handleTouchEnd);
+      }
+      if (autoShootInterval) clearInterval(autoShootInterval);
       cancelAnimationFrame(animationFrameId);
     };
   }, [screen, wordData, onExit]);
@@ -491,7 +545,7 @@ export default function WordShooter({ onExit }) {
   if (screen === 'game') {
     return (
       <div className="fixed inset-0 bg-[#0f0f23] z-[9999]">
-        <canvas ref={canvasRef} className="block w-full h-full" />
+        <canvas ref={canvasRef} className="block w-full h-full touch-none" />
         <div className="absolute top-5 right-5 flex gap-2">
           <Button onClick={toggleFullscreen} className="bg-purple-600 hover:bg-purple-700" size="sm">
             {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
