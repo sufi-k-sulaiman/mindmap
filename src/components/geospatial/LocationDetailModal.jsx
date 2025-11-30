@@ -266,73 +266,73 @@ Be specific with real numbers, avoid generic statements. Use actual statistics w
                                 </div>
                             </TabsContent>
 
-                                <TabsContent value="findings" className="mt-0 space-y-4">
-                                    {/* Key Metrics Grid */}
-                                    <div className="bg-white rounded-xl p-4 border">
-                                        <h4 className="font-semibold text-gray-800 mb-3">Key Metrics</h4>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            {data.key_metrics?.slice(0, 6).map((metric, i) => (
-                                                <div key={i} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                                                    <p className="text-xs text-gray-500 mb-1">{metric.name}</p>
-                                                    <p className="text-lg font-bold text-gray-900">{metric.value}</p>
-                                                    <div className={`flex items-center gap-1 text-xs ${metric.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                        {metric.change >= 0 ? (
-                                                            <TrendingUp className="w-3 h-3" />
-                                                        ) : (
-                                                            <TrendingDown className="w-3 h-3" />
-                                                        )}
-                                                        <span>{metric.change >= 0 ? '+' : ''}{metric.change}%</span>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Performance Comparison Table */}
-                                    <div className="bg-white rounded-xl p-4 border">
-                                        <h4 className="font-semibold text-gray-800 mb-3">Performance Comparison</h4>
-                                        <div className="overflow-hidden">
-                                            <div className="grid grid-cols-4 gap-2 text-xs font-medium text-gray-500 pb-2 border-b">
-                                                <span>Metric</span>
-                                                <span>Current</span>
-                                                <span>Previous</span>
-                                                <span>Change</span>
-                                            </div>
-                                            {data.performance_comparison?.map((row, i) => (
-                                                <div key={i} className="grid grid-cols-4 gap-2 py-2.5 border-b border-gray-100 last:border-0">
-                                                    <span className="text-sm font-medium text-gray-700">{row.metric}</span>
-                                                    <span className="text-sm text-gray-900">{row.current}</span>
-                                                    <span className="text-sm text-gray-500">{row.previous}</span>
-                                                    <span className={`text-sm font-medium flex items-center gap-1 ${row.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                        {row.change >= 0 ? (
-                                                            <TrendingUp className="w-3 h-3" />
-                                                        ) : (
-                                                            <TrendingDown className="w-3 h-3" />
-                                                        )}
-                                                        {row.change >= 0 ? '+' : ''}{row.change}%
-                                                    </span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Key Points */}
-                                    <div className="bg-white rounded-xl p-4 border">
-                                        <h4 className="font-semibold text-gray-800 mb-3">Key Findings</h4>
-                                        <div className="space-y-2">
-                                            {data.key_points?.map((point, i) => (
-                                                <div key={i} className="flex items-start gap-2 bg-gray-50 rounded-lg p-3">
-                                                    {data.impact_score >= 50 ? (
-                                                        <AlertTriangle className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                            <TabsContent value="findings" className="mt-0 space-y-2">
+                                {/* Key Metrics Grid */}
+                                <div className="bg-gray-50 rounded-lg p-2.5 border">
+                                    <h4 className="font-semibold text-gray-800 text-xs mb-2">Key Metrics</h4>
+                                    <div className="grid grid-cols-3 gap-1.5">
+                                        {data.key_metrics?.slice(0, 6).map((metric, i) => (
+                                            <div key={i} className="bg-white rounded-md p-2 border border-gray-100">
+                                                <p className="text-[10px] text-gray-500 mb-0.5 truncate">{metric.name}</p>
+                                                <p className="text-sm font-bold text-gray-900">{metric.value}</p>
+                                                <div className={`flex items-center gap-0.5 text-[10px] ${metric.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                    {metric.change >= 0 ? (
+                                                        <TrendingUp className="w-2.5 h-2.5" />
                                                     ) : (
-                                                        <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                                        <TrendingDown className="w-2.5 h-2.5" />
                                                     )}
-                                                    <span className="text-sm text-gray-700">{point}</span>
+                                                    <span>{metric.change >= 0 ? '+' : ''}{metric.change}%</span>
                                                 </div>
-                                            ))}
-                                        </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                </TabsContent>
+                                </div>
+
+                                {/* Performance Comparison Table */}
+                                <div className="bg-gray-50 rounded-lg p-2.5 border">
+                                    <h4 className="font-semibold text-gray-800 text-xs mb-2">Performance Comparison</h4>
+                                    <div className="overflow-hidden">
+                                        <div className="grid grid-cols-4 gap-1 text-[10px] font-medium text-gray-500 pb-1 border-b">
+                                            <span>Metric</span>
+                                            <span>Current</span>
+                                            <span>Previous</span>
+                                            <span>Change</span>
+                                        </div>
+                                        {data.performance_comparison?.map((row, i) => (
+                                            <div key={i} className="grid grid-cols-4 gap-1 py-1.5 border-b border-gray-100 last:border-0">
+                                                <span className="text-[10px] font-medium text-gray-700 truncate">{row.metric}</span>
+                                                <span className="text-[10px] text-gray-900">{row.current}</span>
+                                                <span className="text-[10px] text-gray-500">{row.previous}</span>
+                                                <span className={`text-[10px] font-medium flex items-center gap-0.5 ${row.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                    {row.change >= 0 ? (
+                                                        <TrendingUp className="w-2.5 h-2.5" />
+                                                    ) : (
+                                                        <TrendingDown className="w-2.5 h-2.5" />
+                                                    )}
+                                                    {row.change >= 0 ? '+' : ''}{row.change}%
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Key Points */}
+                                <div className="bg-gray-50 rounded-lg p-2.5 border">
+                                    <h4 className="font-semibold text-gray-800 text-xs mb-2">Key Findings</h4>
+                                    <div className="space-y-1">
+                                        {data.key_points?.map((point, i) => (
+                                            <div key={i} className="flex items-start gap-1.5 bg-white rounded-md p-2">
+                                                {data.impact_score >= 50 ? (
+                                                    <AlertTriangle className="w-3 h-3 text-orange-500 mt-0.5 flex-shrink-0" />
+                                                ) : (
+                                                    <CheckCircle className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
+                                                )}
+                                                <span className="text-[10px] text-gray-700">{point}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </TabsContent>
 
                                 <TabsContent value="timeline" className="mt-0">
                                     <div className="bg-white rounded-xl p-4 border">
