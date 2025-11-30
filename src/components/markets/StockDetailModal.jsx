@@ -66,7 +66,6 @@ export default function StockDetailModal({ stock, isOpen, onClose }) {
     const [yearsToHold, setYearsToHold] = useState(5);
     const [expectedReturn, setExpectedReturn] = useState(12);
     const [activeReportTab, setActiveReportTab] = useState('annual');
-    const [showMobileNav, setShowMobileNav] = useState(false);
 
     useEffect(() => {
         if (isOpen && stock) {
