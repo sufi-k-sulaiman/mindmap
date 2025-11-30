@@ -190,7 +190,7 @@ For each document, provide the actual URL where it can be found.`,
     const modalContent = (
         <>
             <div className="fixed inset-0 bg-black/50" style={{ zIndex: 99998 }} onClick={onClose} />
-            <div className="fixed inset-0 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-5xl md:w-[95vw] md:max-h-[85vh] p-0 overflow-y-auto bg-white md:rounded-xl shadow-xl" style={{ zIndex: 99999 }}>
+            <div className="fixed inset-0 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-5xl md:w-[95vw] h-full md:max-h-[85vh] p-0 overflow-y-auto overscroll-contain bg-white md:rounded-xl shadow-xl" style={{ zIndex: 99999, WebkitOverflowScrolling: 'touch' }}>
                 <div className="flex flex-col h-full">
                     {/* Header */}
                     <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 md:p-6 text-white">

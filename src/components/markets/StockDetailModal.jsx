@@ -2750,7 +2750,7 @@ export default function StockDetailModal({ stock, isOpen, onClose }) {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="w-full h-full max-w-full md:max-w-[1400px] max-h-full md:max-h-[90vh] p-0 overflow-hidden bg-gray-50 rounded-none md:rounded-lg">
+            <DialogContent className="w-full h-full max-w-full md:max-w-[1400px] max-h-full md:max-h-[90vh] p-0 overflow-hidden bg-gray-50 rounded-none md:rounded-lg" style={{ WebkitOverflowScrolling: 'touch' }}>
                 <div className="flex flex-col md:flex-row h-full md:h-[85vh]">
                     {/* Mobile Header */}
                     <div className="md:hidden bg-white border-b border-gray-200 p-3 flex items-center justify-between sticky top-0 z-20">
@@ -2828,7 +2828,7 @@ export default function StockDetailModal({ stock, isOpen, onClose }) {
                     </div>
 
                     {/* Main Content */}
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
                         {/* Desktop Header */}
                         <div className="hidden md:flex sticky top-0 bg-white border-b border-gray-200 px-6 py-4 items-center justify-between z-10">
                             <div className="flex items-center gap-4">
