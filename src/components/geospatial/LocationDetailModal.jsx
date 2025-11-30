@@ -296,11 +296,11 @@ Be specific with real numbers, avoid generic statements. Use actual statistics w
                             </TabsContent>
 
                             <TabsContent value="findings" className="mt-0 space-y-2">
-                                {/* Key Metrics Grid */}
+                                {/* Key Metrics Grid - 2x6 */}
                                 <div className="bg-gray-50 rounded-lg p-2.5 border">
                                     <h4 className="font-semibold text-gray-800 text-xs mb-2">Key Metrics</h4>
-                                    <div className="grid grid-cols-3 gap-1.5">
-                                        {data.key_metrics?.slice(0, 6).map((metric, i) => (
+                                    <div className="grid grid-cols-2 gap-1.5">
+                                        {data.key_metrics?.slice(0, 12).map((metric, i) => (
                                             <div key={i} className="bg-white rounded-md p-2 border border-gray-100">
                                                 <p className="text-[10px] text-gray-500 mb-0.5 truncate">{metric.name}</p>
                                                 <p className="text-sm font-bold text-gray-900">{metric.value}</p>
