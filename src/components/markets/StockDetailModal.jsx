@@ -2748,12 +2748,46 @@ export default function StockDetailModal({ stock, isOpen, onClose }) {
         }
     };
 
+    const [showMobileNav, setShowMobileNav] = useState(false);
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-[1400px] max-h-[90vh] p-0 overflow-hidden bg-gray-50">
-                <div className="flex h-[85vh]">
-                    {/* Left Sidebar */}
-                    <div className="w-52 bg-white border-r border-gray-200 flex flex-col">
+            <DialogContent className="w-full h-full max-w-full md:max-w-[1400px] max-h-full md:max-h-[90vh] p-0 overflow-hidden bg-gray-50 rounded-none md:rounded-lg">
+                <div className="flex flex-col md:flex-row h-full md:h-[85vh]">
+                    {/* Mobile Header */}
+                    <div className="md:hidden bg-white border-b border-gray-200 p-3 flex items-center justify-between sticky top-0 z-20">
+                        <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-gray-900">{stock.ticker}</span>
+                            <span className="text-lg font-bold text-gray-900">${stock.price?.toFixed(2)}</span>
+                            <span className={`text-sm font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                                {isPositive ? '+' : ''}{stock.change?.toFixed(2)}%
+                            </span>
+                        </div>
+                        <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
+                            <X className="w-5 h-5 text-gray-500" />
+                        </button>
+                    </div>
+
+                    {/* Mobile Navigation Toggle & Horizontal Scroll Nav */}
+                    <div className="md:hidden bg-white border-b border-gray-200 overflow-x-auto">
+                        <div className="flex gap-1 p-2 min-w-max">
+                            {NAV_ITEMS.map(item => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => setActiveNav(item.id)}
+                                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                                        activeNav === item.id ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-600'
+                                    }`}
+                                >
+                                    <item.icon className="w-3.5 h-3.5" />
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Left Sidebar - Desktop Only */}
+                    <div className="hidden md:flex w-52 bg-white border-r border-gray-200 flex-col">
                         <div className="p-4 border-b border-gray-200">
                             <div className="flex items-center gap-2 mb-1">
                                 <span className="text-xl font-bold text-gray-900">{stock.ticker}</span>
@@ -2797,7 +2831,8 @@ export default function StockDetailModal({ stock, isOpen, onClose }) {
 
                     {/* Main Content */}
                     <div className="flex-1 overflow-y-auto">
-                        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+                        {/* Desktop Header */}
+                        <div className="hidden md:flex sticky top-0 bg-white border-b border-gray-200 px-6 py-4 items-center justify-between z-10">
                             <div className="flex items-center gap-4">
                                 <h2 className="text-lg font-semibold text-gray-900 capitalize">{activeNav.replace('-', ' ')}</h2>
                                 <span className="text-sm text-gray-500">
@@ -2809,7 +2844,7 @@ export default function StockDetailModal({ stock, isOpen, onClose }) {
                             </button>
                         </div>
 
-                        <div className="p-6">
+                        <div className="p-3 md:p-6">
                             {renderSectionContent()}
                         </div>
                     </div>
