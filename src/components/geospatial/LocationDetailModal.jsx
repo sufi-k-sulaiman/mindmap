@@ -259,12 +259,12 @@ Be specific with real numbers, avoid generic statements. Use actual statistics w
                         </TabsList>
 
                         <div className="flex-1 overflow-y-auto px-3 pb-3">
-                                <TabsContent value="overview" className="mt-0">
-                                    <div className="bg-white rounded-xl p-4 border">
-                                        <h4 className="font-semibold text-gray-800 mb-2">Overview</h4>
-                                        <p className="text-gray-600 text-sm leading-relaxed">{data.description}</p>
-                                    </div>
-                                </TabsContent>
+                            <TabsContent value="overview" className="mt-0">
+                                <div className="bg-gray-50 rounded-lg p-3 border">
+                                    <h4 className="font-semibold text-gray-800 text-xs mb-1.5">Overview</h4>
+                                    <p className="text-gray-600 text-xs leading-relaxed">{data.description}</p>
+                                </div>
+                            </TabsContent>
 
                                 <TabsContent value="findings" className="mt-0 space-y-4">
                                     {/* Key Metrics Grid */}
