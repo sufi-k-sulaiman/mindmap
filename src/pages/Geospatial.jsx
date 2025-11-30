@@ -5,10 +5,10 @@ import {
     Loader2, RefreshCw, Sparkles, Droplets, Leaf, 
     Beef, Zap, Heart, Gem, Wind, Fish, Volume2, 
     Sun, Flame, Radiation, FlaskConical, Thermometer,
-    Waves, Shell, Bird, Package, Milk
+    Waves, Shell, Bird, Package, Milk, Factory, Wheat, AlertTriangle
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { base44 } from '@/api/base44Client';
 import GeospatialMap from '@/components/geospatial/GeospatialMap';
 import CountryComparison from '@/components/geospatial/CountryComparison';
