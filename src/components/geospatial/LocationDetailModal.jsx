@@ -276,10 +276,22 @@ Be specific with real numbers, avoid generic statements. Use actual statistics w
                         </TabsList>
 
                         <div className="flex-1 overflow-y-auto px-3 pb-3">
-                            <TabsContent value="overview" className="mt-0">
+                            <TabsContent value="overview" className="mt-0 space-y-2">
                                 <div className="bg-gray-50 rounded-lg p-3 border">
                                     <h4 className="font-semibold text-gray-800 text-xs mb-1.5">Overview</h4>
-                                    <p className="text-gray-600 text-xs leading-relaxed">{data.description}</p>
+                                    <p className="text-gray-600 text-xs leading-relaxed mb-3">{data.description}</p>
+                                    
+                                    {/* Overview Bullet Points */}
+                                    {data.overview_bullets?.length > 0 && (
+                                        <div className="space-y-1.5 pt-2 border-t border-gray-200">
+                                            {data.overview_bullets.map((bullet, i) => (
+                                                <div key={i} className="flex items-start gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-1.5 flex-shrink-0" />
+                                                    <span className="text-[10px] text-gray-700 leading-relaxed">{bullet}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </TabsContent>
 
