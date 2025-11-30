@@ -16,41 +16,50 @@ import MapModal from '@/components/geospatial/MapModal';
 import AnalysisFrameworks from '@/components/geospatial/AnalysisFrameworks';
 import DynamicCardContent from '@/components/geospatial/DynamicCardContent';
 
+// Group categories by tab
+const MAP_TABS = [
+    { id: 'environment', name: 'Environment', icon: Globe },
+    { id: 'oceans', name: 'Oceans & Wildlife', icon: Waves },
+    { id: 'agriculture', name: 'Agriculture', icon: Wheat },
+    { id: 'energy', name: 'Energy & Health', icon: Zap },
+    { id: 'pollution', name: 'Pollution', icon: AlertTriangle },
+];
+
 const USE_CASES = [
-    // Original categories
-    { id: 'carbon', name: 'Carbon & Climate', icon: Cloud, color: '#EF4444', description: 'Carbon emissions, climate tracking, net zero' },
-    { id: 'forests', name: 'Forests & Biodiversity', icon: TreePine, color: '#22C55E', description: 'Forest coverage, wildlife habitats' },
-    { id: 'resources', name: 'Natural Resources', icon: Mountain, color: '#F97316', description: 'Mining, minerals, energy resources' },
-    { id: 'sustainability', name: 'Sustainability', icon: Compass, color: '#8B5CF6', description: 'Renewable energy, green initiatives' },
-    { id: 'treasures', name: 'National Treasures', icon: Sparkles, color: '#FBBF24', description: 'Protected areas, heritage sites, parks' },
+    // Environment categories
+    { id: 'carbon', name: 'Carbon & Climate', icon: Cloud, color: '#EF4444', description: 'Carbon emissions, climate tracking, net zero', tab: 'environment' },
+    { id: 'forests', name: 'Forests & Biodiversity', icon: TreePine, color: '#22C55E', description: 'Forest coverage, wildlife habitats', tab: 'environment' },
+    { id: 'resources', name: 'Natural Resources', icon: Mountain, color: '#F97316', description: 'Mining, minerals, energy resources', tab: 'environment' },
+    { id: 'sustainability', name: 'Sustainability', icon: Compass, color: '#8B5CF6', description: 'Renewable energy, green initiatives', tab: 'environment' },
+    { id: 'treasures', name: 'National Treasures', icon: Sparkles, color: '#FBBF24', description: 'Protected areas, heritage sites, parks', tab: 'environment' },
     
     // Ocean & Wildlife categories
-    { id: 'coastal', name: 'Coastal & Coral Ecosystem', icon: Shell, color: '#06B6D4', description: 'Coral reefs, coastal zones, marine habitats' },
-    { id: 'ocean', name: 'Ocean Sustainability', icon: Waves, color: '#0EA5E9', description: 'Ocean health, fisheries, marine conservation' },
-    { id: 'wildlife', name: 'Endangered Wildlife', icon: Bird, color: '#10B981', description: 'Species protection, habitat loss, conservation' },
+    { id: 'coastal', name: 'Coastal & Coral Ecosystem', icon: Shell, color: '#06B6D4', description: 'Coral reefs, coastal zones, marine habitats', tab: 'oceans' },
+    { id: 'ocean', name: 'Ocean Sustainability', icon: Waves, color: '#0EA5E9', description: 'Ocean health, fisheries, marine conservation', tab: 'oceans' },
+    { id: 'wildlife', name: 'Endangered Wildlife', icon: Bird, color: '#10B981', description: 'Species protection, habitat loss, conservation', tab: 'oceans' },
     
     // Agriculture & Food categories
-    { id: 'biomass', name: 'Biomass', icon: Leaf, color: '#84CC16', description: 'Biofuel production, organic matter, composting' },
-    { id: 'produce', name: 'Produce & Crops', icon: Leaf, color: '#65A30D', description: 'Agricultural yields, crop health, farming' },
-    { id: 'dairy', name: 'Milk & Dairy', icon: Milk, color: '#60A5FA', description: 'Dairy production, processing, distribution' },
-    { id: 'livestock', name: 'Livestock & Protein', icon: Beef, color: '#B45309', description: 'Cattle, poultry, meat production' },
+    { id: 'biomass', name: 'Biomass', icon: Leaf, color: '#84CC16', description: 'Biofuel production, organic matter, composting', tab: 'agriculture' },
+    { id: 'produce', name: 'Produce & Crops', icon: Leaf, color: '#65A30D', description: 'Agricultural yields, crop health, farming', tab: 'agriculture' },
+    { id: 'dairy', name: 'Milk & Dairy', icon: Milk, color: '#60A5FA', description: 'Dairy production, processing, distribution', tab: 'agriculture' },
+    { id: 'livestock', name: 'Livestock & Protein', icon: Beef, color: '#B45309', description: 'Cattle, poultry, meat production', tab: 'agriculture' },
     
     // Energy & Health categories
-    { id: 'power', name: 'Power Consumption', icon: Zap, color: '#EAB308', description: 'Energy usage, grid demand, efficiency' },
-    { id: 'wellness', name: 'Wellness & Health', icon: Heart, color: '#EC4899', description: 'Public health, disease, life expectancy' },
-    { id: 'elements', name: 'Earth Elements', icon: Gem, color: '#7C3AED', description: 'Rare earth, minerals, geological resources' },
+    { id: 'power', name: 'Power Consumption', icon: Zap, color: '#EAB308', description: 'Energy usage, grid demand, efficiency', tab: 'energy' },
+    { id: 'wellness', name: 'Wellness & Health', icon: Heart, color: '#EC4899', description: 'Public health, disease, life expectancy', tab: 'energy' },
+    { id: 'elements', name: 'Earth Elements', icon: Gem, color: '#7C3AED', description: 'Rare earth, minerals, geological resources', tab: 'energy' },
     
     // Pollution categories
-    { id: 'airpollution', name: 'Air Pollution', icon: Wind, color: '#64748B', description: 'PM2.5, smog, ozone, emissions' },
-    { id: 'waterpollution', name: 'Water Pollution', icon: Droplets, color: '#0891B2', description: 'Contamination, runoff, marine debris' },
-    { id: 'soilpollution', name: 'Soil Pollution', icon: Mountain, color: '#78716C', description: 'Contaminated land, heavy metals, degradation' },
-    { id: 'plasticpollution', name: 'Plastic Pollution', icon: Package, color: '#F472B6', description: 'Ocean plastic, microplastics, waste' },
-    { id: 'noisepollution', name: 'Noise Pollution', icon: Volume2, color: '#A855F7', description: 'Urban noise, industrial sound, traffic' },
-    { id: 'lightpollution', name: 'Light Pollution', icon: Sun, color: '#FACC15', description: 'Sky glow, urban lighting, night visibility' },
-    { id: 'thermalpollution', name: 'Thermal Pollution', icon: Thermometer, color: '#F97316', description: 'Industrial heat, cooling water, temperature' },
-    { id: 'radioactive', name: 'Radioactive Pollution', icon: Radiation, color: '#22D3EE', description: 'Nuclear waste, radiation zones, contamination' },
-    { id: 'chemical', name: 'Chemical Pollution', icon: FlaskConical, color: '#A3E635', description: 'Industrial chemicals, pesticides, toxins' },
-    { id: 'climatepollution', name: 'Climate-Linked Pollution', icon: Flame, color: '#DC2626', description: 'GHG emissions, climate impact, warming' },
+    { id: 'airpollution', name: 'Air Pollution', icon: Wind, color: '#64748B', description: 'PM2.5, smog, ozone, emissions', tab: 'pollution' },
+    { id: 'waterpollution', name: 'Water Pollution', icon: Droplets, color: '#0891B2', description: 'Contamination, runoff, marine debris', tab: 'pollution' },
+    { id: 'soilpollution', name: 'Soil Pollution', icon: Mountain, color: '#78716C', description: 'Contaminated land, heavy metals, degradation', tab: 'pollution' },
+    { id: 'plasticpollution', name: 'Plastic Pollution', icon: Package, color: '#F472B6', description: 'Ocean plastic, microplastics, waste', tab: 'pollution' },
+    { id: 'noisepollution', name: 'Noise Pollution', icon: Volume2, color: '#A855F7', description: 'Urban noise, industrial sound, traffic', tab: 'pollution' },
+    { id: 'lightpollution', name: 'Light Pollution', icon: Sun, color: '#FACC15', description: 'Sky glow, urban lighting, night visibility', tab: 'pollution' },
+    { id: 'thermalpollution', name: 'Thermal Pollution', icon: Thermometer, color: '#F97316', description: 'Industrial heat, cooling water, temperature', tab: 'pollution' },
+    { id: 'radioactive', name: 'Radioactive Pollution', icon: Radiation, color: '#22D3EE', description: 'Nuclear waste, radiation zones, contamination', tab: 'pollution' },
+    { id: 'chemical', name: 'Chemical Pollution', icon: FlaskConical, color: '#A3E635', description: 'Industrial chemicals, pesticides, toxins', tab: 'pollution' },
+    { id: 'climatepollution', name: 'Climate-Linked Pollution', icon: Flame, color: '#DC2626', description: 'GHG emissions, climate impact, warming', tab: 'pollution' },
 ];
 
 
