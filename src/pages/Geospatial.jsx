@@ -244,7 +244,7 @@ export default function Geospatial() {
                         mapType={activeTab}
                         searchQuery={searchQuery}
                         color={currentUseCase?.color}
-                        height="600px"
+                        height="75vh"
                         isWorldMap={true}
                     />
                 </div>
