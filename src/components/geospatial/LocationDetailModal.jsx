@@ -431,12 +431,11 @@ Be specific with real numbers, avoid generic statements. Use actual statistics w
                             </div>
                         </Tabs>
                     </div>
-                ) : (
-                    <div className="text-center py-12 text-gray-500">
-                        Failed to load data. Please try again.
-                    </div>
-                )}
-            </DialogContent>
-        </Dialog>
+            ) : (
+                <div className="flex items-center justify-center h-[calc(100%-3rem)] text-gray-500 text-sm">
+                    Failed to load data. Please try again.
+                </div>
+            )}
+        </div>
     );
 }
