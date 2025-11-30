@@ -226,14 +226,14 @@ export default function CourseModal({ isOpen, onClose, topic, onComplete }) {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className={`${isFullscreen ? 'max-w-full w-full h-full max-h-full rounded-none' : 'max-w-4xl max-h-[90vh]'} overflow-hidden p-0 transition-all`}>
+            <DialogContent className={`max-w-full w-full h-full max-h-full rounded-none md:max-w-4xl md:max-h-[90vh] md:rounded-lg overflow-hidden p-0 transition-all ${isFullscreen ? '!max-w-full !w-full !h-full !max-h-full !rounded-none' : ''}`}>
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20">
                         <Loader2 className="w-12 h-12 animate-spin mb-4" style={{ color: topic.color }} />
                         <p className="text-gray-600">Generating curriculum...</p>
                     </div>
                 ) : (
-                    <div className={`flex flex-col ${isFullscreen ? 'h-full' : 'h-[85vh]'}`}>
+                    <div className={`flex flex-col h-full ${isFullscreen ? '' : 'md:h-[85vh]'}`}>
                         {/* Header */}
                         <div className="p-4 text-white flex-shrink-0" style={{ background: `linear-gradient(135deg, ${topic.color}, ${THEME.secondary})` }}>
                             <div className="flex items-center justify-between">
