@@ -74,6 +74,7 @@ export default function Geospatial() {
     const [activeUseCases, setActiveUseCases] = useState(['carbon']);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState('explore');
+    const [activeMapTab, setActiveMapTab] = useState('environment');
     const [loading, setLoading] = useState(false);
     const [modalMap, setModalMap] = useState(null);
 
