@@ -312,7 +312,9 @@ For "${item}", provide:
                     }
                 }
             });
-            setData(response);
+            // Format and ensure all data is properly structured
+            const formattedData = formatResponseData(response, item);
+            setData(formattedData);
         } catch (error) {
             console.error('Failed to fetch item data:', error);
             // Retry once on error
