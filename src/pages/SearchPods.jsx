@@ -977,52 +977,22 @@ Do NOT mention any websites, URLs, or external references in the audio script.`
                             </div>
                         </div>
 
-                        {/* Voice Selection - Simplified */}
+                        {/* Voice Selection - ElevenLabs voices */}
                         {voices.length > 0 && (
                             <div className="mt-4 flex items-center justify-center gap-2">
-                                {(() => {
-                                    // Create simplified voice options
-                                    const ukFemale = voices.find(v => 
-                                        (v.name.toLowerCase().includes('uk') || v.name.toLowerCase().includes('kingdom')) && 
-                                        v.name.toLowerCase().includes('female')
-                                    ) || voices.find(v => v.name === 'Google UK English Female') || voices.find(v => v.name.toLowerCase().includes('female'));
-                                    
-                                    const ukMale = voices.find(v => 
-                                        (v.name.toLowerCase().includes('uk') || v.name.toLowerCase().includes('kingdom')) && 
-                                        v.name.toLowerCase().includes('male') && !v.name.toLowerCase().includes('female')
-                                    ) || voices.find(v => v.name === 'Google UK English Male');
-                                    
-                                    const usFemale = voices.find(v => 
-                                        (v.name.toLowerCase().includes('us') || v.name.toLowerCase().includes('states')) && 
-                                        v.name.toLowerCase().includes('female')
-                                    ) || voices.find(v => v.name === 'Google US English') || voices.find(v => v.name === 'Samantha');
-                                    
-                                    const voiceOptions = [
-                                        { label: 'UK Female', voice: ukFemale },
-                                        { label: 'UK Male', voice: ukMale },
-                                        { label: 'US', voice: usFemale }
-                                    ].filter(opt => opt.voice);
-                                    
-                                    return voiceOptions.map((opt, i) => (
-                                        <button
-                                            key={i}
-                                            onClick={() => { 
-                                                setSelectedVoice(opt.voice); 
-                                                if (isPlayingRef.current) {
-                                                    window.speechSynthesis?.cancel();
-                                                    setTimeout(() => speakNextSentence(), 100);
-                                                }
-                                            }}
-                                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                                                selectedVoice?.name === opt.voice.name 
-                                                    ? 'bg-purple-600 text-white' 
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-purple-100 hover:text-purple-600'
-                                            }`}
-                                        >
-                                            {opt.label}
-                                        </button>
-                                    ));
-                                })()}
+                                {voices.map((voice, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setSelectedVoice(voice)}
+                                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                                            selectedVoice?.voice_id === voice.voice_id 
+                                                ? 'bg-purple-600 text-white' 
+                                                : 'bg-gray-100 text-gray-600 hover:bg-purple-100 hover:text-purple-600'
+                                        }`}
+                                    >
+                                        {voice.name}
+                                    </button>
+                                ))}
                             </div>
                         )}
 
