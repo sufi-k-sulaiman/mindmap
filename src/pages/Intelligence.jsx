@@ -37,7 +37,7 @@ const CATEGORIES = {
         icon: Zap,
         color: "#F59E0B",
         gradient: "from-amber-500 to-orange-500",
-        items: ["Gravity", "Seasons", "Weather", "Energy", "Time"]
+        items: ["Gravity", "Seasons", "Weather", "Energy", "Time", "Magnetism", "Water Cycle", "Life Cycles", "Tectonic Activity", "Evolution"]
     },
     Cosmic_Celestial: {
         name: "Cosmic & Celestial",
