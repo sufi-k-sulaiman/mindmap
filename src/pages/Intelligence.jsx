@@ -535,7 +535,7 @@ For "${item}", provide COMPLETE data:
                     </ChartCard>
 
                     {/* 7. Performance Radar */}
-                    <ChartCard title="Performance Metrics" color={category?.color}>
+                    <ChartCard title={`${item} Performance Scores`} color={category?.color}>
                         <ResponsiveContainer width="100%" height="100%">
                             <RadarChart data={data?.chartData?.performance || []}>
                                 <PolarGrid />
