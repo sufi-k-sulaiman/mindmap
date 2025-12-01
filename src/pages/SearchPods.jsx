@@ -1163,7 +1163,7 @@ export default function SearchPods() {
                         </div>
                         </div>
 
-                        {/* Voice Selection - Google TTS Voices */}
+                        {/* Voice Selection - ElevenLabs Voices */}
                         <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
                         {elevenLabsVoices.map((voice) => (
                             <button
