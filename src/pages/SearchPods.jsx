@@ -365,11 +365,23 @@ Do NOT mention any websites, URLs, or external references in the audio script.`
 
     // Start speaking
     const startSpeaking = useCallback(() => {
-        if (!('speechSynthesis' in window)) {
-            setCurrentCaption('Text-to-speech is not supported in your browser.');
+        // More robust check for speech synthesis support
+        if (typeof window === 'undefined' || !window.speechSynthesis) {
+            // Try to access it after a small delay (mobile browsers sometimes need this)
+            setTimeout(() => {
+                if (window.speechSynthesis) {
+                    actuallyStartSpeaking();
+                } else {
+                    setCurrentCaption('Text-to-speech is not available. Please try refreshing the page.');
+                }
+            }, 100);
             return;
         }
         
+        actuallyStartSpeaking();
+    }, []);
+    
+    const actuallyStartSpeaking = useCallback(() => {
         // Cancel any pending speech first
         window.speechSynthesis.cancel();
         
