@@ -1,5 +1,64 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
-import edge_tts from 'npm:edge-tts@1.0.3';
+
+// Use Google Translate TTS (free, no API key needed)
+async function googleTTS(text, lang = "en") {
+    // Google TTS has a limit per request, so split if needed
+    const maxLen = 200;
+    const chunks = [];
+    
+    let remaining = text;
+    while (remaining.length > 0) {
+        let chunk = remaining.substring(0, maxLen);
+        // Try to break at a space
+        if (remaining.length > maxLen) {
+            const lastSpace = chunk.lastIndexOf(' ');
+            if (lastSpace > 50) {
+                chunk = remaining.substring(0, lastSpace);
+            }
+        }
+        chunks.push(chunk.trim());
+        remaining = remaining.substring(chunk.length).trim();
+    }
+
+    const audioChunks = [];
+    
+    for (const chunk of chunks) {
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encodeURIComponent(chunk)}`;
+        
+        const response = await fetch(url, {
+            headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Google TTS failed: ${response.status}`);
+        }
+        
+        const buffer = await response.arrayBuffer();
+        audioChunks.push(new Uint8Array(buffer));
+    }
+
+    // Combine all chunks
+    const totalLength = audioChunks.reduce((sum, c) => sum + c.length, 0);
+    const result = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const chunk of audioChunks) {
+        result.set(chunk, offset);
+        offset += chunk.length;
+    }
+    
+    return result;
+}
+
+// Convert Uint8Array to base64
+function toBase64(bytes) {
+    let binary = "";
+    for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+}
 
 Deno.serve(async (req) => {
     if (req.method === "OPTIONS") {
@@ -20,46 +79,22 @@ Deno.serve(async (req) => {
         }
 
         const body = await req.json();
-        const { text, voice = "en-US-AriaNeural" } = body;
+        const { text } = body;
 
         if (!text) {
             return Response.json({ error: "No text provided" }, { status: 400 });
         }
 
-        console.log(`Generating TTS: ${text.substring(0, 50)}...`);
+        console.log(`Generating TTS for ${text.length} chars`);
 
-        // Use edge-tts npm package
-        const tts = new edge_tts.Communicate(text, voice);
-        const chunks = [];
+        const audio = await googleTTS(text, "en");
         
-        for await (const chunk of tts.stream()) {
-            if (chunk.type === "audio") {
-                chunks.push(chunk.data);
-            }
-        }
-
-        // Combine all audio chunks
-        const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
-        const audioData = new Uint8Array(totalLength);
-        let offset = 0;
-        for (const chunk of chunks) {
-            audioData.set(new Uint8Array(chunk), offset);
-            offset += chunk.length;
-        }
-
-        // Convert to base64
-        let binary = "";
-        for (let i = 0; i < audioData.length; i++) {
-            binary += String.fromCharCode(audioData[i]);
-        }
-        const base64Audio = btoa(binary);
-
-        console.log(`Generated ${audioData.length} bytes`);
+        console.log(`Generated ${audio.length} bytes`);
 
         return Response.json({
-            audio: base64Audio,
+            audio: toBase64(audio),
             format: "mp3",
-            bytes: audioData.length
+            bytes: audio.length
         });
 
     } catch (error) {
