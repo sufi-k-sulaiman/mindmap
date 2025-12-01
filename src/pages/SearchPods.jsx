@@ -352,11 +352,26 @@ Do NOT mention any websites, URLs, or external references in the audio script.`
             return;
         }
         
+        // Cancel any pending speech first
         window.speechSynthesis.cancel();
+        
+        // Mobile browsers require a workaround - speech synthesis can get "stuck"
+        // This forces it to reset on mobile
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            // On mobile, we need to "wake up" speechSynthesis
+            const wakeSpeech = new SpeechSynthesisUtterance('');
+            wakeSpeech.volume = 0;
+            window.speechSynthesis.speak(wakeSpeech);
+            window.speechSynthesis.cancel();
+        }
+        
         isPlayingRef.current = true;
         setIsPlaying(true);
         
-        speakNextSentence();
+        // Small delay to ensure speech synthesis is ready
+        setTimeout(() => {
+            speakNextSentence();
+        }, 100);
         
         // Start timer for progress
         if (timerRef.current) clearInterval(timerRef.current);
@@ -369,7 +384,7 @@ Do NOT mention any websites, URLs, or external references in the audio script.`
                 return prev + 1;
             });
         }, 1000);
-    }, [duration]);
+    }, [duration, speakNextSentence]);
 
     // Speak next sentence
     const speakNextSentence = useCallback(() => {
