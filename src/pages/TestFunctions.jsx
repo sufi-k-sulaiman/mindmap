@@ -150,11 +150,10 @@ export default function TestFunctions() {
                                     setLoading('elevenlabs-test');
                                     setResult(null);
                                     try {
-                                        const response = await fetch('/api/elevenlabsTTS?test=true');
-                                        const data = await response.json();
-                                        setResult({ success: response.ok, data });
+                                        const response = await base44.functions.invoke('elevenlabsTTS', { test: true });
+                                        setResult({ success: true, data: response.data });
                                     } catch (error) {
-                                        setResult({ success: false, error: error.message });
+                                        setResult({ success: false, error: error.response?.data?.error || error.message });
                                     } finally {
                                         setLoading('');
                                     }
