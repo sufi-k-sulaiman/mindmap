@@ -560,7 +560,7 @@ For "${item}", provide COMPLETE data:
                     </ChartCard>
 
                     {/* 9. Ranking Bar */}
-                    <ChartCard title="Rankings" color={category?.color}>
+                    <ChartCard title={`${item} Rankings`} color={category?.color}>
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={data?.chartData?.ranking || []}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
