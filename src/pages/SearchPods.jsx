@@ -406,20 +406,23 @@ Do NOT mention any websites, URLs, or external references in the audio script.`
         utterance.volume = isMuted ? 0 : volume / 100;
         utterance.pitch = 1;
         
+        // Get available voices
+        const availableVoices = window.speechSynthesis.getVoices();
+        
         // Force set the voice - required for it to work
         if (selectedVoice) {
             utterance.voice = selectedVoice;
-        } else {
-            // If no voice selected yet, try to find Google UK English Female
-            const voices = window.speechSynthesis.getVoices();
-            const googleVoice = voices.find(v => v.name === 'Google UK English Female') 
-                || voices.find(v => v.name.toLowerCase().includes('google'));
+        } else if (availableVoices.length > 0) {
+            // If no voice selected yet, try to find a good default
+            const googleVoice = availableVoices.find(v => v.name === 'Google UK English Female') 
+                || availableVoices.find(v => v.name.toLowerCase().includes('google'))
+                || availableVoices.find(v => v.lang.startsWith('en'));
             if (googleVoice) {
                 utterance.voice = googleVoice;
             }
         }
         
-        // Word boundary event for highlighting
+        // Word boundary event for highlighting (not supported on all mobile browsers)
         utterance.onboundary = (event) => {
             if (event.name === 'word') {
                 const spokenText = text.substring(0, event.charIndex);
@@ -436,7 +439,9 @@ Do NOT mention any websites, URLs, or external references in the audio script.`
             setCurrentTime(Math.floor(progress * duration));
             
             if (isPlayingRef.current && currentIndexRef.current < sentencesRef.current.length) {
-                setTimeout(() => speakNextSentence(), 200);
+                // Longer delay on mobile for stability
+                const delay = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 300 : 200;
+                setTimeout(() => speakNextSentence(), delay);
             } else if (currentIndexRef.current >= sentencesRef.current.length) {
                 stopPlayback();
             }
@@ -449,13 +454,27 @@ Do NOT mention any websites, URLs, or external references in the audio script.`
             setCurrentWordIndex(-1);
             currentIndexRef.current++;
             if (isPlayingRef.current && currentIndexRef.current < sentencesRef.current.length) {
-                setTimeout(() => speakNextSentence(), 200);
+                setTimeout(() => speakNextSentence(), 300);
             }
         };
         
         utteranceRef.current = utterance;
-        window.speechSynthesis.speak(utterance);
-    }, [playbackSpeed, isMuted, volume, selectedVoice, duration]);
+        
+        // Mobile browsers sometimes need the speak call wrapped
+        try {
+            window.speechSynthesis.speak(utterance);
+        } catch (e) {
+            console.error('Speech synthesis error:', e);
+            // Retry once after a delay
+            setTimeout(() => {
+                try {
+                    window.speechSynthesis.speak(utterance);
+                } catch (e2) {
+                    console.error('Speech synthesis retry failed:', e2);
+                }
+            }, 100);
+        }
+    }, [playbackSpeed, isMuted, volume, selectedVoice, duration, stopPlayback]);
 
     // Stop playback
     const stopPlayback = useCallback(() => {
