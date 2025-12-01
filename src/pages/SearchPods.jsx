@@ -518,22 +518,11 @@ Do NOT mention any websites, URLs, or external references in the audio script.`
         if (isPlaying) {
             stopPlayback();
         } else {
-            // For mobile, we need user gesture to init speech synthesis
-            if (window.speechSynthesis) {
-                startSpeaking();
-                // Small delay then start speaking
-                setTimeout(() => {
-                    speakNextSentence();
-                }, 150);
-            } else {
-                setCurrentCaption('Loading speech engine...');
-                setTimeout(() => {
-                    if (window.speechSynthesis) {
-                        startSpeaking();
-                        setTimeout(() => speakNextSentence(), 150);
-                    }
-                }, 500);
-            }
+            startSpeaking();
+            // Small delay then start speaking
+            setTimeout(() => {
+                speakNextSentence();
+            }, 150);
         }
     }, [isPlaying, stopPlayback, startSpeaking, speakNextSentence]);
 
