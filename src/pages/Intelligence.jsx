@@ -5,8 +5,6 @@ import {
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { base44 } from '@/api/base44Client';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 
 const CATEGORIES = {
     Elements_Environment: {
@@ -14,7 +12,56 @@ const CATEGORIES = {
         icon: Globe,
         color: "#3B82F6",
         gradient: "from-blue-500 to-cyan-500",
-        items: ["Earth", "Soil", "Water", "Air", "Fire", "Sunlight", "Moon", "Stars", "Sky", "Space"]
+        corePhilosophy: {
+            understanding: "Explain the fundamental elements (earth, air, fire, water, space) and environmental systems.",
+            education: "Provide structured lessons, interactive models, and case studies across ecosystems and climates.",
+            compression: "Distill complex environmental data into clear charts, graphs, and summaries.",
+            knowledge: "Organize facts, history, folklore, and science into a searchable encyclopedia.",
+            wisdom: "Offer guidance for sustainable living, health, and harmony with nature."
+        },
+        features: [
+            "Elements & Environment Encyclopedia",
+            "Educational Modules",
+            "Knowledge Expansion", 
+            "Wisdom & Guidance",
+            "Charts & Graphs",
+            "Filters & Customization"
+        ],
+        items: ["Earth", "Soil", "Water", "Air", "Fire", "Sunlight", "Moon", "Stars", "Sky", "Space"],
+        subCategories: {
+            "Earth": {
+                description: "Soil, geology, tectonics, erosion, minerals",
+                charts: ["Soil composition", "Erosion rates", "Tectonic activity"],
+                cultural: "Indigenous land wisdom, earth-based rituals"
+            },
+            "Air": {
+                description: "Atmosphere, wind patterns, air quality, ozone",
+                charts: ["AQI trends", "Wind rose diagrams", "Jet stream maps"],
+                cultural: "Breath practices, wind folklore"
+            },
+            "Fire": {
+                description: "Energy, volcanism, combustion, solar radiation",
+                charts: ["Energy consumption", "Volcanic activity", "Solar cycles"],
+                cultural: "Fire ceremonies, transformation myths"
+            },
+            "Water": {
+                description: "Oceans, rivers, precipitation, hydrological cycles",
+                charts: ["Water availability", "Precipitation bars", "River flow"],
+                cultural: "Water rituals, purification traditions"
+            },
+            "Space": {
+                description: "Cosmos, seasons, celestial bodies, planetary systems",
+                charts: ["Daylight curves", "Planetary comparisons", "Orbital patterns"],
+                cultural: "Astronomical traditions, seasonal celebrations"
+            }
+        },
+        dataVisualizations: {
+            environmental: ["Air Quality Trends", "Water Cycle Flow", "Carbon Emissions", "Temperature Anomalies", "Biodiversity Loss"],
+            elemental: ["Soil Composition", "Wind Patterns", "Energy Consumption", "Ocean Currents", "Seasonal Daylight"],
+            causeEffect: ["Deforestation Impact", "Human Activity Systems", "Climate Feedback Loops"]
+        },
+        filters: ["Location (local/regional/global)", "Depth (quick glance/deep dive)", "Interest (science/sustainability/culture)", "Visualization (charts/graphs/text)", "Accessibility (simplified/audio/high-contrast)"],
+        nuances: ["Micro vs macro ecosystems", "Seasonal awareness", "Historical wisdom", "Philosophical reflections", "Cultural diversity (Greek, Chinese, Indian elemental theory)"]
     },
     Natural_Landscapes_Features: {
         name: "Natural Landscapes",
@@ -35,11 +82,7 @@ const CATEGORIES = {
         icon: Zap,
         color: "#F59E0B",
         gradient: "from-amber-500 to-orange-500",
-        items: ["Gravity", "Seasons", "Weather", "Energy", "Time"],
-        specialLinks: {
-            "Seasons": "Seasons",
-            "Weather": "Weather"
-        }
+        items: ["Gravity", "Seasons", "Weather", "Energy", "Time"]
     },
     Cosmic_Celestial: {
         name: "Cosmic & Celestial",
@@ -89,6 +132,28 @@ function CategoryCard({ category, onClick }) {
             </div>
             <h3 className="text-xl font-bold mb-2">{category.name}</h3>
             <p className="text-white/80 text-sm mb-4">{category.items.length} topics to explore</p>
+            
+            {/* Core Philosophy Preview */}
+            {category.corePhilosophy && (
+                <p className="text-white/70 text-xs mb-3 line-clamp-2">{category.corePhilosophy.understanding}</p>
+            )}
+            
+            {/* Features Preview */}
+            {category.features && (
+                <div className="flex flex-wrap gap-1 mb-3">
+                    {category.features.slice(0, 3).map((feature, i) => (
+                        <span key={i} className="px-2 py-0.5 bg-white/10 rounded text-xs text-white/80">
+                            {feature}
+                        </span>
+                    ))}
+                    {category.features.length > 3 && (
+                        <span className="px-2 py-0.5 bg-white/10 rounded text-xs text-white/80">
+                            +{category.features.length - 3}
+                        </span>
+                    )}
+                </div>
+            )}
+            
             <div className="flex flex-wrap gap-1.5">
                 {category.items.map((item, i) => (
                     <span key={i} className="px-2 py-0.5 bg-white/20 rounded-full text-xs">
@@ -100,40 +165,25 @@ function CategoryCard({ category, onClick }) {
     );
 }
 
-function ItemCard({ item, color, onClick, linkTo }) {
-    const content = (
-        <div className="flex items-center gap-3">
-            <div 
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: `${color}20` }}
-            >
-                <Sparkles className="w-5 h-5" style={{ color }} />
-            </div>
-            <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">{item}</h4>
-                <p className="text-xs text-gray-500">{linkTo ? 'Open dedicated page' : 'Tap to explore'}</p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
-        </div>
-    );
-
-    if (linkTo) {
-        return (
-            <Link 
-                to={createPageUrl(linkTo)}
-                className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg hover:border-purple-200 cursor-pointer transition-all group block"
-            >
-                {content}
-            </Link>
-        );
-    }
-
+function ItemCard({ item, color, onClick }) {
     return (
         <div 
             onClick={onClick}
             className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg hover:border-purple-200 cursor-pointer transition-all group"
         >
-            {content}
+            <div className="flex items-center gap-3">
+                <div 
+                    className="w-10 h-10 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: `${color}20` }}
+                >
+                    <Sparkles className="w-5 h-5" style={{ color }} />
+                </div>
+                <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">{item}</h4>
+                    <p className="text-xs text-gray-500">Tap to explore</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
+            </div>
         </div>
     );
 }
@@ -351,10 +401,11 @@ export default function Intelligence() {
                         ))}
                     </div>
                 ) : !selectedItem ? (
-                    /* Category Items View */
-                    <div>
-                        <div className={`bg-gradient-to-r ${currentCategory.gradient} rounded-2xl p-6 mb-6 text-white`}>
-                            <div className="flex items-center gap-4">
+                    /* Category Items View with Full Details */
+                    <div className="space-y-6">
+                        {/* Category Header */}
+                        <div className={`bg-gradient-to-r ${currentCategory.gradient} rounded-2xl p-6 text-white`}>
+                            <div className="flex items-center gap-4 mb-4">
                                 <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
                                     <currentCategory.icon className="w-7 h-7" />
                                 </div>
@@ -364,17 +415,160 @@ export default function Intelligence() {
                                 </div>
                             </div>
                         </div>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {currentCategory.items.map((item, i) => (
-                                <ItemCard 
-                                    key={i}
-                                    item={item}
-                                    color={currentCategory.color}
-                                    onClick={() => handleItemClick(item)}
-                                    linkTo={currentCategory.specialLinks?.[item]}
-                                />
-                            ))}
+
+                        {/* Core Philosophy Section */}
+                        {currentCategory.corePhilosophy && (
+                            <div className="bg-white rounded-xl border border-gray-200 p-6">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <Brain className="w-5 h-5" style={{ color: currentCategory.color }} />
+                                    Core Philosophy
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {Object.entries(currentCategory.corePhilosophy).map(([key, value]) => (
+                                        <div key={key} className="p-4 rounded-lg" style={{ backgroundColor: `${currentCategory.color}10` }}>
+                                            <h4 className="font-semibold capitalize mb-2" style={{ color: currentCategory.color }}>{key}</h4>
+                                            <p className="text-sm text-gray-600">{value}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Features & Functions */}
+                        {currentCategory.features && (
+                            <div className="bg-white rounded-xl border border-gray-200 p-6">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <Zap className="w-5 h-5" style={{ color: currentCategory.color }} />
+                                    Features & Functions
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {currentCategory.features.map((feature, i) => (
+                                        <span key={i} className="px-4 py-2 rounded-lg text-sm font-medium" style={{ backgroundColor: `${currentCategory.color}15`, color: currentCategory.color }}>
+                                            {feature}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Data Visualizations Available */}
+                        {currentCategory.dataVisualizations && (
+                            <div className="bg-white rounded-xl border border-gray-200 p-6">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <BarChart2 className="w-5 h-5" style={{ color: currentCategory.color }} />
+                                    Charts & Graphs Available
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="p-4 bg-gray-50 rounded-lg">
+                                        <h4 className="font-semibold text-gray-800 mb-2">Environmental Data</h4>
+                                        <ul className="text-sm text-gray-600 space-y-1">
+                                            {currentCategory.dataVisualizations.environmental?.map((item, i) => (
+                                                <li key={i} className="flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: currentCategory.color }} />
+                                                    {item}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <div className="p-4 bg-gray-50 rounded-lg">
+                                        <h4 className="font-semibold text-gray-800 mb-2">Elemental Comparisons</h4>
+                                        <ul className="text-sm text-gray-600 space-y-1">
+                                            {currentCategory.dataVisualizations.elemental?.map((item, i) => (
+                                                <li key={i} className="flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: currentCategory.color }} />
+                                                    {item}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <div className="p-4 bg-gray-50 rounded-lg">
+                                        <h4 className="font-semibold text-gray-800 mb-2">Cause & Effect</h4>
+                                        <ul className="text-sm text-gray-600 space-y-1">
+                                            {currentCategory.dataVisualizations.causeEffect?.map((item, i) => (
+                                                <li key={i} className="flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: currentCategory.color }} />
+                                                    {item}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Filters & Customization */}
+                        {currentCategory.filters && (
+                            <div className="bg-white rounded-xl border border-gray-200 p-6">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <Filter className="w-5 h-5" style={{ color: currentCategory.color }} />
+                                    Filters & Customization
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {currentCategory.filters.map((filter, i) => (
+                                        <span key={i} className="px-3 py-1.5 bg-gray-100 rounded-full text-sm text-gray-700">
+                                            {filter}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Nuances & Facets */}
+                        {currentCategory.nuances && (
+                            <div className="bg-white rounded-xl border border-gray-200 p-6">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <Layers className="w-5 h-5" style={{ color: currentCategory.color }} />
+                                    Nuances & Facets
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {currentCategory.nuances.map((nuance, i) => (
+                                        <div key={i} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                                            <Star className="w-4 h-4" style={{ color: currentCategory.color }} />
+                                            <span className="text-sm text-gray-700">{nuance}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Topics to Explore */}
+                        <div className="bg-white rounded-xl border border-gray-200 p-6">
+                            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                <Sparkles className="w-5 h-5" style={{ color: currentCategory.color }} />
+                                Topics to Explore
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {currentCategory.items.map((item, i) => {
+                                    const subCat = currentCategory.subCategories?.[item];
+                                    return (
+                                        <div 
+                                            key={i}
+                                            onClick={() => handleItemClick(item)}
+                                            className="p-4 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md cursor-pointer transition-all group"
+                                        >
+                                            <div className="flex items-start justify-between mb-2">
+                                                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${currentCategory.color}15` }}>
+                                                    <Sparkles className="w-5 h-5" style={{ color: currentCategory.color }} />
+                                                </div>
+                                                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
+                                            </div>
+                                            <h4 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">{item}</h4>
+                                            {subCat && (
+                                                <>
+                                                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{subCat.description}</p>
+                                                    {subCat.charts && (
+                                                        <div className="flex flex-wrap gap-1 mt-2">
+                                                            {subCat.charts.slice(0, 2).map((chart, ci) => (
+                                                                <span key={ci} className="px-1.5 py-0.5 bg-gray-100 rounded text-xs text-gray-600">{chart}</span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
                 ) : (
