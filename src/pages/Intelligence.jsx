@@ -310,6 +310,115 @@ function ItemDetailView({ item, category }) {
                     </div>
                 )}
 
+                {/* Physical Compositions */}
+                {data?.physicalCompositions?.length > 0 && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-5">
+                        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <Mountain className="w-5 h-5" style={{ color: category?.color }} />
+                            Physical Compositions
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {data.physicalCompositions.map((item, i) => (
+                                <div key={i} className="p-4 bg-gradient-to-br from-slate-50 to-gray-100 rounded-lg border border-gray-200">
+                                    <h4 className="font-medium text-gray-900 mb-1">{item.name}</h4>
+                                    <p className="text-gray-600 text-sm">{item.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Chemical Compositions */}
+                {data?.chemicalCompositions?.length > 0 && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-5">
+                        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <Zap className="w-5 h-5" style={{ color: category?.color }} />
+                            Chemical Compositions
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {data.chemicalCompositions.map((item, i) => (
+                                <div key={i} className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border border-blue-100">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <h4 className="font-medium text-gray-900">{item.name}</h4>
+                                        <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-mono rounded">{item.formula}</span>
+                                    </div>
+                                    <p className="text-gray-600 text-sm">{item.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Mathematical Illustrations */}
+                {data?.mathematicalIllustrations?.length > 0 && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-5">
+                        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <Activity className="w-5 h-5" style={{ color: category?.color }} />
+                            Mathematical Illustrations
+                        </h3>
+                        <div className="space-y-4">
+                            {data.mathematicalIllustrations.map((item, i) => (
+                                <div key={i} className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100">
+                                    <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
+                                        <h4 className="font-medium text-gray-900">{item.name}</h4>
+                                        <code className="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-mono rounded-lg">{item.formula}</code>
+                                    </div>
+                                    <p className="text-gray-600 text-sm">{item.explanation}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Research Data */}
+                {data?.researchData?.length > 0 && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-5">
+                        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <TrendingUp className="w-5 h-5" style={{ color: category?.color }} />
+                            Research Data
+                        </h3>
+                        <div className="space-y-4">
+                            {data.researchData.map((item, i) => (
+                                <div key={i} className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border border-emerald-100">
+                                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                                        <h4 className="font-medium text-gray-900">{item.title}</h4>
+                                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded">{item.year}</span>
+                                    </div>
+                                    <p className="text-emerald-700 text-sm font-medium mb-1">{item.institution}</p>
+                                    <p className="text-gray-600 text-sm">{item.finding}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Subject Matter Experts */}
+                {data?.subjectMatterExperts?.length > 0 && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-5">
+                        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <Brain className="w-5 h-5" style={{ color: category?.color }} />
+                            Subject Matter Experts
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {data.subjectMatterExperts.map((expert, i) => (
+                                <div key={i} className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg border border-violet-100">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: category?.color }}>
+                                            {expert.name?.charAt(0) || 'E'}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-medium text-gray-900">{expert.name}</h4>
+                                            <p className="text-violet-600 text-xs">{expert.affiliation}</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-gray-500 text-xs mb-1"><strong>Specialty:</strong> {expert.specialty}</p>
+                                    <p className="text-gray-600 text-sm">{expert.contribution}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Charts Section */}
                 <div className="bg-white rounded-xl border border-gray-200 p-5">
                     <h3 className="font-semibold text-gray-900 mb-6 flex items-center gap-2">
