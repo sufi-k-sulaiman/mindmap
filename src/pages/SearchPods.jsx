@@ -139,7 +139,7 @@ export default function SearchPods() {
     const [currentCaption, setCurrentCaption] = useState('');
     const [captionWords, setCaptionWords] = useState([]);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
-    const [selectedVoice, setSelectedVoice] = useState('en-us');
+    const [selectedVoice, setSelectedVoice] = useState('en-gb');
     const [isDownloadingMp3, setIsDownloadingMp3] = useState(false);
     const [showRecommendations, setShowRecommendations] = useState(false);
     const [showEqualizer, setShowEqualizer] = useState(false);
@@ -165,9 +165,9 @@ export default function SearchPods() {
 
     // Available Edge TTS voices
     const googleVoices = [
-        { id: 'en-us', label: 'US English' },
-        { id: 'en-gb', label: 'UK English' },
-        { id: 'en-au', label: 'AU English' },
+        { id: 'en-gb', label: 'UK Female' },
+        { id: 'en-us', label: 'US Female' },
+        { id: 'en-au', label: 'AU Female' },
     ];
 
     // Cleanup audio on unmount
@@ -822,9 +822,16 @@ export default function SearchPods() {
                                     ) : (
                                         <p className="text-center leading-relaxed text-sm text-gray-700 line-clamp-3">
                                                     {captionWords.map((word, i) => {
-                                                        const progress = duration > 0 ? currentTime / duration : 0;
-                                                        const wordProgress = captionWords.length > 0 ? (i / captionWords.length) : 0;
-                                                        const isHighlighted = Math.abs(progress * captionWords.length - i) < 1.5;
+                                                        // Calculate which word should be highlighted based on sentence progress
+                                                        const sentenceIndex = sentencesRef.current.findIndex(s => s === currentCaption);
+                                                        const sentenceCount = sentencesRef.current.length || 1;
+                                                        const sentenceStart = sentenceIndex / sentenceCount;
+                                                        const sentenceEnd = (sentenceIndex + 1) / sentenceCount;
+                                                        const sentenceDuration = sentenceEnd - sentenceStart;
+                                                        const timeProgress = duration > 0 ? currentTime / duration : 0;
+                                                        const withinSentence = (timeProgress - sentenceStart) / sentenceDuration;
+                                                        const highlightIndex = Math.floor(withinSentence * captionWords.length);
+                                                        const isHighlighted = i === highlightIndex || i === highlightIndex - 1;
                                                         return (
                                                             <span key={i} className={isHighlighted ? 'text-purple-600 font-semibold' : ''}>
                                                                 {word}{' '}
