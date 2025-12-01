@@ -34,11 +34,7 @@ Deno.serve(async (req) => {
             }
         }
         
-        if (!user) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        const { text, voice_id = 'EXAVITQu4vr4xnSDxMaL' } = await req.json();
+        const { text, voice_id = 'EXAVITQu4vr4xnSDxMaL' } = body;
         
         if (!text) {
             return Response.json({ error: 'Text is required' }, { status: 400 });
