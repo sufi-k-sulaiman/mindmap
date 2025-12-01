@@ -546,27 +546,81 @@ Do NOT mention any websites, URLs, or external references in the audio script.`
     const extendPodcast = async () => {
         if (!currentEpisode || isExtending) return;
         setIsExtending(true);
-        
+
         try {
             const currentContent = sentencesRef.current.join(' ');
-            
-            const response = await base44.integrations.Core.InvokeLLM({
-                                prompt: `Continue this podcast about "${currentEpisode.title}". Here's what was covered so far (summary): "${currentContent.substring(0, 500)}..."
 
-                                Write 12 more paragraphs (about 5 minutes worth) expanding on the topic with new insights, examples, stories, or related points. Keep the same conversational tone. Do NOT use markdown formatting.`,
-                                add_context_from_internet: true
-                            });
-            
+            const response = await base44.integrations.Core.InvokeLLM({
+                prompt: `Continue this podcast about "${currentEpisode.title}". Here's what was covered so far (summary): "${currentContent.substring(0, 500)}..."
+
+    Write 12 more paragraphs (about 5 minutes worth) expanding on the topic with new insights, examples, stories, or related points. Keep the same conversational tone. Do NOT use markdown formatting.`,
+                add_context_from_internet: true
+            });
+
             const cleanText = cleanTextForSpeech(response || '');
             const newSentences = cleanText
                 .replace(/\n+/g, ' ')
                 .split(/(?<=[.!?])\s+/)
                 .map(s => s.trim())
                 .filter(s => s.length > 3);
-            
+
             if (newSentences.length > 0) {
-                sentencesRef.current = [...sentencesRef.current, ...newSentences];
-                setDuration(sentencesRef.current.length * 3);
+                // Generate audio for new content
+                const voiceId = selectedVoice?.voice_id || 'EXAVITQu4vr4xnSDxMaL';
+                const audioResponse = await base44.functions.invoke('elevenlabsTTS', { 
+                    text: cleanText,
+                    voice_id: voiceId
+                });
+
+                if (audioResponse.data?.audio) {
+                    // Stop current audio
+                    if (audioRef.current) {
+                        audioRef.current.pause();
+                    }
+
+                    // Create new audio with extended content
+                    const binaryString = atob(audioResponse.data.audio);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+
+                    if (audioUrlRef.current) {
+                        URL.revokeObjectURL(audioUrlRef.current);
+                    }
+
+                    const blob = new Blob([bytes], { type: 'audio/mpeg' });
+                    const audioUrl = URL.createObjectURL(blob);
+                    audioUrlRef.current = audioUrl;
+
+                    const audio = new Audio(audioUrl);
+                    audioRef.current = audio;
+
+                    sentencesRef.current = [...sentencesRef.current, ...newSentences];
+
+                    audio.onloadedmetadata = () => {
+                        setDuration(prev => prev + audio.duration);
+                    };
+
+                    audio.ontimeupdate = () => {
+                        const progress = audio.currentTime / audio.duration;
+                        const sentenceIndex = Math.floor(progress * newSentences.length);
+                        if (sentenceIndex < newSentences.length) {
+                            setCurrentCaption(newSentences[sentenceIndex]);
+                        }
+                    };
+
+                    audio.onended = () => {
+                        isPlayingRef.current = false;
+                        setIsPlaying(false);
+                    };
+
+                    audio.volume = volume / 100;
+                    audio.playbackRate = playbackSpeed;
+                    audio.play();
+                    isPlayingRef.current = true;
+                    setIsPlaying(true);
+                }
             }
         } catch (error) {
             console.error('Error extending podcast:', error);
