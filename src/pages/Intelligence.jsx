@@ -472,7 +472,7 @@ For "${item}", provide COMPLETE data:
                     </ChartCard>
 
                     {/* 3. Comparison Bar Chart */}
-                    <ChartCard title="Comparative Analysis" color={category?.color}>
+                    <ChartCard title={`${item} Comparative Metrics`} color={category?.color}>
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={data?.chartData?.comparison || []}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
