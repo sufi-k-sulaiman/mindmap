@@ -13,6 +13,7 @@ export const menuItems = [
     { label: 'Learning', icon: GraduationCap, href: createPageUrl('Learning') },
     { label: 'Geospatial', icon: Globe, href: createPageUrl('Geospatial') },
     { label: 'Intelligence', icon: Lightbulb, href: createPageUrl('Intelligence') },
+    { label: 'Seasons', icon: Sun, href: createPageUrl('Seasons') },
     { label: 'ResumePro', icon: FileText, href: createPageUrl('ResumeBuilder') },
     { label: 'Tasks', icon: ListTodo, href: createPageUrl('Tasks') },
     { label: 'Notes', icon: StickyNote, href: createPageUrl('Notes') },
