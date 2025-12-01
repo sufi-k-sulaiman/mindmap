@@ -5,6 +5,8 @@ import {
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { base44 } from '@/api/base44Client';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 const CATEGORIES = {
     Elements_Environment: {
@@ -12,56 +14,7 @@ const CATEGORIES = {
         icon: Globe,
         color: "#3B82F6",
         gradient: "from-blue-500 to-cyan-500",
-        corePhilosophy: {
-            understanding: "Explain the fundamental elements (earth, air, fire, water, space) and environmental systems.",
-            education: "Provide structured lessons, interactive models, and case studies across ecosystems and climates.",
-            compression: "Distill complex environmental data into clear charts, graphs, and summaries.",
-            knowledge: "Organize facts, history, folklore, and science into a searchable encyclopedia.",
-            wisdom: "Offer guidance for sustainable living, health, and harmony with nature."
-        },
-        features: [
-            "Elements & Environment Encyclopedia",
-            "Educational Modules",
-            "Knowledge Expansion", 
-            "Wisdom & Guidance",
-            "Charts & Graphs",
-            "Filters & Customization"
-        ],
-        items: ["Earth", "Soil", "Water", "Air", "Fire", "Sunlight", "Moon", "Stars", "Sky", "Space"],
-        subCategories: {
-            "Earth": {
-                description: "Soil, geology, tectonics, erosion, minerals",
-                charts: ["Soil composition", "Erosion rates", "Tectonic activity"],
-                cultural: "Indigenous land wisdom, earth-based rituals"
-            },
-            "Air": {
-                description: "Atmosphere, wind patterns, air quality, ozone",
-                charts: ["AQI trends", "Wind rose diagrams", "Jet stream maps"],
-                cultural: "Breath practices, wind folklore"
-            },
-            "Fire": {
-                description: "Energy, volcanism, combustion, solar radiation",
-                charts: ["Energy consumption", "Volcanic activity", "Solar cycles"],
-                cultural: "Fire ceremonies, transformation myths"
-            },
-            "Water": {
-                description: "Oceans, rivers, precipitation, hydrological cycles",
-                charts: ["Water availability", "Precipitation bars", "River flow"],
-                cultural: "Water rituals, purification traditions"
-            },
-            "Space": {
-                description: "Cosmos, seasons, celestial bodies, planetary systems",
-                charts: ["Daylight curves", "Planetary comparisons", "Orbital patterns"],
-                cultural: "Astronomical traditions, seasonal celebrations"
-            }
-        },
-        dataVisualizations: {
-            environmental: ["Air Quality Trends", "Water Cycle Flow", "Carbon Emissions", "Temperature Anomalies", "Biodiversity Loss"],
-            elemental: ["Soil Composition", "Wind Patterns", "Energy Consumption", "Ocean Currents", "Seasonal Daylight"],
-            causeEffect: ["Deforestation Impact", "Human Activity Systems", "Climate Feedback Loops"]
-        },
-        filters: ["Location (local/regional/global)", "Depth (quick glance/deep dive)", "Interest (science/sustainability/culture)", "Visualization (charts/graphs/text)", "Accessibility (simplified/audio/high-contrast)"],
-        nuances: ["Micro vs macro ecosystems", "Seasonal awareness", "Historical wisdom", "Philosophical reflections", "Cultural diversity (Greek, Chinese, Indian elemental theory)"]
+        items: ["Earth", "Soil", "Water", "Air", "Fire", "Sunlight", "Moon", "Stars", "Sky", "Space"]
     },
     Natural_Landscapes_Features: {
         name: "Natural Landscapes",
@@ -82,7 +35,11 @@ const CATEGORIES = {
         icon: Zap,
         color: "#F59E0B",
         gradient: "from-amber-500 to-orange-500",
-        items: ["Gravity", "Seasons", "Weather", "Energy", "Time"]
+        items: ["Gravity", "Seasons", "Weather", "Energy", "Time"],
+        specialLinks: {
+            "Seasons": "Seasons",
+            "Weather": "Weather"
+        }
     },
     Cosmic_Celestial: {
         name: "Cosmic & Celestial",
@@ -132,28 +89,6 @@ function CategoryCard({ category, onClick }) {
             </div>
             <h3 className="text-xl font-bold mb-2">{category.name}</h3>
             <p className="text-white/80 text-sm mb-4">{category.items.length} topics to explore</p>
-            
-            {/* Core Philosophy Preview */}
-            {category.corePhilosophy && (
-                <p className="text-white/70 text-xs mb-3 line-clamp-2">{category.corePhilosophy.understanding}</p>
-            )}
-            
-            {/* Features Preview */}
-            {category.features && (
-                <div className="flex flex-wrap gap-1 mb-3">
-                    {category.features.slice(0, 3).map((feature, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-white/10 rounded text-xs text-white/80">
-                            {feature}
-                        </span>
-                    ))}
-                    {category.features.length > 3 && (
-                        <span className="px-2 py-0.5 bg-white/10 rounded text-xs text-white/80">
-                            +{category.features.length - 3}
-                        </span>
-                    )}
-                </div>
-            )}
-            
             <div className="flex flex-wrap gap-1.5">
                 {category.items.map((item, i) => (
                     <span key={i} className="px-2 py-0.5 bg-white/20 rounded-full text-xs">
@@ -165,25 +100,40 @@ function CategoryCard({ category, onClick }) {
     );
 }
 
-function ItemCard({ item, color, onClick }) {
+function ItemCard({ item, color, onClick, linkTo }) {
+    const content = (
+        <div className="flex items-center gap-3">
+            <div 
+                className="w-10 h-10 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: `${color}20` }}
+            >
+                <Sparkles className="w-5 h-5" style={{ color }} />
+            </div>
+            <div className="flex-1">
+                <h4 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">{item}</h4>
+                <p className="text-xs text-gray-500">{linkTo ? 'Open dedicated page' : 'Tap to explore'}</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
+        </div>
+    );
+
+    if (linkTo) {
+        return (
+            <Link 
+                to={createPageUrl(linkTo)}
+                className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg hover:border-purple-200 cursor-pointer transition-all group block"
+            >
+                {content}
+            </Link>
+        );
+    }
+
     return (
         <div 
             onClick={onClick}
             className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-lg hover:border-purple-200 cursor-pointer transition-all group"
         >
-            <div className="flex items-center gap-3">
-                <div 
-                    className="w-10 h-10 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: `${color}20` }}
-                >
-                    <Sparkles className="w-5 h-5" style={{ color }} />
-                </div>
-                <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">{item}</h4>
-                    <p className="text-xs text-gray-500">Tap to explore</p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
-            </div>
+            {content}
         </div>
     );
 }
@@ -422,6 +372,7 @@ export default function Intelligence() {
                                     item={item}
                                     color={currentCategory.color}
                                     onClick={() => handleItemClick(item)}
+                                    linkTo={currentCategory.specialLinks?.[item]}
                                 />
                             ))}
                         </div>
