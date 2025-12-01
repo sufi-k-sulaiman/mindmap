@@ -131,6 +131,7 @@ export default function SearchPods() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [generationStep, setGenerationStep] = useState('');
+    const [generationProgress, setGenerationProgress] = useState(0);
     const [generationError, setGenerationError] = useState(null);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -163,13 +164,12 @@ export default function SearchPods() {
         return () => clearInterval(interval);
     }, []);
 
-    // Available Google TTS voices (Google TTS only supports language codes, not gender)
-    // Using different English variants for variety
+    // Available Google TTS voices (language variants only - Google TTS doesn't support gender)
     const googleVoices = [
-        { id: 'en-gb', label: 'UK Female' },
-        { id: 'en-us', label: 'US Male' },
-        { id: 'en-au', label: 'AU Female' },
-        { id: 'en-in', label: 'UK Male' },
+        { id: 'en-gb', label: 'British' },
+        { id: 'en-us', label: 'American' },
+        { id: 'en-au', label: 'Australian' },
+        { id: 'en-za', label: 'South African' },
     ];
 
     // Cleanup audio on unmount
@@ -252,6 +252,7 @@ export default function SearchPods() {
         setIsGenerating(true);
         setGenerationError(null);
         setGenerationStep('Researching topic...');
+        setGenerationProgress(10);
         setPodImage(null);
         setImageLoading(true);
         setCurrentCaption('Generating audio...');
@@ -270,6 +271,7 @@ export default function SearchPods() {
 
         try {
             setGenerationStep('Writing script...');
+            setGenerationProgress(25);
 
             // Generate longer script using LLM for 8 minute podcast
             let rawText;
@@ -308,6 +310,7 @@ export default function SearchPods() {
             }
             
             setGenerationStep('Generating audio...');
+            setGenerationProgress(50);
             const cleanText = cleanTextForSpeech(rawText);
 
             // Split into sentences for captions
@@ -335,10 +338,14 @@ export default function SearchPods() {
                 throw new Error('Audio generation failed');
             }
 
+            setGenerationProgress(75);
+
             if (!ttsResponse?.data?.audio) {
                 console.error('TTS response:', ttsResponse);
                 throw new Error(ttsResponse?.data?.error || 'No audio returned');
             }
+
+            setGenerationProgress(90);
 
             // Convert base64 to audio blob
             const binaryString = atob(ttsResponse.data.audio);
@@ -383,6 +390,7 @@ export default function SearchPods() {
                 setGenerationError({ code: 'E300', title: 'Audio Error', message: 'Failed to play audio' });
             };
 
+            setGenerationProgress(100);
             setIsGenerating(false);
             setCurrentCaption(sentences[0] || 'Ready to play');
             setCaptionWords((sentences[0] || '').split(/\s+/));
@@ -962,9 +970,18 @@ export default function SearchPods() {
                                         </Button>
                                     </div>
                                 ) : isGenerating && !imageLoading ? (
-                                    <div className={`${podImage ? 'absolute inset-0 bg-black/50' : ''} flex flex-col items-center justify-center gap-3`}>
-                                        <Loader2 className="w-12 h-12 text-white/80 animate-spin" />
+                                    <div className={`${podImage ? 'absolute inset-0 bg-black/50' : ''} flex flex-col items-center justify-center gap-3 px-6`}>
+                                        <Loader2 className="w-10 h-10 text-white/80 animate-spin" />
                                         <span className="text-white/80 text-sm">{generationStep}</span>
+                                        <div className="w-full max-w-[180px]">
+                                            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                                                <div 
+                                                    className="h-full bg-white/80 rounded-full transition-all duration-500"
+                                                    style={{ width: `${generationProgress}%` }}
+                                                />
+                                            </div>
+                                            <span className="text-white/60 text-xs mt-1 block text-center">{generationProgress}%</span>
+                                        </div>
                                     </div>
                                 ) : !isGenerating && !imageLoading ? (
                                     <>
