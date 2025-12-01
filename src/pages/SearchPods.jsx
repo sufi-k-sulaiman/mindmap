@@ -150,13 +150,13 @@ export default function SearchPods() {
     const [isExtending, setIsExtending] = useState(false);
     const [recommendations, setRecommendations] = useState([]);
     
-    // Refs for speech synthesis
+    // Refs for audio playback
     const sentencesRef = useRef([]);
     const currentIndexRef = useRef(0);
     const isPlayingRef = useRef(false);
-    const utteranceRef = useRef(null);
     const timerRef = useRef(null);
     const audioRef = useRef(null);
+    const audioUrlRef = useRef(null);
     const [podImage, setPodImage] = useState(null);
     const [imageLoading, setImageLoading] = useState(false);
     const [trending, setTrending] = useState(getRandomTrending);
