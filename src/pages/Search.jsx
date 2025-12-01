@@ -1,9 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Search, Loader2, FileText, Lightbulb, ExternalLink } from 'lucide-react';
+import { Search, Loader2, FileText, Lightbulb, ExternalLink, Brain, Map, BookOpen, Newspaper, Headphones, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { menuItems } from '@/components/NavigationConfig';
+
+// In-app content definitions for searchable pages
+const IN_APP_CONTENT = {
+    Qwirey: {
+        name: 'Qwirey',
+        icon: Brain,
+        color: '#8B5CF6',
+        description: 'AI-powered research and Q&A assistant',
+        keywords: ['ai', 'research', 'questions', 'answers', 'assistant', 'chat', 'query', 'intelligence']
+    },
+    MindMap: {
+        name: 'MindMap',
+        icon: Map,
+        color: '#10B981',
+        description: 'Visual mind mapping and brainstorming tool',
+        keywords: ['mindmap', 'brainstorm', 'ideas', 'visual', 'diagram', 'nodes', 'connections', 'thinking']
+    },
+    Learning: {
+        name: 'Learning',
+        icon: BookOpen,
+        color: '#F59E0B',
+        description: 'Interactive learning courses and educational content',
+        keywords: ['learn', 'courses', 'education', 'study', 'knowledge', 'skills', 'training', 'lessons']
+    },
+    News: {
+        name: 'News',
+        icon: Newspaper,
+        color: '#EF4444',
+        description: 'Latest news and current events',
+        keywords: ['news', 'headlines', 'current', 'events', 'articles', 'updates', 'breaking', 'world']
+    },
+    SearchPods: {
+        name: 'SearchPods',
+        icon: Headphones,
+        color: '#EC4899',
+        description: 'AI-generated audio podcasts on any topic',
+        keywords: ['podcast', 'audio', 'listen', 'episodes', 'voice', 'speech', 'tts', 'motivation', 'inspiration']
+    }
+};
 
 export default function SearchPage() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -13,11 +52,34 @@ export default function SearchPage() {
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
     const [searchedQuery, setSearchedQuery] = useState('');
+    const [inAppResults, setInAppResults] = useState([]);
 
     // Filter matching pages from navigation
     const matchingPages = menuItems.filter(item => 
         item.label.toLowerCase().includes(query.toLowerCase())
     );
+
+    // Search in-app content
+    const searchInAppContent = (searchQuery) => {
+        const q = searchQuery.toLowerCase();
+        const matches = [];
+        
+        Object.entries(IN_APP_CONTENT).forEach(([page, content]) => {
+            const nameMatch = content.name.toLowerCase().includes(q);
+            const descMatch = content.description.toLowerCase().includes(q);
+            const keywordMatch = content.keywords.some(kw => kw.includes(q) || q.includes(kw));
+            
+            if (nameMatch || descMatch || keywordMatch) {
+                matches.push({
+                    page,
+                    ...content,
+                    relevance: nameMatch ? 3 : (descMatch ? 2 : 1)
+                });
+            }
+        });
+        
+        return matches.sort((a, b) => b.relevance - a.relevance);
+    };
 
     useEffect(() => {
         if (initialQuery) {
@@ -30,6 +92,10 @@ export default function SearchPage() {
         
         setLoading(true);
         setSearchedQuery(searchQuery);
+        
+        // Search in-app content first
+        const appMatches = searchInAppContent(searchQuery);
+        setInAppResults(appMatches);
         
         try {
             const response = await base44.integrations.Core.InvokeLLM({
@@ -114,6 +180,37 @@ export default function SearchPage() {
                                     <span className="text-gray-700">{page.label}</span>
                                 </Link>
                             ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* In-App Content Results */}
+                {inAppResults.length > 0 && !loading && (
+                    <div className="mb-6">
+                        <h3 className="text-sm font-medium text-gray-500 mb-3">In-App Features</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {inAppResults.map((item) => {
+                                const Icon = item.icon;
+                                return (
+                                    <Link
+                                        key={item.page}
+                                        to={createPageUrl(item.page)}
+                                        className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all group"
+                                    >
+                                        <div 
+                                            className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                                            style={{ backgroundColor: `${item.color}15` }}
+                                        >
+                                            <Icon className="w-6 h-6" style={{ color: item.color }} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">{item.name}</h4>
+                                            <p className="text-sm text-gray-500 truncate">{item.description}</p>
+                                        </div>
+                                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all flex-shrink-0" />
+                                    </Link>
+                                );
+                            })}
                         </div>
                     </div>
                 )}
