@@ -1,108 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
-
-// Edge TTS voices
-const VOICES = {
-    "en-US-AriaNeural": "Female (US)",
-    "en-US-GuyNeural": "Male (US)",
-    "en-GB-SoniaNeural": "Female (UK)",
-    "en-GB-RyanNeural": "Male (UK)",
-    "en-AU-NatashaNeural": "Female (AU)",
-};
-
-// Main Edge-TTS function using WebSocket streaming
-async function textToSpeechEdge(text, voice) {
-    const wsUrl = "wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?TrustedClientToken=6A5AA1D4EAFF4E9FB37E23D68491D6F4";
-    
-    const escapedText = text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-    
-    const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US"><voice name="${voice}">${escapedText}</voice></speak>`;
-
-    const connectionId = crypto.randomUUID().replace(/-/g, "");
-    const requestId = crypto.randomUUID().replace(/-/g, "");
-    
-    const configMsg = `X-RequestId:${connectionId}\r\nPath:speech.config\r\nContent-Type:application/json; charset=utf-8\r\n\r\n{"context":{"synthesis":{"audio":{"metadataoptions":{"sentenceBoundaryEnabled":false,"wordBoundaryEnabled":false},"outputFormat":"audio-24khz-48kbitrate-mono-mp3"}}}}`;
-    const ttsMsg = `X-RequestId:${requestId}\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n${ssml}`;
-
-    const chunks = [];
-
-    return new Promise((resolve, reject) => {
-        const ws = new WebSocket(wsUrl);
-        
-        const timeout = setTimeout(() => {
-            ws.close();
-            reject(new Error("Timeout"));
-        }, 30000);
-
-        ws.onopen = () => {
-            ws.send(configMsg);
-            ws.send(ttsMsg);
-        };
-
-        ws.onmessage = async (event) => {
-            if (typeof event.data === "string") {
-                if (event.data.includes("Path:turn.end")) {
-                    clearTimeout(timeout);
-                    ws.close();
-                }
-            } else {
-                // Handle binary data (Blob or ArrayBuffer)
-                let arrayBuffer;
-                if (event.data instanceof Blob) {
-                    arrayBuffer = await event.data.arrayBuffer();
-                } else {
-                    arrayBuffer = event.data;
-                }
-                
-                const data = new Uint8Array(arrayBuffer);
-                
-                // Skip the header part (find \r\n\r\n)
-                for (let i = 0; i < data.length - 3; i++) {
-                    if (data[i] === 13 && data[i+1] === 10 && data[i+2] === 13 && data[i+3] === 10) {
-                        if (i + 4 < data.length) {
-                            chunks.push(data.slice(i + 4));
-                        }
-                        break;
-                    }
-                }
-            }
-        };
-
-        ws.onerror = () => {
-            clearTimeout(timeout);
-            reject(new Error("WebSocket error"));
-        };
-
-        ws.onclose = () => {
-            clearTimeout(timeout);
-            if (chunks.length === 0) {
-                reject(new Error("No audio data"));
-                return;
-            }
-            
-            // Combine chunks
-            const total = chunks.reduce((sum, c) => sum + c.length, 0);
-            const result = new Uint8Array(total);
-            let offset = 0;
-            for (const chunk of chunks) {
-                result.set(chunk, offset);
-                offset += chunk.length;
-            }
-            resolve(result);
-        };
-    });
-}
-
-// Convert Uint8Array to base64
-function toBase64(bytes) {
-    let binary = "";
-    for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
-}
+import edge_tts from 'npm:edge-tts@1.0.3';
 
 Deno.serve(async (req) => {
     if (req.method === "OPTIONS") {
@@ -129,16 +26,40 @@ Deno.serve(async (req) => {
             return Response.json({ error: "No text provided" }, { status: 400 });
         }
 
-        console.log(`Generating TTS for ${text.length} chars with voice ${voice}`);
+        console.log(`Generating TTS: ${text.substring(0, 50)}...`);
 
-        const audio = await textToSpeechEdge(text, voice);
+        // Use edge-tts npm package
+        const tts = new edge_tts.Communicate(text, voice);
+        const chunks = [];
         
-        console.log(`Generated ${audio.length} bytes`);
+        for await (const chunk of tts.stream()) {
+            if (chunk.type === "audio") {
+                chunks.push(chunk.data);
+            }
+        }
+
+        // Combine all audio chunks
+        const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
+        const audioData = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+            audioData.set(new Uint8Array(chunk), offset);
+            offset += chunk.length;
+        }
+
+        // Convert to base64
+        let binary = "";
+        for (let i = 0; i < audioData.length; i++) {
+            binary += String.fromCharCode(audioData[i]);
+        }
+        const base64Audio = btoa(binary);
+
+        console.log(`Generated ${audioData.length} bytes`);
 
         return Response.json({
-            audio: toBase64(audio),
+            audio: base64Audio,
             format: "mp3",
-            bytes: audio.length
+            bytes: audioData.length
         });
 
     } catch (error) {
