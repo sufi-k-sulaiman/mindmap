@@ -137,10 +137,8 @@ export default function SearchPods() {
     const [volume, setVolume] = useState(80);
     const [isMuted, setIsMuted] = useState(false);
     const [currentCaption, setCurrentCaption] = useState('');
-    const [currentWordIndex, setCurrentWordIndex] = useState(-1);
     const [captionWords, setCaptionWords] = useState([]);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
-    const [voices, setVoices] = useState([]);
     const [selectedVoice, setSelectedVoice] = useState('en-US-AriaNeural');
     const [isDownloadingMp3, setIsDownloadingMp3] = useState(false);
     const [showRecommendations, setShowRecommendations] = useState(false);
@@ -796,25 +794,8 @@ export default function SearchPods() {
                                             {toBraille(currentCaption)}
                                         </p>
                                     ) : (
-                                        <p className="text-center leading-relaxed text-sm line-clamp-3">
-                                            {captionWords.length > 0 ? (
-                                                captionWords.map((word, idx) => (
-                                                    <span
-                                                        key={idx}
-                                                        className={`transition-all duration-150 ${
-                                                            idx === currentWordIndex 
-                                                                ? 'text-purple-600 font-bold bg-purple-100 px-1 py-0.5 rounded' 
-                                                                : idx < currentWordIndex 
-                                                                    ? 'text-gray-400' 
-                                                                    : 'text-gray-700'
-                                                        }`}
-                                                    >
-                                                        {word}{idx < captionWords.length - 1 ? ' ' : ''}
-                                                    </span>
-                                                ))
-                                            ) : (
-                                                <span className="text-gray-700">{currentCaption}</span>
-                                            )}
+                                        <p className="text-center leading-relaxed text-sm text-gray-700 line-clamp-3">
+                                            {currentCaption}
                                         </p>
                                     )}
                                 </div>
