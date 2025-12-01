@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { TrendingUp, TrendingDown, Loader2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 import { base44 } from '@/api/base44Client';
@@ -12,6 +12,19 @@ export default function MarketOverviewChart({ stocks }) {
     // Get unique sectors and industries from stocks
     const sectors = [...new Set(stocks.map(s => s.sector).filter(Boolean))].sort();
     const industries = [...new Set(stocks.map(s => s.industry).filter(Boolean))].sort();
+
+    // Create a map of stocks by sector/industry for tooltips
+    const stocksByGroup = useMemo(() => {
+        const map = {};
+        stocks.forEach(stock => {
+            const key = viewMode === 'sector' ? stock.sector : stock.industry;
+            if (key) {
+                if (!map[key]) map[key] = [];
+                map[key].push(stock);
+            }
+        });
+        return map;
+    }, [stocks, viewMode]);
 
     useEffect(() => {
         if (stocks.length > 0) {
@@ -106,8 +119,14 @@ Make the data realistic and varied - some should be up, some down.`,
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
             const data = payload[0].payload;
+            const groupStocks = stocksByGroup[data.fullName] || [];
+            // Sort by change and take top 5 movers
+            const topStocks = [...groupStocks]
+                .sort((a, b) => Math.abs(b.change || 0) - Math.abs(a.change || 0))
+                .slice(0, 5);
+            
             return (
-                <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-3 min-w-[180px]">
+                <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-3 min-w-[220px] max-w-[280px]">
                     <p className="font-semibold text-gray-900 text-sm">{data.fullName}</p>
                     <div className="flex items-center gap-2 mt-1">
                         {data.change >= 0 ? (
@@ -120,7 +139,23 @@ Make the data realistic and varied - some should be up, some down.`,
                         </span>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">{data.sentiment}</p>
-                    <p className="text-xs text-gray-400 mt-1">{data.stockCount} stocks</p>
+                    
+                    {/* Top Stocks in this group */}
+                    {topStocks.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-gray-100">
+                            <p className="text-xs font-medium text-gray-600 mb-1">Top Movers ({groupStocks.length} stocks)</p>
+                            <div className="space-y-1">
+                                {topStocks.map(stock => (
+                                    <div key={stock.ticker} className="flex items-center justify-between text-xs">
+                                        <span className="font-medium text-gray-800">{stock.ticker}</span>
+                                        <span className={stock.change >= 0 ? 'text-green-600' : 'text-red-600'}>
+                                            {stock.change >= 0 ? '+' : ''}{(stock.change || 0).toFixed(2)}%
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         }
@@ -177,34 +212,35 @@ Make the data realistic and varied - some should be up, some down.`,
 
             {/* Chart */}
             {loading ? (
-                <div className="flex items-center justify-center h-[200px]">
+                <div className="flex items-center justify-center h-[280px]">
                     <Loader2 className="w-6 h-6 text-purple-600 animate-spin" />
                 </div>
             ) : (
-                <div className="h-[200px]">
+                <div className="h-[280px]">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart 
                             data={chartData} 
-                            layout="vertical"
-                            margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+                            margin={{ top: 20, right: 20, left: 20, bottom: 60 }}
                         >
                             <XAxis 
-                                type="number" 
-                                domain={['dataMin - 0.5', 'dataMax + 0.5']}
-                                tickFormatter={(v) => `${v}%`}
-                                tick={{ fontSize: 10 }}
+                                type="category" 
+                                dataKey="name"
+                                tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
+                                height={60}
+                                interval={0}
                             />
                             <YAxis 
-                                type="category" 
-                                dataKey="name" 
-                                width={100}
+                                type="number"
+                                domain={['dataMin - 0.5', 'dataMax + 0.5']}
+                                tickFormatter={(v) => `${v > 0 ? '+' : ''}${v}%`}
                                 tick={{ fontSize: 10 }}
+                                label={{ value: 'Change (%)', angle: -90, position: 'insideLeft', fontSize: 11, fill: '#6b7280' }}
                             />
                             <Tooltip content={<CustomTooltip />} />
-                            <ReferenceLine x={0} stroke="#9ca3af" strokeDasharray="3 3" />
+                            <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
                             <Bar 
                                 dataKey="change" 
-                                radius={[0, 4, 4, 0]}
+                                radius={[4, 4, 0, 0]}
                                 cursor="pointer"
                                 onClick={(data) => setSelectedItem(data.fullName)}
                             >
