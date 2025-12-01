@@ -169,57 +169,25 @@ export default function SearchPods() {
         return () => clearInterval(interval);
     }, []);
 
-    // Load voices - including mobile browser voices
+    // ElevenLabs voice options
     useEffect(() => {
-        const loadVoices = () => {
-            const availableVoices = window.speechSynthesis?.getVoices() || [];
-            
-            // On mobile, Google voices may not be available, so include all English voices
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            
-            let filteredVoices;
-            if (isMobile) {
-                // On mobile, get all English voices
-                filteredVoices = availableVoices.filter(v => v.lang.startsWith('en'));
-            } else {
-                // On desktop, prefer Google voices but fall back to all English if none
-                const googleVoices = availableVoices.filter(v => 
-                    v.name.toLowerCase().includes('google') && v.lang.startsWith('en')
-                );
-                filteredVoices = googleVoices.length > 0 
-                    ? googleVoices 
-                    : availableVoices.filter(v => v.lang.startsWith('en'));
-            }
-            
-            // Sort alphabetically
-            filteredVoices.sort((a, b) => a.name.localeCompare(b.name));
-            
-            setVoices(filteredVoices);
-            
-            // Always set the default voice when voices load
-            if (filteredVoices.length > 0 && !selectedVoice) {
-                const preferred = filteredVoices.find(v => v.name === 'Google UK English Female')
-                    || filteredVoices.find(v => v.name.toLowerCase().includes('female'))
-                    || filteredVoices.find(v => v.name.toLowerCase().includes('samantha'))
-                    || filteredVoices[0];
-                setSelectedVoice(preferred);
-            }
-        };
-        
-        if ('speechSynthesis' in window) {
-            // Load voices immediately
-            loadVoices();
-            // Also listen for async voice loading
-            window.speechSynthesis.onvoiceschanged = loadVoices;
-            
-            // Force reload voices after delays (some browsers need this, especially mobile)
-            setTimeout(loadVoices, 100);
-            setTimeout(loadVoices, 500);
-            setTimeout(loadVoices, 1000);
-        }
-        
+        // Set up simplified voice options for ElevenLabs
+        const elevenLabsVoices = [
+            { name: 'UK Female', voice_id: 'EXAVITQu4vr4xnSDxMaL' }, // Sarah
+            { name: 'UK Male', voice_id: 'TX3LPaxmHKxFdv7VOQHJ' }, // Liam
+            { name: 'US', voice_id: '21m00Tcm4TlvDq8ikWAM' } // Rachel
+        ];
+        setVoices(elevenLabsVoices);
+        setSelectedVoice(elevenLabsVoices[0]);
+
         return () => {
-            window.speechSynthesis?.cancel();
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+            if (audioUrlRef.current) {
+                URL.revokeObjectURL(audioUrlRef.current);
+            }
             if (timerRef.current) clearInterval(timerRef.current);
         };
     }, []);
