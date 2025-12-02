@@ -129,15 +129,98 @@ export default function SearchPage() {
         }
     }, []);
 
+    const fetchNewsResults = async (searchQuery) => {
+        setTabResults(prev => ({ ...prev, news: { loading: true, data: [] } }));
+        try {
+            const response = await base44.functions.invoke('fetchNews', {
+                query: searchQuery,
+                limit: 12
+            });
+            setTabResults(prev => ({ ...prev, news: { loading: false, data: response.data?.articles || [] } }));
+        } catch (error) {
+            console.error('News fetch failed:', error);
+            setTabResults(prev => ({ ...prev, news: { loading: false, data: [] } }));
+        }
+    };
+
+    const fetchIntelligenceResults = async (searchQuery) => {
+        setTabResults(prev => ({ ...prev, intelligence: { loading: true, data: null } }));
+        try {
+            const response = await base44.integrations.Core.InvokeLLM({
+                prompt: `Provide detailed intelligence about: "${searchQuery}". Include key facts, statistics, and insights.`,
+                add_context_from_internet: true,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        title: { type: "string" },
+                        overview: { type: "string" },
+                        keyFacts: { type: "array", items: { type: "string" } },
+                        statistics: { type: "array", items: { type: "object", properties: { label: { type: "string" }, value: { type: "string" } } } },
+                        relatedTopics: { type: "array", items: { type: "string" } }
+                    }
+                }
+            });
+            setTabResults(prev => ({ ...prev, intelligence: { loading: false, data: response } }));
+        } catch (error) {
+            console.error('Intelligence fetch failed:', error);
+            setTabResults(prev => ({ ...prev, intelligence: { loading: false, data: null } }));
+        }
+    };
+
+    const fetchLearningResults = async (searchQuery) => {
+        setTabResults(prev => ({ ...prev, learning: { loading: true, data: [] } }));
+        try {
+            const response = await base44.integrations.Core.InvokeLLM({
+                prompt: `Generate 6 educational learning modules about "${searchQuery}". Each should be a course or lesson topic.`,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        modules: { type: "array", items: { type: "object", properties: { title: { type: "string" }, description: { type: "string" }, difficulty: { type: "string" }, duration: { type: "string" } } } }
+                    }
+                }
+            });
+            setTabResults(prev => ({ ...prev, learning: { loading: false, data: response?.modules || [] } }));
+        } catch (error) {
+            console.error('Learning fetch failed:', error);
+            setTabResults(prev => ({ ...prev, learning: { loading: false, data: [] } }));
+        }
+    };
+
+    const fetchPodsResults = async (searchQuery) => {
+        setTabResults(prev => ({ ...prev, pods: { loading: true, data: null } }));
+        try {
+            const response = await base44.integrations.Core.InvokeLLM({
+                prompt: `Generate 4 podcast episode ideas about "${searchQuery}". Include title, description, and estimated duration.`,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        episodes: { type: "array", items: { type: "object", properties: { title: { type: "string" }, description: { type: "string" }, duration: { type: "string" } } } }
+                    }
+                }
+            });
+            setTabResults(prev => ({ ...prev, pods: { loading: false, data: response } }));
+        } catch (error) {
+            console.error('Pods fetch failed:', error);
+            setTabResults(prev => ({ ...prev, pods: { loading: false, data: null } }));
+        }
+    };
+
     const performSearch = async (searchQuery) => {
         if (!searchQuery.trim()) return;
         
         setLoading(true);
         setSearchedQuery(searchQuery);
+        setActiveTab('all');
         
         // Search in-app content first
         const appMatches = searchInAppContent(searchQuery);
         setInAppResults(appMatches);
+        
+        // Fetch all tab results in parallel
+        fetchNewsResults(searchQuery);
+        fetchIntelligenceResults(searchQuery);
+        fetchLearningResults(searchQuery);
+        fetchPodsResults(searchQuery);
         
         try {
             const response = await base44.integrations.Core.InvokeLLM({
