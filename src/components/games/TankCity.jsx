@@ -672,6 +672,7 @@ export default function TankCity({ onExit }) {
                         if (brick.health <= 0 && bullet.friendly) {
                             state.score += 100;
                             state.wordsDestroyed++;
+                            console.log('Word destroyed:', state.wordsDestroyed, '/', state.totalWords);
                             setScore(state.score);
                             setWordsDestroyed(state.wordsDestroyed);
                             
@@ -713,10 +714,9 @@ export default function TankCity({ onExit }) {
                             state.enemies.splice(i, 1);
                             state.score += 200;
                             state.enemiesLeft--;
+                            console.log('Enemy killed. Left:', state.enemiesLeft, 'Alive:', state.enemies.length, 'ToSpawn:', state.enemiesTotal);
                             setScore(state.score);
                             setEnemiesLeft(state.enemiesLeft);
-
-                            // Level complete check is done in main game loop
                             return false;
                         }
                     }
@@ -1149,7 +1149,22 @@ export default function TankCity({ onExit }) {
             // All words destroyed AND all enemies killed (none left to spawn and none alive)
             const allWordsDestroyed = state.wordsDestroyed >= state.totalWords;
             const allEnemiesKilled = state.enemiesTotal <= 0 && state.enemies.length === 0;
+            
+            // Debug logging
+            if (allWordsDestroyed || allEnemiesKilled) {
+                console.log('Level check:', { 
+                    wordsDestroyed: state.wordsDestroyed, 
+                    totalWords: state.totalWords, 
+                    enemiesTotal: state.enemiesTotal, 
+                    enemiesAlive: state.enemies.length,
+                    allWordsDestroyed,
+                    allEnemiesKilled,
+                    levelComplete: state.levelComplete
+                });
+            }
+            
             if (!state.levelComplete && allWordsDestroyed && allEnemiesKilled) {
+                console.log('LEVEL COMPLETE TRIGGERED!');
                 state.levelComplete = true;
             }
             
