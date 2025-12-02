@@ -1044,7 +1044,7 @@ export default function TankCity({ onExit }) {
                 ctx.fillText('Click to take the quiz!', canvas.width/2, canvas.height/2 + 80);
 
                 if (state.score > highScore) {
-                    localStorage.setItem('tankCityHighScore', state.score.toString());
+                    localStorage.setItem('cosmicTankHighScore', state.score.toString());
                     setHighScore(state.score);
                 }
 
