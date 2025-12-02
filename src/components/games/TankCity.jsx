@@ -1,54 +1,58 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw, Heart, Target, Trophy } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { 
+    Play, Pause, RotateCcw, Heart, Target, Trophy, X, Loader2, Search,
+    Maximize2, Minimize2, Sparkles, Globe, Cpu, Atom, Leaf, Brain, Lightbulb, TrendingUp
+} from 'lucide-react';
+import { LOGO_URL } from '@/components/NavigationConfig';
 
 // Tank images
 const PLAYER_TANK = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/dca90a2df_tank1.png';
 const ENEMY_TANK_1 = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/abb6f137a_tank2.png';
 const ENEMY_TANK_2 = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/7a4edc67f_tank3.png';
 
-const TILE = 32;
-const MAP_W = 13;
-const MAP_H = 13;
-const CANVAS_W = MAP_W * TILE;
-const CANVAS_H = MAP_H * TILE;
+const TILE = 40;
 
 // Tile types
 const TILE_EMPTY = 0;
-const TILE_BRICK = 1;
+const TILE_WORD = 1;
 const TILE_STEEL = 2;
-const TILE_FOREST = 3;
 const TILE_BASE = 5;
 const TILE_BASE_D = 6;
 
-// Stage 1 map
-const INITIAL_MAP = [
-    0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,1,1,0,1,1,0,1,1,0,1,1,0,
-    0,1,1,0,1,1,0,1,1,0,1,1,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,1,1,0,2,0,1,1,0,0,0,
-    0,3,0,1,1,0,2,0,1,1,0,3,0,
-    0,3,0,0,0,0,0,0,0,0,0,3,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,
-    1,1,0,0,0,0,0,0,0,0,0,1,1,
-    1,1,0,0,0,0,0,0,0,0,0,1,1,
-    0,0,0,0,1,1,0,1,1,0,0,0,0,
-    0,0,0,0,1,0,5,0,1,0,0,0,0,
-    0,0,0,0,1,0,5,0,1,0,0,0,0,
+const TABS = [
+    { id: 'trending', label: 'Trending', color: 'from-purple-600 to-purple-700' },
+    { id: 'education', label: 'Education', color: 'from-blue-600 to-blue-700' },
+    { id: 'planet', label: 'Planet', color: 'from-green-600 to-green-700' },
+    { id: 'sports', label: 'Sports', color: 'from-orange-600 to-orange-700' },
+    { id: 'finance', label: 'Finance', color: 'from-emerald-600 to-emerald-700' },
+    { id: 'health', label: 'Health', color: 'from-rose-600 to-rose-700' },
 ];
 
-export default function TankCity() {
+export default function TankCity({ onExit }) {
     const canvasRef = useRef(null);
     const gameRef = useRef(null);
     const keysRef = useRef({});
     const imagesRef = useRef({});
     
-    const [gameState, setGameState] = useState('menu'); // menu, playing, paused, gameover, victory
+    const [screen, setScreen] = useState('title');
+    const [loading, setLoading] = useState(false);
+    const [fullscreen, setFullscreen] = useState(false);
+    const [activeTab, setActiveTab] = useState('trending');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [generatedTopics, setGeneratedTopics] = useState({});
+    const [loadingTopics, setLoadingTopics] = useState(false);
+    const [currentTopic, setCurrentTopic] = useState(null);
+    const [wordData, setWordData] = useState([]);
+    
     const [score, setScore] = useState(0);
     const [lives, setLives] = useState(3);
-    const [stage, setStage] = useState(1);
-    const [enemiesLeft, setEnemiesLeft] = useState(10);
+    const [enemiesLeft, setEnemiesLeft] = useState(5);
+    const [wordsDestroyed, setWordsDestroyed] = useState(0);
+    const [totalWords, setTotalWords] = useState(0);
     const [highScore, setHighScore] = useState(() => {
         const saved = localStorage.getItem('tankCityHighScore');
         return saved ? parseInt(saved) : 0;
@@ -74,277 +78,544 @@ export default function TankCity() {
         });
     }, []);
 
-    // Game class
-    class Game {
-        constructor(canvas, images) {
-            this.canvas = canvas;
-            this.ctx = canvas.getContext('2d');
-            this.images = images;
-            this.running = false;
-            this.map = [...INITIAL_MAP];
-            this.player = null;
-            this.enemies = [];
-            this.bullets = [];
-            this.particles = [];
-            this.powerUps = [];
-            this.score = 0;
-            this.lives = 3;
-            this.stage = 1;
-            this.enemiesLeft = 10;
-            this.enemiesTotal = 10;
-            this.spawnTimer = 0;
-            this.lastTime = 0;
-            this.init();
-        }
+    // Load topics for tab
+    useEffect(() => {
+        loadTabTopics('trending');
+    }, []);
 
-        init() {
-            this.map = [...INITIAL_MAP];
-            this.player = {
-                x: 6 * TILE,
-                y: 10 * TILE,
-                dir: 0, // 0=up, 1=right, 2=down, 3=left
-                speed: 3,
-                shootTimer: 0,
-                power: 1,
+    const loadTabTopics = async (tabId) => {
+        if (generatedTopics[tabId]?.length) return;
+        setLoadingTopics(true);
+        try {
+            const prompts = {
+                trending: 'Generate 9 trending topics people should learn about. Include technology, AI, current events.',
+                education: 'Generate 9 educational topics across science, history, mathematics, literature.',
+                planet: 'Generate 9 environmental topics including climate, sustainability, conservation.',
+                sports: 'Generate 9 sports topics including athletics, team sports, fitness.',
+                finance: 'Generate 9 finance topics including markets, economics, investing.',
+                health: 'Generate 9 health topics including medicine, nutrition, wellness.'
             };
-            this.enemies = [];
-            this.bullets = [];
-            this.particles = [];
-            this.powerUps = [];
-            this.spawnEnemy();
-            this.spawnEnemy();
+
+            const result = await base44.integrations.Core.InvokeLLM({
+                prompt: `${prompts[tabId]} Return as JSON: { "topics": [{ "id": "topic-id", "label": "Topic Name", "description": "Brief description" }] }`,
+                add_context_from_internet: tabId === 'trending',
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        topics: { 
+                            type: "array", 
+                            items: { 
+                                type: "object", 
+                                properties: { 
+                                    id: { type: "string" }, 
+                                    label: { type: "string" }, 
+                                    description: { type: "string" } 
+                                } 
+                            } 
+                        }
+                    }
+                }
+            });
+            setGeneratedTopics(prev => ({ ...prev, [tabId]: result?.topics || [] }));
+        } catch (error) {
+            console.error('Failed to load topics:', error);
+        } finally {
+            setLoadingTopics(false);
+        }
+    };
+
+    const handleTabClick = (tabId) => {
+        setActiveTab(tabId);
+        loadTabTopics(tabId);
+    };
+
+    const generateWordData = async (topic) => {
+        setLoading(true);
+        setScreen('loading');
+        try {
+            const result = await base44.integrations.Core.InvokeLLM({
+                prompt: `Generate vocabulary data for: "${topic}". Return 15 terms. Format: { "words": [{ "primary": "term", "definition": "short definition" }] }`,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        words: { type: "array", items: { type: "object", properties: { primary: { type: "string" }, definition: { type: "string" } } } }
+                    }
+                }
+            });
+            const words = result?.words || [];
+            setWordData(words);
+            setTotalWords(words.length);
+            setCurrentTopic(topic);
+            setScreen('game');
+        } catch (error) {
+            console.error('Failed to generate words:', error);
+            setScreen('title');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleStartGame = (topic) => {
+        if (topic === 'custom') {
+            if (!searchQuery.trim()) return;
+            generateWordData(searchQuery);
+        } else {
+            generateWordData(topic.label);
+        }
+    };
+
+    // Game logic
+    useEffect(() => {
+        if (screen !== 'game' || !canvasRef.current || wordData.length === 0) return;
+
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
+        let gameRunning = true;
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const MAP_W = Math.floor(canvas.width / TILE);
+        const MAP_H = Math.floor(canvas.height / TILE);
+
+        // Generate map with word bricks
+        const map = [];
+        const wordBricks = [];
+        const shuffledWords = [...wordData].sort(() => Math.random() - 0.5);
+        
+        for (let y = 0; y < MAP_H; y++) {
+            for (let x = 0; x < MAP_W; x++) {
+                map[y * MAP_W + x] = TILE_EMPTY;
+            }
         }
 
-        spawnEnemy() {
-            if (this.enemiesTotal <= 0) return;
-            const spawnPoints = [[0, 0], [6 * TILE, 0], [12 * TILE, 0]];
+        // Place word bricks in rows
+        let wordIndex = 0;
+        for (let row = 2; row < MAP_H - 4; row += 3) {
+            for (let col = 2; col < MAP_W - 2 && wordIndex < shuffledWords.length; col += 4) {
+                if (Math.random() > 0.3) {
+                    const word = shuffledWords[wordIndex++];
+                    wordBricks.push({
+                        x: col * TILE,
+                        y: row * TILE,
+                        width: Math.max(TILE * 2, word.primary.length * 12 + 20),
+                        height: TILE,
+                        word: word.primary,
+                        definition: word.definition,
+                        health: 1,
+                        color: ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899'][Math.floor(Math.random() * 6)]
+                    });
+                }
+            }
+        }
+
+        // Place base at bottom center
+        const baseTileX = Math.floor(MAP_W / 2);
+        const baseTileY = MAP_H - 2;
+
+        const state = {
+            player: {
+                x: canvas.width / 2 - TILE / 2,
+                y: canvas.height - TILE * 3,
+                dir: 0,
+                speed: 4,
+                shootTimer: 0,
+            },
+            enemies: [],
+            bullets: [],
+            particles: [],
+            floatingTexts: [],
+            score: 0,
+            lives: 3,
+            enemiesLeft: 5,
+            enemiesTotal: 5,
+            wordsDestroyed: 0,
+            totalWords: wordBricks.length,
+            spawnTimer: 0,
+            gameOver: false,
+            victory: false,
+            paused: false,
+            baseDestroyed: false,
+        };
+
+        setTotalWords(wordBricks.length);
+
+        // Spawn initial enemies
+        const spawnEnemy = () => {
+            if (state.enemiesTotal <= 0) return;
+            const spawnPoints = [
+                [TILE * 2, TILE],
+                [canvas.width / 2 - TILE / 2, TILE],
+                [canvas.width - TILE * 3, TILE]
+            ];
             const [x, y] = spawnPoints[Math.floor(Math.random() * 3)];
             
-            // Check if spawn point is clear
-            const blocked = this.enemies.some(e => 
-                Math.abs(e.x - x) < TILE && Math.abs(e.y - y) < TILE
+            const blocked = state.enemies.some(e => 
+                Math.abs(e.x - x) < TILE * 2 && Math.abs(e.y - y) < TILE * 2
             );
             if (blocked) return;
 
-            this.enemies.push({
+            state.enemies.push({
                 x, y,
-                dir: 2,
-                speed: 1 + Math.random() * 0.5,
+                dir: 2, // Start facing down
+                targetDir: 2,
+                speed: 1.5 + Math.random(),
                 shootTimer: 60 + Math.random() * 60,
                 type: Math.random() > 0.5 ? 1 : 2,
+                moveTimer: 0,
                 health: 1,
             });
-            this.enemiesTotal--;
-        }
+            state.enemiesTotal--;
+        };
 
-        spawnParticles(x, y, color = '#ff6600') {
-            for (let i = 0; i < 10; i++) {
-                this.particles.push({
+        spawnEnemy();
+        spawnEnemy();
+
+        const spawnParticles = (x, y, color = '#ff6600', count = 15) => {
+            for (let i = 0; i < count; i++) {
+                state.particles.push({
                     x, y,
-                    vx: (Math.random() - 0.5) * 8,
-                    vy: (Math.random() - 0.5) * 8,
-                    life: 20,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 30,
+                    maxLife: 30,
                     color,
+                    size: Math.random() * 4 + 2,
                 });
             }
+        };
+
+        const addFloatingText = (x, y, text, color, bonus) => {
+            state.floatingTexts.push({
+                x, y,
+                vy: -1,
+                text,
+                bonus,
+                life: 120,
+                maxLife: 120,
+                color,
+            });
+        };
+
+        const keys = keysRef.current;
+        const handleKeyDown = (e) => {
+            keys[e.key.toLowerCase()] = true;
+            keys[e.key] = true;
+            if (e.code === 'Space') e.preventDefault();
+            if (e.key.toLowerCase() === 'p') state.paused = !state.paused;
+            if (e.key === 'Escape' && onExit) onExit();
+        };
+        const handleKeyUp = (e) => {
+            keys[e.key.toLowerCase()] = false;
+            keys[e.key] = false;
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        // Mobile controls
+        let touchStartX = null;
+        let touchStartY = null;
+        let autoShootInterval = null;
+        const isMobile = 'ontouchstart' in window;
+
+        const handleTouchStart = (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            if (!autoShootInterval) {
+                autoShootInterval = setInterval(() => {
+                    if (!state.paused && !state.gameOver) shoot(state.player, true);
+                }, 250);
+            }
+        };
+
+        const handleTouchMove = (e) => {
+            e.preventDefault();
+            if (!touchStartX) return;
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = touch.clientY - touchStartY;
+            
+            // Determine direction based on touch movement
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 10) state.player.dir = 1;
+                else if (deltaX < -10) state.player.dir = 3;
+            } else {
+                if (deltaY > 10) state.player.dir = 2;
+                else if (deltaY < -10) state.player.dir = 0;
+            }
+            
+            state.player.x += deltaX * 0.3;
+            state.player.y += deltaY * 0.3;
+            state.player.x = Math.max(0, Math.min(canvas.width - TILE, state.player.x));
+            state.player.y = Math.max(0, Math.min(canvas.height - TILE, state.player.y));
+            
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        };
+
+        const handleTouchEnd = () => {
+            touchStartX = null;
+            if (autoShootInterval) {
+                clearInterval(autoShootInterval);
+                autoShootInterval = null;
+            }
+        };
+
+        if (isMobile) {
+            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+            canvas.addEventListener('touchend', handleTouchEnd);
         }
 
-        canMove(x, y, entity) {
-            const left = Math.floor(x / TILE);
-            const top = Math.floor(y / TILE);
-            const right = Math.floor((x + TILE - 1) / TILE);
-            const bottom = Math.floor((y + TILE - 1) / TILE);
+        const shoot = (tank, friendly) => {
+            let bx = tank.x + TILE / 2;
+            let by = tank.y + TILE / 2;
+            const offset = TILE / 2 + 5;
 
-            for (let ty = top; ty <= bottom; ty++) {
-                for (let tx = left; tx <= right; tx++) {
-                    if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return false;
-                    const tile = this.map[ty * MAP_W + tx];
-                    if (tile === TILE_BRICK || tile === TILE_STEEL || tile === TILE_BASE || tile === TILE_BASE_D) {
-                        return false;
-                    }
+            if (tank.dir === 0) by = tank.y - 5;
+            else if (tank.dir === 1) bx = tank.x + TILE + 5;
+            else if (tank.dir === 2) by = tank.y + TILE + 5;
+            else if (tank.dir === 3) bx = tank.x - 5;
+
+            state.bullets.push({
+                x: bx,
+                y: by,
+                dir: tank.dir,
+                speed: 10,
+                friendly,
+            });
+        };
+
+        const canMove = (x, y, size, entity) => {
+            if (x < 0 || y < 0 || x + size > canvas.width || y + size > canvas.height) return false;
+            
+            // Check word brick collision
+            for (const brick of wordBricks) {
+                if (brick.health <= 0) continue;
+                if (x < brick.x + brick.width && x + size > brick.x &&
+                    y < brick.y + brick.height && y + size > brick.y) {
+                    return false;
                 }
             }
-
-            // Check collision with other tanks
-            const others = entity === this.player ? this.enemies : [this.player, ...this.enemies.filter(e => e !== entity)];
+            
+            // Check base collision
+            const baseX = (baseTileX - 1) * TILE;
+            const baseY = (baseTileY - 1) * TILE;
+            if (x < baseX + TILE * 2 && x + size > baseX &&
+                y < baseY + TILE * 2 && y + size > baseY) {
+                return false;
+            }
+            
+            // Check tank collision
+            const others = entity === state.player ? state.enemies : [state.player, ...state.enemies.filter(e => e !== entity)];
             for (const o of others) {
                 if (!o) continue;
                 if (Math.abs(o.x - x) < TILE - 4 && Math.abs(o.y - y) < TILE - 4) {
                     return false;
                 }
             }
-            return true;
-        }
-
-        updatePlayer(keys) {
-            if (!this.player) return;
             
-            if (this.player.shootTimer > 0) this.player.shootTimer--;
+            return true;
+        };
 
-            let newX = this.player.x;
-            let newY = this.player.y;
+        const updatePlayer = () => {
+            if (state.player.shootTimer > 0) state.player.shootTimer--;
+
+            let newX = state.player.x;
+            let newY = state.player.y;
             let moved = false;
 
-            if (keys.ArrowUp || keys.w || keys.W) {
-                this.player.dir = 0;
-                newY -= this.player.speed;
+            if (keys.arrowup || keys.w) {
+                state.player.dir = 0;
+                newY -= state.player.speed;
                 moved = true;
-            } else if (keys.ArrowRight || keys.d || keys.D) {
-                this.player.dir = 1;
-                newX += this.player.speed;
+            } else if (keys.arrowright || keys.d) {
+                state.player.dir = 1;
+                newX += state.player.speed;
                 moved = true;
-            } else if (keys.ArrowDown || keys.s || keys.S) {
-                this.player.dir = 2;
-                newY += this.player.speed;
+            } else if (keys.arrowdown || keys.s) {
+                state.player.dir = 2;
+                newY += state.player.speed;
                 moved = true;
-            } else if (keys.ArrowLeft || keys.a || keys.A) {
-                this.player.dir = 3;
-                newX -= this.player.speed;
+            } else if (keys.arrowleft || keys.a) {
+                state.player.dir = 3;
+                newX -= state.player.speed;
                 moved = true;
             }
 
-            if (moved && this.canMove(newX, newY, this.player)) {
-                this.player.x = Math.max(0, Math.min(CANVAS_W - TILE, newX));
-                this.player.y = Math.max(0, Math.min(CANVAS_H - TILE, newY));
+            if (moved && canMove(newX, newY, TILE, state.player)) {
+                state.player.x = newX;
+                state.player.y = newY;
             }
 
-            if ((keys[' '] || keys.Space) && this.player.shootTimer === 0) {
-                this.shoot(this.player, true);
-                this.player.shootTimer = this.player.power === 2 ? 10 : 20;
+            if ((keys[' '] || keys.space) && state.player.shootTimer === 0) {
+                shoot(state.player, true);
+                state.player.shootTimer = 15;
             }
-        }
+        };
 
-        updateEnemies() {
-            this.spawnTimer++;
-            if (this.spawnTimer > 180 && this.enemies.length < 4 && this.enemiesTotal > 0) {
-                this.spawnEnemy();
-                this.spawnTimer = 0;
+        const updateEnemies = () => {
+            state.spawnTimer++;
+            if (state.spawnTimer > 300 && state.enemies.length < 3 && state.enemiesTotal > 0) {
+                spawnEnemy();
+                state.spawnTimer = 0;
             }
 
-            for (const enemy of this.enemies) {
+            for (const enemy of state.enemies) {
                 enemy.shootTimer--;
+                enemy.moveTimer++;
 
-                // Random direction change or shoot
-                if (Math.random() < 0.02 || enemy.shootTimer <= 0) {
-                    enemy.dir = Math.floor(Math.random() * 4);
-                    if (Math.random() < 0.3) {
-                        this.shoot(enemy, false);
+                // AI: Change direction periodically or when blocked
+                // Enemies move forward, left, right but NOT backwards (opposite of current dir)
+                if (enemy.moveTimer > 60 + Math.random() * 60) {
+                    const currentDir = enemy.dir;
+                    const oppositeDir = (currentDir + 2) % 4;
+                    
+                    // Possible directions: current, left turn, right turn (not opposite)
+                    const possibleDirs = [0, 1, 2, 3].filter(d => d !== oppositeDir);
+                    
+                    // Bias towards player direction
+                    const dx = state.player.x - enemy.x;
+                    const dy = state.player.y - enemy.y;
+                    let preferredDir = currentDir;
+                    
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        preferredDir = dx > 0 ? 1 : 3;
+                    } else {
+                        preferredDir = dy > 0 ? 2 : 0;
                     }
-                    enemy.shootTimer = 60 + Math.random() * 60;
+                    
+                    // Choose direction with preference
+                    if (possibleDirs.includes(preferredDir) && Math.random() > 0.3) {
+                        enemy.targetDir = preferredDir;
+                    } else {
+                        enemy.targetDir = possibleDirs[Math.floor(Math.random() * possibleDirs.length)];
+                    }
+                    
+                    enemy.moveTimer = 0;
                 }
 
-                // Move
+                // Smoothly rotate to target direction
+                enemy.dir = enemy.targetDir;
+
+                // Shoot occasionally
+                if (enemy.shootTimer <= 0) {
+                    shoot(enemy, false);
+                    enemy.shootTimer = 80 + Math.random() * 60;
+                }
+
+                // Move in current direction
                 let dx = 0, dy = 0;
                 if (enemy.dir === 0) dy = -enemy.speed;
-                if (enemy.dir === 1) dx = enemy.speed;
-                if (enemy.dir === 2) dy = enemy.speed;
-                if (enemy.dir === 3) dx = -enemy.speed;
+                else if (enemy.dir === 1) dx = enemy.speed;
+                else if (enemy.dir === 2) dy = enemy.speed;
+                else if (enemy.dir === 3) dx = -enemy.speed;
 
                 const newX = enemy.x + dx;
                 const newY = enemy.y + dy;
 
-                if (this.canMove(newX, newY, enemy)) {
-                    enemy.x = Math.max(0, Math.min(CANVAS_W - TILE, newX));
-                    enemy.y = Math.max(0, Math.min(CANVAS_H - TILE, newY));
+                if (canMove(newX, newY, TILE, enemy)) {
+                    enemy.x = newX;
+                    enemy.y = newY;
                 } else {
-                    enemy.dir = Math.floor(Math.random() * 4);
+                    // Change direction when blocked (but not opposite)
+                    const oppositeDir = (enemy.dir + 2) % 4;
+                    const possibleDirs = [0, 1, 2, 3].filter(d => d !== oppositeDir && d !== enemy.dir);
+                    enemy.targetDir = possibleDirs[Math.floor(Math.random() * possibleDirs.length)];
+                    enemy.moveTimer = 0;
                 }
             }
-        }
+        };
 
-        shoot(tank, friendly) {
-            let bx = tank.x + TILE / 2 - 3;
-            let by = tank.y + TILE / 2 - 3;
-
-            if (tank.dir === 0) by = tank.y - 6;
-            if (tank.dir === 1) bx = tank.x + TILE;
-            if (tank.dir === 2) by = tank.y + TILE;
-            if (tank.dir === 3) bx = tank.x - 6;
-
-            this.bullets.push({
-                x: bx,
-                y: by,
-                dir: tank.dir,
-                speed: 8,
-                friendly,
-            });
-        }
-
-        updateBullets() {
-            this.bullets = this.bullets.filter(bullet => {
-                // Move
+        const updateBullets = () => {
+            state.bullets = state.bullets.filter(bullet => {
                 if (bullet.dir === 0) bullet.y -= bullet.speed;
-                if (bullet.dir === 1) bullet.x += bullet.speed;
-                if (bullet.dir === 2) bullet.y += bullet.speed;
-                if (bullet.dir === 3) bullet.x -= bullet.speed;
+                else if (bullet.dir === 1) bullet.x += bullet.speed;
+                else if (bullet.dir === 2) bullet.y += bullet.speed;
+                else if (bullet.dir === 3) bullet.x -= bullet.speed;
 
-                // Out of bounds
-                if (bullet.x < 0 || bullet.x > CANVAS_W || bullet.y < 0 || bullet.y > CANVAS_H) {
+                if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
                     return false;
                 }
 
-                // Tile collision
-                const tx = Math.floor(bullet.x / TILE);
-                const ty = Math.floor(bullet.y / TILE);
-                if (tx >= 0 && ty >= 0 && tx < MAP_W && ty < MAP_H) {
-                    const tile = this.map[ty * MAP_W + tx];
-                    if (tile === TILE_BRICK) {
-                        this.map[ty * MAP_W + tx] = TILE_EMPTY;
-                        this.spawnParticles(bullet.x, bullet.y, '#aa6633');
+                // Check word brick collision
+                for (let i = wordBricks.length - 1; i >= 0; i--) {
+                    const brick = wordBricks[i];
+                    if (brick.health <= 0) continue;
+                    
+                    if (bullet.x > brick.x && bullet.x < brick.x + brick.width &&
+                        bullet.y > brick.y && bullet.y < brick.y + brick.height) {
+                        brick.health--;
+                        spawnParticles(bullet.x, bullet.y, brick.color);
+                        
+                        if (brick.health <= 0 && bullet.friendly) {
+                            state.score += 100;
+                            state.wordsDestroyed++;
+                            setScore(state.score);
+                            setWordsDestroyed(state.wordsDestroyed);
+                            addFloatingText(brick.x + brick.width/2, brick.y, brick.word.toUpperCase(), brick.color, 100);
+                            
+                            // Show definition
+                            if (brick.definition) {
+                                setTimeout(() => {
+                                    addFloatingText(brick.x + brick.width/2, brick.y + 30, brick.definition.substring(0, 40), '#a855f7', 0);
+                                }, 200);
+                            }
+                        }
                         return false;
                     }
-                    if (tile === TILE_STEEL) {
-                        this.spawnParticles(bullet.x, bullet.y, '#888888');
-                        return false;
-                    }
-                    if (tile === TILE_BASE) {
-                        this.map[ty * MAP_W + tx] = TILE_BASE_D;
-                        this.spawnParticles(bullet.x, bullet.y, '#ffff00');
-                        this.gameOver();
-                        return false;
-                    }
+                }
+
+                // Check base collision
+                const baseX = (baseTileX - 1) * TILE;
+                const baseY = (baseTileY - 1) * TILE;
+                if (bullet.x > baseX && bullet.x < baseX + TILE * 2 &&
+                    bullet.y > baseY && bullet.y < baseY + TILE * 2) {
+                    state.baseDestroyed = true;
+                    spawnParticles(baseX + TILE, baseY + TILE, '#ffd700', 50);
+                    state.gameOver = true;
+                    return false;
                 }
 
                 // Tank collision
                 if (bullet.friendly) {
-                    for (let i = this.enemies.length - 1; i >= 0; i--) {
-                        const enemy = this.enemies[i];
+                    for (let i = state.enemies.length - 1; i >= 0; i--) {
+                        const enemy = state.enemies[i];
                         if (Math.abs(enemy.x + TILE/2 - bullet.x) < TILE/2 + 4 && 
                             Math.abs(enemy.y + TILE/2 - bullet.y) < TILE/2 + 4) {
-                            this.spawnParticles(enemy.x + TILE/2, enemy.y + TILE/2);
-                            this.enemies.splice(i, 1);
-                            this.score += 100;
-                            this.enemiesLeft--;
-                            setScore(this.score);
-                            setEnemiesLeft(this.enemiesLeft);
+                            spawnParticles(enemy.x + TILE/2, enemy.y + TILE/2, '#ff4444', 20);
+                            state.enemies.splice(i, 1);
+                            state.score += 200;
+                            state.enemiesLeft--;
+                            setScore(state.score);
+                            setEnemiesLeft(state.enemiesLeft);
 
-                            if (Math.random() < 0.15) {
-                                this.powerUps.push({
-                                    x: enemy.x,
-                                    y: enemy.y,
-                                    type: Math.random() > 0.5 ? 'star' : 'life',
-                                });
-                            }
-
-                            if (this.enemiesLeft <= 0 && this.enemies.length === 0) {
-                                this.victory();
+                            if (state.enemiesLeft <= 0 && state.enemies.length === 0) {
+                                state.victory = true;
                             }
                             return false;
                         }
                     }
                 } else {
-                    if (this.player && 
-                        Math.abs(this.player.x + TILE/2 - bullet.x) < TILE/2 + 4 && 
-                        Math.abs(this.player.y + TILE/2 - bullet.y) < TILE/2 + 4) {
-                        this.spawnParticles(this.player.x + TILE/2, this.player.y + TILE/2, '#00ff00');
-                        this.lives--;
-                        setLives(this.lives);
-                        if (this.lives <= 0) {
-                            this.gameOver();
+                    if (Math.abs(state.player.x + TILE/2 - bullet.x) < TILE/2 + 4 && 
+                        Math.abs(state.player.y + TILE/2 - bullet.y) < TILE/2 + 4) {
+                        spawnParticles(state.player.x + TILE/2, state.player.y + TILE/2, '#00ff00', 20);
+                        state.lives--;
+                        setLives(state.lives);
+                        if (state.lives <= 0) {
+                            state.gameOver = true;
                         } else {
-                            this.player.x = 6 * TILE;
-                            this.player.y = 10 * TILE;
-                            this.player.dir = 0;
+                            state.player.x = canvas.width / 2 - TILE / 2;
+                            state.player.y = canvas.height - TILE * 3;
+                            state.player.dir = 0;
                         }
                         return false;
                     }
@@ -352,343 +623,400 @@ export default function TankCity() {
 
                 return true;
             });
-        }
+        };
 
-        updateParticles() {
-            this.particles = this.particles.filter(p => {
+        const updateParticles = () => {
+            state.particles = state.particles.filter(p => {
                 p.x += p.vx;
                 p.y += p.vy;
                 p.vx *= 0.95;
                 p.vy *= 0.95;
+                p.vy += 0.3;
                 p.life--;
                 return p.life > 0;
             });
-        }
 
-        updatePowerUps() {
-            this.powerUps = this.powerUps.filter(p => {
-                if (!this.player) return true;
-                if (Math.abs(p.x + TILE/2 - (this.player.x + TILE/2)) < TILE && 
-                    Math.abs(p.y + TILE/2 - (this.player.y + TILE/2)) < TILE) {
-                    if (p.type === 'star') {
-                        this.player.power = 2;
-                        this.score += 50;
-                    } else if (p.type === 'life') {
-                        this.lives++;
-                        setLives(this.lives);
-                    }
-                    setScore(this.score);
-                    return false;
-                }
-                return true;
+            state.floatingTexts = state.floatingTexts.filter(ft => {
+                ft.y += ft.vy;
+                ft.life--;
+                return ft.life > 0;
             });
-        }
+        };
 
-        gameOver() {
-            this.running = false;
-            if (this.score > highScore) {
-                localStorage.setItem('tankCityHighScore', this.score.toString());
-                setHighScore(this.score);
+        const drawTank = (tank, image, dir) => {
+            ctx.save();
+            ctx.translate(tank.x + TILE/2, tank.y + TILE/2);
+            const rotations = [0, Math.PI/2, Math.PI, -Math.PI/2];
+            ctx.rotate(rotations[dir]);
+            if (image) {
+                ctx.drawImage(image, -TILE/2, -TILE/2, TILE, TILE);
+            } else {
+                ctx.fillStyle = '#00ff00';
+                ctx.fillRect(-TILE/2, -TILE/2, TILE, TILE);
             }
-            setGameState('gameover');
-        }
+            ctx.restore();
+        };
 
-        victory() {
-            this.running = false;
-            this.score += 500;
-            setScore(this.score);
-            if (this.score > highScore) {
-                localStorage.setItem('tankCityHighScore', this.score.toString());
-                setHighScore(this.score);
-            }
-            setGameState('victory');
-        }
+        const draw = () => {
+            const w = canvas.width;
+            const h = canvas.height;
 
-        draw() {
-            const ctx = this.ctx;
+            // Background
             ctx.fillStyle = '#1a1a2e';
-            ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+            ctx.fillRect(0, 0, w, h);
 
-            // Draw tiles
-            for (let y = 0; y < MAP_H; y++) {
-                for (let x = 0; x < MAP_W; x++) {
-                    const tile = this.map[y * MAP_W + x];
-                    const px = x * TILE;
-                    const py = y * TILE;
-
-                    if (tile === TILE_BRICK) {
-                        ctx.fillStyle = '#b85c38';
-                        ctx.fillRect(px, py, TILE, TILE);
-                        ctx.fillStyle = '#8b4513';
-                        ctx.fillRect(px, py, TILE/2, TILE/2);
-                        ctx.fillRect(px + TILE/2, py + TILE/2, TILE/2, TILE/2);
-                    } else if (tile === TILE_STEEL) {
-                        ctx.fillStyle = '#708090';
-                        ctx.fillRect(px, py, TILE, TILE);
-                        ctx.fillStyle = '#a0a0a0';
-                        ctx.fillRect(px + 4, py + 4, TILE - 8, TILE - 8);
-                    } else if (tile === TILE_FOREST) {
-                        ctx.fillStyle = '#228b22';
-                        ctx.fillRect(px, py, TILE, TILE);
-                        ctx.fillStyle = '#32cd32';
-                        for (let i = 0; i < 4; i++) {
-                            ctx.fillRect(px + Math.random() * 20, py + Math.random() * 20, 8, 8);
-                        }
-                    } else if (tile === TILE_BASE) {
-                        ctx.fillStyle = '#ffd700';
-                        ctx.fillRect(px + 4, py + 4, TILE - 8, TILE - 8);
-                        ctx.fillStyle = '#ff4500';
-                        ctx.beginPath();
-                        ctx.arc(px + TILE/2, py + TILE/2, 8, 0, Math.PI * 2);
-                        ctx.fill();
-                    } else if (tile === TILE_BASE_D) {
-                        ctx.fillStyle = '#444';
-                        ctx.fillRect(px, py, TILE, TILE);
-                    }
-                }
+            // Grid pattern
+            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += TILE) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.stroke();
+            }
+            for (let y = 0; y < h; y += TILE) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
             }
 
-            // Draw power-ups
-            for (const p of this.powerUps) {
-                ctx.fillStyle = p.type === 'star' ? '#ffff00' : '#ff69b4';
+            // Draw word bricks
+            for (const brick of wordBricks) {
+                if (brick.health <= 0) continue;
+                
+                ctx.fillStyle = brick.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = brick.color;
+                
+                // Rounded rectangle
+                const r = 8;
                 ctx.beginPath();
-                ctx.arc(p.x + TILE/2, p.y + TILE/2, 12, 0, Math.PI * 2);
+                ctx.roundRect(brick.x, brick.y, brick.width, brick.height, r);
                 ctx.fill();
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 14px Arial';
+                ctx.shadowBlur = 0;
+                
+                // Word text
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 14px Inter, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText(p.type === 'star' ? '★' : '♥', p.x + TILE/2, p.y + TILE/2 + 5);
+                ctx.textBaseline = 'middle';
+                ctx.fillText(brick.word.toUpperCase(), brick.x + brick.width/2, brick.y + brick.height/2);
+            }
+
+            // Draw base
+            if (!state.baseDestroyed) {
+                const baseX = (baseTileX - 1) * TILE;
+                const baseY = (baseTileY - 1) * TILE;
+                ctx.fillStyle = '#ffd700';
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#ffd700';
+                ctx.fillRect(baseX + 10, baseY + 10, TILE * 2 - 20, TILE * 2 - 20);
+                ctx.fillStyle = '#ff4500';
+                ctx.beginPath();
+                ctx.arc(baseX + TILE, baseY + TILE, 15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('BASE', baseX + TILE, baseY + TILE + 4);
             }
 
             // Draw tanks
-            const drawTank = (tank, image, rotation) => {
-                ctx.save();
-                ctx.translate(tank.x + TILE/2, tank.y + TILE/2);
-                ctx.rotate(rotation);
-                if (image) {
-                    ctx.drawImage(image, -TILE/2, -TILE/2, TILE, TILE);
-                } else {
-                    ctx.fillStyle = '#00ff00';
-                    ctx.fillRect(-TILE/2, -TILE/2, TILE, TILE);
-                }
-                ctx.restore();
-            };
-
-            // Player
-            if (this.player) {
-                const rotations = [0, Math.PI/2, Math.PI, -Math.PI/2];
-                drawTank(this.player, this.images.player, rotations[this.player.dir]);
-            }
-
-            // Enemies
-            for (const enemy of this.enemies) {
-                const rotations = [0, Math.PI/2, Math.PI, -Math.PI/2];
-                const img = enemy.type === 1 ? this.images.enemy1 : this.images.enemy2;
-                drawTank(enemy, img, rotations[enemy.dir]);
+            drawTank(state.player, imagesRef.current.player, state.player.dir);
+            
+            for (const enemy of state.enemies) {
+                const img = enemy.type === 1 ? imagesRef.current.enemy1 : imagesRef.current.enemy2;
+                drawTank(enemy, img, enemy.dir);
             }
 
             // Draw bullets
-            for (const bullet of this.bullets) {
-                ctx.fillStyle = bullet.friendly ? '#00ff00' : '#ff0000';
+            for (const bullet of state.bullets) {
+                ctx.fillStyle = bullet.friendly ? '#00ff00' : '#ff4444';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = bullet.friendly ? '#00ff00' : '#ff4444';
                 ctx.beginPath();
-                ctx.arc(bullet.x, bullet.y, 4, 0, Math.PI * 2);
+                ctx.arc(bullet.x, bullet.y, 5, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.shadowBlur = 0;
             }
 
             // Draw particles
-            for (const p of this.particles) {
-                ctx.globalAlpha = p.life / 20;
+            for (const p of state.particles) {
+                ctx.globalAlpha = p.life / p.maxLife;
                 ctx.fillStyle = p.color;
-                ctx.fillRect(p.x - 3, p.y - 3, 6, 6);
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
             }
             ctx.globalAlpha = 1;
 
-            // Draw forest on top (tanks hide under)
-            for (let y = 0; y < MAP_H; y++) {
-                for (let x = 0; x < MAP_W; x++) {
-                    if (this.map[y * MAP_W + x] === TILE_FOREST) {
-                        ctx.fillStyle = 'rgba(34, 139, 34, 0.7)';
-                        ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
-                    }
+            // Draw floating texts
+            for (const ft of state.floatingTexts) {
+                ctx.globalAlpha = Math.min(1, ft.life / 60);
+                ctx.fillStyle = ft.color;
+                ctx.font = 'bold 18px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(ft.text, ft.x, ft.y);
+                if (ft.bonus > 0) {
+                    ctx.fillStyle = '#ffd700';
+                    ctx.fillText(`+${ft.bonus}`, ft.x, ft.y + 22);
                 }
             }
-        }
+            ctx.globalAlpha = 1;
 
-        update(keys) {
-            if (!this.running) return;
-            this.updatePlayer(keys);
-            this.updateEnemies();
-            this.updateBullets();
-            this.updateParticles();
-            this.updatePowerUps();
-            this.draw();
-        }
-    }
-
-    const startGame = useCallback(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const game = new Game(canvas, imagesRef.current);
-        game.running = true;
-        gameRef.current = game;
-        
-        setScore(0);
-        setLives(3);
-        setStage(1);
-        setEnemiesLeft(10);
-        setGameState('playing');
-
-        const loop = () => {
-            if (game.running) {
-                game.update(keysRef.current);
-                requestAnimationFrame(loop);
+            // HUD
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 24px Inter';
+            ctx.textAlign = 'left';
+            ctx.shadowBlur = 5;
+            ctx.shadowColor = '#000';
+            ctx.fillText(`SCORE: ${state.score}`, 20, 40);
+            ctx.fillText(`WORDS: ${state.wordsDestroyed}/${state.totalWords}`, 20, 70);
+            
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#ef4444';
+            for (let i = 0; i < state.lives; i++) {
+                ctx.fillText('❤️', w - 20 - i * 40, 40);
             }
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillText(`ENEMIES: ${state.enemiesLeft}`, w - 20, 70);
+            ctx.shadowBlur = 0;
         };
-        requestAnimationFrame(loop);
-    }, []);
 
-    const togglePause = useCallback(() => {
-        if (!gameRef.current) return;
-        if (gameState === 'playing') {
-            gameRef.current.running = false;
-            setGameState('paused');
-        } else if (gameState === 'paused') {
-            gameRef.current.running = true;
-            setGameState('playing');
-            const loop = () => {
-                if (gameRef.current?.running) {
-                    gameRef.current.update(keysRef.current);
-                    requestAnimationFrame(loop);
+        const gameLoop = () => {
+            if (!gameRunning) return;
+
+            if (state.paused) {
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 48px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('PAUSED', canvas.width/2, canvas.height/2 - 20);
+                ctx.font = '20px Inter';
+                ctx.fillStyle = '#9ca3af';
+                ctx.fillText('Press P to resume | ESC to exit', canvas.width/2, canvas.height/2 + 30);
+                animationFrameId = requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            if (state.gameOver || state.victory) {
+                draw();
+                ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = state.victory ? '#10b981' : '#ef4444';
+                ctx.font = 'bold 56px Inter';
+                ctx.textAlign = 'center';
+                ctx.shadowBlur = 30;
+                ctx.shadowColor = state.victory ? '#10b981' : '#ef4444';
+                ctx.fillText(state.victory ? 'VICTORY!' : 'GAME OVER', canvas.width/2, canvas.height/2 - 60);
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 32px Inter';
+                ctx.shadowBlur = 0;
+                ctx.fillText(`Final Score: ${state.score}`, canvas.width/2, canvas.height/2 + 10);
+                ctx.fillText(`Words Learned: ${state.wordsDestroyed}/${state.totalWords}`, canvas.width/2, canvas.height/2 + 50);
+                
+                ctx.fillStyle = '#9ca3af';
+                ctx.font = '20px Inter';
+                ctx.fillText('Click anywhere to continue', canvas.width/2, canvas.height/2 + 120);
+
+                if (state.score > highScore) {
+                    localStorage.setItem('tankCityHighScore', state.score.toString());
+                    setHighScore(state.score);
                 }
-            };
-            requestAnimationFrame(loop);
-        }
-    }, [gameState]);
 
-    // Keyboard handlers
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            keysRef.current[e.key] = true;
-            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
-                e.preventDefault();
+                canvas.onclick = () => {
+                    gameRunning = false;
+                    setScreen('title');
+                };
+                return;
             }
-            if (e.key === 'Escape') {
-                togglePause();
-            }
-        };
-        const handleKeyUp = (e) => {
-            keysRef.current[e.key] = false;
+
+            updatePlayer();
+            updateEnemies();
+            updateBullets();
+            updateParticles();
+            draw();
+
+            animationFrameId = requestAnimationFrame(gameLoop);
         };
 
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
+        gameLoop();
+
         return () => {
+            gameRunning = false;
+            window.removeEventListener('resize', resize);
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
+            if (isMobile) {
+                canvas.removeEventListener('touchstart', handleTouchStart);
+                canvas.removeEventListener('touchmove', handleTouchMove);
+                canvas.removeEventListener('touchend', handleTouchEnd);
+            }
+            if (autoShootInterval) clearInterval(autoShootInterval);
+            cancelAnimationFrame(animationFrameId);
         };
-    }, [togglePause]);
+    }, [screen, wordData, onExit, highScore]);
 
-    // Draw initial screen
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#1a1a2e';
-        ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-        ctx.fillStyle = '#ffd700';
-        ctx.font = 'bold 32px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('TANK CITY', CANVAS_W/2, CANVAS_H/2 - 40);
-        ctx.fillStyle = '#fff';
-        ctx.font = '16px Arial';
-        ctx.fillText('Press START to play', CANVAS_W/2, CANVAS_H/2 + 20);
-    }, []);
+    const toggleFullscreen = async () => {
+        try {
+            if (!fullscreen) {
+                await document.documentElement.requestFullscreen?.();
+                setFullscreen(true);
+            } else {
+                if (document.fullscreenElement) await document.exitFullscreen();
+                setFullscreen(false);
+            }
+        } catch (error) {
+            console.error('Fullscreen error:', error);
+        }
+    };
+
+    // Loading screen
+    if (screen === 'loading') {
+        return (
+            <div className="fixed inset-0 flex items-center justify-center bg-[#1a1a2e] z-[9999]">
+                <div className="text-center">
+                    <Loader2 className="w-16 h-16 animate-spin mx-auto mb-4 text-green-500" />
+                    <h2 className="text-2xl font-bold mb-2 text-white">Generating Battle Arena...</h2>
+                    <p className="text-gray-400">AI is creating word targets for "{currentTopic}"</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Game screen
+    if (screen === 'game') {
+        return (
+            <div className="fixed inset-0 bg-[#1a1a2e] z-[9999]">
+                <canvas ref={canvasRef} className="block w-full h-full touch-none" />
+                <div className="absolute top-4 right-4 flex gap-2">
+                    <Button onClick={toggleFullscreen} className="bg-green-600 hover:bg-green-700" size="sm">
+                        {fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                    </Button>
+                    <Button onClick={() => setScreen('title')} className="bg-gray-600 hover:bg-gray-700" size="sm">
+                        <X className="w-4 h-4 mr-1" /> Exit
+                    </Button>
+                </div>
+                <div className="absolute top-4 left-4 bg-black/60 px-4 py-2 rounded-lg">
+                    <p className="text-white text-sm font-medium">{currentTopic}</p>
+                </div>
+                <div className="absolute bottom-4 left-4 bg-black/60 px-3 py-2 rounded-lg text-white text-xs">
+                    <p>WASD/Arrows: Move | Space: Shoot | P: Pause</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Title screen
+    const filteredTopics = (topics) => {
+        if (!searchQuery.trim()) return topics;
+        return topics.filter(t => 
+            t.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
+            t.description?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    };
 
     return (
-        <div className="flex flex-col items-center gap-4 p-4 bg-gray-900 rounded-xl">
-            {/* Stats bar */}
-            <div className="flex items-center justify-between w-full max-w-md bg-gray-800 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-red-400">
-                    <Heart className="w-5 h-5" fill="currentColor" />
-                    <span className="font-bold">{lives}</span>
+        <div className="fixed inset-0 bg-gray-50 z-[9999] overflow-auto p-4">
+            <Button onClick={onExit} variant="ghost" className="absolute top-2 right-2 text-gray-500 hover:text-red-500 hover:bg-red-50">
+                <X className="w-5 h-5" />
+            </Button>
+            
+            <div className="max-w-6xl mx-auto">
+                <div className="text-center mb-4">
+                    <img src={LOGO_URL} alt="Logo" className="w-14 h-14 mx-auto mb-2 rounded-xl" />
+                    <h1 className="text-4xl font-black text-gray-900 mb-1">TANK CITY</h1>
+                    <p className="text-gray-500">Destroy Word Blocks • Learn Vocabulary</p>
+                    <p className="text-sm text-gray-400 mt-1">High Score: {highScore}</p>
                 </div>
-                <div className="flex items-center gap-2 text-yellow-400">
-                    <Trophy className="w-5 h-5" />
-                    <span className="font-bold">{score}</span>
+
+                <div className="bg-white rounded-xl border border-green-200 p-3 mb-4 shadow-sm">
+                    <div className="flex gap-3">
+                        <div className="flex-1 relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <Input 
+                                placeholder="Enter any topic to learn..." 
+                                value={searchQuery} 
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyPress={(e) => { if (e.key === 'Enter' && searchQuery.trim()) handleStartGame('custom'); }}
+                                className="pl-12 h-12 bg-white border-gray-200 text-gray-900 rounded-xl" 
+                            />
+                        </div>
+                        <Button 
+                            onClick={() => searchQuery.trim() && handleStartGame('custom')} 
+                            disabled={!searchQuery.trim() || loading}
+                            className="h-12 px-6 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl"
+                        >
+                            <Play className="w-4 h-4 mr-2" /> Start Battle
+                        </Button>
+                    </div>
                 </div>
-                <div className="flex items-center gap-2 text-blue-400">
-                    <Target className="w-5 h-5" />
-                    <span className="font-bold">{enemiesLeft}</span>
+
+                <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 shadow-sm">
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {TABS.map(tab => (
+                            <Button 
+                                key={tab.id} 
+                                onClick={() => handleTabClick(tab.id)}
+                                className={`px-3 py-1.5 rounded-full text-xs font-medium ${
+                                    activeTab === tab.id 
+                                        ? `bg-gradient-to-r ${tab.color} text-white` 
+                                        : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                                }`}
+                            >
+                                {tab.label}
+                            </Button>
+                        ))}
+                    </div>
+
+                    {loadingTopics && !generatedTopics[activeTab]?.length ? (
+                        <div className="text-center py-8">
+                            <Loader2 className="w-10 h-10 animate-spin mx-auto mb-3 text-green-500" />
+                            <p className="text-gray-600">Loading topics...</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-3 gap-3">
+                            {filteredTopics(generatedTopics[activeTab] || []).slice(0, 9).map((topic, i) => {
+                                const tabInfo = TABS.find(t => t.id === activeTab);
+                                const icons = [Sparkles, Globe, Cpu, Atom, Leaf, Brain, Lightbulb, TrendingUp, Target];
+                                const TopicIcon = icons[i % icons.length];
+                                return (
+                                    <button 
+                                        key={topic.id || i} 
+                                        onClick={() => handleStartGame(topic)} 
+                                        className={`h-32 text-left py-3 px-4 rounded-xl bg-gradient-to-br ${tabInfo?.color || 'from-green-600 to-green-700'} hover:opacity-90 text-white transition-all hover:scale-[1.02] hover:shadow-lg`}
+                                    >
+                                        <TopicIcon className="w-5 h-5 text-white/70 mb-2" />
+                                        <div className="text-sm font-bold line-clamp-2 leading-tight">{topic.label}</div>
+                                        <div className="text-xs text-white/70 line-clamp-2 mt-1">{topic.description}</div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
-            </div>
 
-            {/* Game canvas */}
-            <div className="relative">
-                <canvas
-                    ref={canvasRef}
-                    width={CANVAS_W}
-                    height={CANVAS_H}
-                    className="border-4 border-gray-700 rounded-lg"
-                    style={{ imageRendering: 'pixelated' }}
-                />
-
-                {/* Overlays */}
-                {gameState === 'menu' && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/70 rounded-lg">
-                        <Button onClick={startGame} size="lg" className="gap-2 bg-green-600 hover:bg-green-700">
-                            <Play className="w-5 h-5" /> START GAME
-                        </Button>
-                    </div>
-                )}
-
-                {gameState === 'paused' && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 rounded-lg gap-4">
-                        <h2 className="text-3xl font-bold text-yellow-400">PAUSED</h2>
-                        <Button onClick={togglePause} size="lg" className="gap-2">
-                            <Play className="w-5 h-5" /> RESUME
-                        </Button>
-                    </div>
-                )}
-
-                {gameState === 'gameover' && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 rounded-lg gap-4">
-                        <h2 className="text-3xl font-bold text-red-500">GAME OVER</h2>
-                        <p className="text-xl text-white">Score: {score}</p>
-                        <p className="text-sm text-gray-400">High Score: {highScore}</p>
-                        <Button onClick={startGame} size="lg" className="gap-2">
-                            <RotateCcw className="w-5 h-5" /> PLAY AGAIN
-                        </Button>
-                    </div>
-                )}
-
-                {gameState === 'victory' && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 rounded-lg gap-4">
-                        <h2 className="text-3xl font-bold text-green-400">VICTORY!</h2>
-                        <p className="text-xl text-white">Score: {score}</p>
-                        <p className="text-sm text-gray-400">High Score: {highScore}</p>
-                        <Button onClick={startGame} size="lg" className="gap-2 bg-green-600 hover:bg-green-700">
-                            <Play className="w-5 h-5" /> NEXT STAGE
-                        </Button>
-                    </div>
-                )}
-            </div>
-
-            {/* Controls */}
-            <div className="flex gap-2">
-                {gameState === 'playing' && (
-                    <Button onClick={togglePause} variant="outline" size="sm" className="gap-1">
-                        <Pause className="w-4 h-4" /> Pause
-                    </Button>
-                )}
-                <Button onClick={startGame} variant="outline" size="sm" className="gap-1">
-                    <RotateCcw className="w-4 h-4" /> Restart
-                </Button>
-            </div>
-
-            {/* Instructions */}
-            <div className="text-center text-gray-400 text-sm">
-                <p>Arrow Keys or WASD to move • Space to shoot • ESC to pause</p>
+                <div className="grid grid-cols-3 gap-3">
+                    {[
+                        { icon: Target, title: 'Destroy Words', desc: 'Shoot word blocks to learn vocabulary', bgColor: 'bg-green-100', iconColor: 'text-green-600' },
+                        { icon: Heart, title: 'Defend Base', desc: 'Protect your base from enemy tanks', bgColor: 'bg-red-100', iconColor: 'text-red-600' },
+                        { icon: Trophy, title: 'Score Points', desc: 'Earn points for each word destroyed', bgColor: 'bg-yellow-100', iconColor: 'text-yellow-600' }
+                    ].map((item, i) => (
+                        <div key={i} className="bg-white border border-gray-200 rounded-lg p-4 text-center shadow-sm">
+                            <div className={`w-12 h-12 ${item.bgColor} rounded-lg mx-auto mb-2 flex items-center justify-center`}>
+                                <item.icon className={`w-6 h-6 ${item.iconColor}`} />
+                            </div>
+                            <h3 className="text-gray-900 font-semibold text-sm mb-1">{item.title}</h3>
+                            <p className="text-gray-500 text-xs">{item.desc}</p>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
