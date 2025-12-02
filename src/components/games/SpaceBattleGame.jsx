@@ -427,28 +427,34 @@ export default function SpaceBattleGame({ onExit }) {
             ctx.save();
             ctx.translate(shakeX, shakeY);
 
-            // Animate background offset for parallax effect
-            state.bgOffsetX = Math.sin(state.time * 0.002) * 20;
-            state.bgOffsetY = Math.cos(state.time * 0.001) * 10;
+            // Very slow zoom animation for space effect
+            const zoomSpeed = 0.00005;
+            const baseScale = 1.1;
+            const zoomScale = baseScale + Math.sin(state.time * zoomSpeed) * 0.05;
+            
+            // Subtle drift
+            state.bgOffsetX = Math.sin(state.time * 0.0005) * 15;
+            state.bgOffsetY = Math.cos(state.time * 0.0003) * 10;
 
-            // Draw background image if loaded
+            // Draw background image if loaded - high res, slow zoom
             if (state.backgroundImage && state.backgroundImage.complete) {
-                // Scale to cover canvas while maintaining aspect ratio
                 const imgRatio = state.backgroundImage.width / state.backgroundImage.height;
                 const canvasRatio = canvas.width / canvas.height;
-                let drawWidth, drawHeight, drawX, drawY;
+                let baseWidth, baseHeight;
                 
                 if (imgRatio > canvasRatio) {
-                    drawHeight = canvas.height + 40;
-                    drawWidth = drawHeight * imgRatio;
-                    drawX = (canvas.width - drawWidth) / 2 + state.bgOffsetX;
-                    drawY = -20 + state.bgOffsetY;
+                    baseHeight = canvas.height;
+                    baseWidth = baseHeight * imgRatio;
                 } else {
-                    drawWidth = canvas.width + 40;
-                    drawHeight = drawWidth / imgRatio;
-                    drawX = -20 + state.bgOffsetX;
-                    drawY = (canvas.height - drawHeight) / 2 + state.bgOffsetY;
+                    baseWidth = canvas.width;
+                    baseHeight = baseWidth / imgRatio;
                 }
+                
+                // Apply zoom scale
+                const drawWidth = baseWidth * zoomScale;
+                const drawHeight = baseHeight * zoomScale;
+                const drawX = (canvas.width - drawWidth) / 2 + state.bgOffsetX;
+                const drawY = (canvas.height - drawHeight) / 2 + state.bgOffsetY;
                 
                 ctx.drawImage(state.backgroundImage, drawX, drawY, drawWidth, drawHeight);
             } else {
@@ -498,26 +504,23 @@ export default function SpaceBattleGame({ onExit }) {
                     const shipImageIndex = Math.floor(Math.random() * ENEMY_SHIPS.length);
                     const alienColor = ALIEN_COLORS[Math.floor(Math.random() * ALIEN_COLORS.length)];
                     
-                    // Spawn from various top positions
+                    // Spawn from various top positions - spread out more
                     const spawnZone = Math.random();
                     let startX, startScreenY;
                     
-                    if (spawnZone < 0.25) {
-                        // Top left
-                        startX = -200 - Math.random() * 200;
-                        startScreenY = -50 - Math.random() * 100;
-                    } else if (spawnZone < 0.5) {
-                        // Top right
-                        startX = 200 + Math.random() * 200;
-                        startScreenY = -50 - Math.random() * 100;
-                    } else if (spawnZone < 0.75) {
-                        // Top middle
-                        startX = (Math.random() - 0.5) * 300;
-                        startScreenY = -80 - Math.random() * 120;
+                    if (spawnZone < 0.3) {
+                        // Top left corner
+                        startX = -300 - Math.random() * 150;
+                        startScreenY = -60 - Math.random() * 80;
+                    } else if (spawnZone < 0.6) {
+                        // Top right corner
+                        startX = 300 + Math.random() * 150;
+                        startScreenY = -60 - Math.random() * 80;
                     } else {
-                        // Random across top
-                        startX = (Math.random() - 0.5) * 700;
-                        startScreenY = -30 - Math.random() * 150;
+                        // Spread across entire top width (avoid center)
+                        const side = Math.random() > 0.5 ? 1 : -1;
+                        startX = side * (100 + Math.random() * 350);
+                        startScreenY = -40 - Math.random() * 100;
                     }
                     
                     state.enemies.push({
