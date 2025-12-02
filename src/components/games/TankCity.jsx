@@ -17,7 +17,7 @@ const ENEMY_TANK_3 = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object
 const ENEMY_TANK_4 = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/6f8df8187_tank5.png';
 const BASE_LOGO = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/1a9bef8b1_1c-logo.png';
 
-const TILE = 48; // 40% smaller tanks
+const TILE = 60; // 25% larger tanks
 
 // Tile types
 const TILE_EMPTY = 0;
@@ -62,7 +62,7 @@ export default function TankCity({ onExit }) {
     const [quizScore, setQuizScore] = useState(0);
     const [quizAnswered, setQuizAnswered] = useState(false);
     const [highScore, setHighScore] = useState(() => {
-        const saved = localStorage.getItem('tankCityHighScore');
+        const saved = localStorage.getItem('cosmicTankHighScore');
         return saved ? parseInt(saved) : 0;
     });
 
@@ -420,17 +420,18 @@ export default function TankCity({ onExit }) {
         };
 
         const addFloatingText = (x, y, text, color, bonus) => {
-            // Start from bottom and fade as it rises to top
+            // Star Wars style crawl - start from bottom center
             state.floatingTexts.push({
-                x,
-                y: canvas.height - 100,
-                vy: -2,
+                x: canvas.width / 2,
+                y: canvas.height - 50,
+                vy: -1.5,
                 text,
                 bonus,
-                life: 180,
-                maxLife: 180,
+                life: 300,
+                maxLife: 300,
                 color,
-                startY: canvas.height - 100,
+                startY: canvas.height - 50,
+                scale: 1,
             });
         };
 
@@ -878,12 +879,6 @@ export default function TankCity({ onExit }) {
                 ctx.fillStyle = '#00ddff';
                 ctx.fillText(`SHIELD: ${state.shieldHealth}/3`, canvas.width / 2, baseY - 8);
                 
-                // Topic title below base
-                ctx.fillStyle = '#a855f7';
-                ctx.font = 'bold 18px Inter, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(currentTopic.toUpperCase(), canvas.width / 2, baseY + TILE * 1.8);
-                
                 // Base - draw globe/world icon
                 const centerX = baseX + TILE;
                 const centerY = baseY + TILE * 0.75;
@@ -948,22 +943,44 @@ export default function TankCity({ onExit }) {
             }
             ctx.globalAlpha = 1;
 
-            // Draw floating texts - fade from bottom to top
+            // Draw floating texts - Star Wars crawl style
             for (const ft of state.floatingTexts) {
-                // Calculate fade based on vertical position (starts at bottom, fades at top)
                 const travelDistance = ft.startY - ft.y;
-                const maxTravel = canvas.height - 150;
-                const fadeProgress = Math.min(1, travelDistance / maxTravel);
-                ctx.globalAlpha = 1 - fadeProgress;
+                const maxTravel = canvas.height - 100;
+                const progress = Math.min(1, travelDistance / maxTravel);
+                
+                // Perspective scale - gets smaller as it goes up
+                const scale = Math.max(0.3, 1 - progress * 0.7);
+                const alpha = Math.max(0, 1 - progress);
+                
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.translate(ft.x, ft.y);
+                ctx.scale(scale, scale * 0.8); // Slight vertical squish for perspective
+                
+                // Split text into word and definition
+                const parts = ft.text.split(': ');
+                const word = parts[0] || '';
+                const def = parts[1] || '';
                 
                 ctx.fillStyle = ft.color;
-                ctx.font = 'bold 20px Inter';
+                ctx.font = 'bold 24px Inter';
                 ctx.textAlign = 'center';
-                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.fillText(word, 0, 0);
+                
+                if (def) {
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.font = '18px Inter';
+                    ctx.fillText(def, 0, 28);
+                }
+                
                 if (ft.bonus > 0) {
                     ctx.fillStyle = '#ffd700';
-                    ctx.fillText(`+${ft.bonus}`, ft.x, ft.y + 24);
+                    ctx.font = 'bold 20px Inter';
+                    ctx.fillText(`+${ft.bonus}`, 0, def ? 56 : 28);
                 }
+                
+                ctx.restore();
             }
             ctx.globalAlpha = 1;
 
@@ -1061,7 +1078,7 @@ export default function TankCity({ onExit }) {
                 ctx.fillText('Click anywhere to continue', canvas.width/2, canvas.height/2 + 120);
 
                 if (state.score > highScore) {
-                    localStorage.setItem('tankCityHighScore', state.score.toString());
+                    localStorage.setItem('cosmicTankHighScore', state.score.toString());
                     setHighScore(state.score);
                 }
 
@@ -1220,7 +1237,7 @@ export default function TankCity({ onExit }) {
             <div className="max-w-6xl mx-auto">
                 <div className="text-center mb-4">
                     <img src={LOGO_URL} alt="Logo" className="w-14 h-14 mx-auto mb-2 rounded-xl" />
-                    <h1 className="text-4xl font-black text-gray-900 mb-1">TANK CITY</h1>
+                    <h1 className="text-4xl font-black text-gray-900 mb-1">COSMIC TANK</h1>
                     <p className="text-gray-500">Destroy Word Blocks • Learn Vocabulary</p>
                     <p className="text-sm text-gray-400 mt-1">High Score: {highScore}</p>
                 </div>
