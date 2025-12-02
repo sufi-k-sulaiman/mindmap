@@ -292,13 +292,15 @@ export default function TankCity({ onExit }) {
         };
 
         const addFloatingText = (x, y, text, color, bonus) => {
+            // Start from bottom of screen and float up
             state.floatingTexts.push({
-                x, y,
-                vy: -1,
+                x,
+                y: canvas.height - 80,
+                vy: -1.5,
                 text,
                 bonus,
-                life: 120,
-                maxLife: 120,
+                life: 150,
+                maxLife: 150,
                 color,
             });
         };
@@ -507,12 +509,10 @@ export default function TankCity({ onExit }) {
                 // Smoothly rotate to target direction
                 enemy.dir = enemy.targetDir;
 
-                // Shoot occasionally - only forward or sideways (not backwards/up)
-                if (enemy.shootTimer <= 0 && enemy.dir !== 0) {
+                // Shoot in the direction the tank is facing
+                if (enemy.shootTimer <= 0) {
                     shoot(enemy, false);
                     enemy.shootTimer = 80 + Math.random() * 60;
-                } else if (enemy.shootTimer <= 0) {
-                    enemy.shootTimer = 30; // Reset timer if facing up
                 }
 
                 // Move in current direction
