@@ -88,6 +88,13 @@ export default function SearchPage() {
     const [loading, setLoading] = useState(false);
     const [searchedQuery, setSearchedQuery] = useState('');
     const [inAppResults, setInAppResults] = useState([]);
+    const [activeTab, setActiveTab] = useState('all');
+    const [tabResults, setTabResults] = useState({
+        news: { loading: false, data: [] },
+        pods: { loading: false, data: null },
+        intelligence: { loading: false, data: null },
+        learning: { loading: false, data: [] }
+    });
 
     // Filter matching pages from navigation
     const matchingPages = menuItems.filter(item => 
