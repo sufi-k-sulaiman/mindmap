@@ -11,8 +11,9 @@ import { LOGO_URL } from '@/components/NavigationConfig';
 
 // Tank images
 const PLAYER_TANK = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/dca90a2df_tank1.png';
-const ENEMY_TANK_1 = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/abb6f137a_tank2.png';
-const ENEMY_TANK_2 = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/7a4edc67f_tank3.png';
+const ENEMY_TANK_1 = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/7291baacc_tank2.png';
+const ENEMY_TANK_2 = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/b475c114e_tank3.png';
+const BASE_LOGO = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/1a9bef8b1_1c-logo.png';
 
 const TILE = 48; // 40% smaller tanks
 
@@ -73,7 +74,7 @@ export default function TankCity({ onExit }) {
             loadImage(PLAYER_TANK),
             loadImage(ENEMY_TANK_1),
             loadImage(ENEMY_TANK_2),
-            loadImage(LOGO_URL),
+            loadImage(BASE_LOGO),
         ]).then(([player, enemy1, enemy2, logo]) => {
             imagesRef.current = { player, enemy1, enemy2, logo };
         });
@@ -199,48 +200,56 @@ export default function TankCity({ onExit }) {
         const colors = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4', '#a855f7'];
         let wordIndex = 0;
         
-        // Create proper maze pattern filling the screen
-        const wordHeight = TILE * 0.6;
-        const rowSpacing = TILE * 2; // More vertical spacing for maze corridors
-        const colSpacing = TILE * 0.5;
-        const mazeRows = Math.floor((canvas.height - TILE * 8) / rowSpacing);
-        const startY = TILE * 1.5;
+        // Create word cloud maze with horizontal and vertical words
+        const usedAreas = [];
+        const checkOverlap = (x, y, w, h) => {
+            for (const area of usedAreas) {
+                if (x < area.x + area.w + 5 && x + w + 5 > area.x &&
+                    y < area.y + area.h + 5 && y + h + 5 > area.y) {
+                    return true;
+                }
+            }
+            return false;
+        };
         
         let wordIdx = 0;
-        for (let row = 0; row < mazeRows && wordIdx < shuffledWords.length; row++) {
-            const y = startY + row * rowSpacing;
-            // Alternate pattern - offset every other row for maze corridors
-            const rowOffset = (row % 2) * TILE * 1.5;
-            // Skip some positions randomly to create gaps/corridors
-            const skipPattern = row % 3;
+        const fontSize = [10, 12, 14, 16, 11, 13]; // Varying sizes
+        
+        // Fill the playable area with words
+        for (let attempt = 0; attempt < 200 && wordIdx < shuffledWords.length; attempt++) {
+            const word = shuffledWords[wordIdx];
+            const isVertical = Math.random() > 0.6;
+            const size = fontSize[wordIdx % fontSize.length];
             
-            let x = TILE + rowOffset;
-            let colCount = 0;
+            let wordW, wordH;
+            if (isVertical) {
+                wordW = size + 8;
+                wordH = word.primary.length * (size * 0.8) + 10;
+            } else {
+                wordW = word.primary.length * (size * 0.7) + 16;
+                wordH = size + 10;
+            }
             
-            while (x < canvas.width - TILE * 4 && wordIdx < shuffledWords.length) {
-                // Create gaps in the maze
-                if ((colCount + skipPattern) % 4 !== 0) {
-                    const word = shuffledWords[wordIdx];
-                    const wordWidth = Math.max(TILE * 1.2, word.primary.length * 9 + 20);
-                    
-                    wordBricks.push({
-                        x: x,
-                        y: y,
-                        width: wordWidth,
-                        height: wordHeight,
-                        word: word.primary,
-                        definition: word.definition,
-                        health: 1,
-                        color: colors[wordIdx % colors.length],
-                        startY: y
-                    });
-                    
-                    x += wordWidth + colSpacing;
-                    wordIdx++;
-                } else {
-                    x += TILE * 2; // Gap for corridor
-                }
-                colCount++;
+            // Random position in play area
+            const maxX = canvas.width - wordW - TILE * 2;
+            const maxY = canvas.height - wordH - TILE * 5;
+            const x = TILE + Math.random() * (maxX - TILE);
+            const y = TILE + Math.random() * (maxY - TILE);
+            
+            if (!checkOverlap(x, y, wordW, wordH)) {
+                wordBricks.push({
+                    x, y,
+                    width: wordW,
+                    height: wordH,
+                    word: word.primary,
+                    definition: word.definition,
+                    health: 1,
+                    color: colors[wordIdx % colors.length],
+                    vertical: isVertical,
+                    fontSize: size
+                });
+                usedAreas.push({ x, y, w: wordW, h: wordH });
+                wordIdx++;
             }
         }
 
@@ -709,38 +718,29 @@ export default function TankCity({ onExit }) {
                 ctx.fill();
             }
 
-            // Animate words moving up (maze in space effect)
-            const scrollSpeed = 0.3;
-            const time = Date.now() * 0.001;
-
-            // Draw word bricks with background
+            // Draw word cloud maze
             for (const brick of wordBricks) {
                 if (brick.health <= 0) continue;
 
-                // Animate Y position (moving up slowly)
-                const animY = brick.y - (time * scrollSpeed * 10) % 20;
+                const fontSize = brick.fontSize || 12;
 
-                // Background glow
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-                ctx.beginPath();
-                ctx.roundRect(brick.x - 2, animY - 2, brick.width + 4, brick.height + 4, 4);
-                ctx.fill();
-
-                // Word block
+                // Draw word - white text on dark background like reference
                 ctx.fillStyle = brick.color;
-                ctx.beginPath();
-                ctx.roundRect(brick.x, animY, brick.width, brick.height, 4);
-                ctx.fill();
-
-                // Word text
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 11px Inter, sans-serif';
+                ctx.font = `bold ${fontSize}px Inter, sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(brick.word.toUpperCase(), brick.x + brick.width/2, animY + brick.height/2);
 
-                // Update brick Y for collision
-                brick.currentY = animY;
+                if (brick.vertical) {
+                    // Draw vertical word
+                    ctx.save();
+                    ctx.translate(brick.x + brick.width/2, brick.y + brick.height/2);
+                    ctx.rotate(-Math.PI / 2);
+                    ctx.fillText(brick.word.toUpperCase(), 0, 0);
+                    ctx.restore();
+                } else {
+                    // Draw horizontal word
+                    ctx.fillText(brick.word.toUpperCase(), brick.x + brick.width/2, brick.y + brick.height/2);
+                }
             }
 
             // Draw base with 3-layer shield and topic title
@@ -779,14 +779,9 @@ export default function TankCity({ onExit }) {
                 ctx.roundRect(baseX, baseY, TILE * 2, TILE * 1.5, 8);
                 ctx.fill();
                 
-                // Draw logo without background (clip to circle)
+                // Draw logo directly (already has transparent background)
                 if (imagesRef.current.logo) {
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.arc(baseX + TILE, baseY + TILE * 0.75, TILE * 0.6, 0, Math.PI * 2);
-                    ctx.clip();
-                    ctx.drawImage(imagesRef.current.logo, baseX + TILE * 0.4, baseY + TILE * 0.15, TILE * 1.2, TILE * 1.2);
-                    ctx.restore();
+                    ctx.drawImage(imagesRef.current.logo, baseX + TILE * 0.3, baseY + TILE * 0.1, TILE * 1.4, TILE * 1.3);
                 }
             }
 
