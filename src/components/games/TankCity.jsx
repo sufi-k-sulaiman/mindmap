@@ -790,24 +790,24 @@ export default function TankCity({ onExit }) {
             ctx.fillStyle = '#000011';
             ctx.fillRect(0, 0, w, h);
 
-            // Draw moving stars
+            // Draw moving stars (moving up)
             if (!state.stars) {
                 state.stars = [];
                 for (let i = 0; i < 200; i++) {
                     state.stars.push({
                         x: Math.random() * w,
-                        y: Math.random() * h * 2,
+                        y: Math.random() * h,
                         size: Math.random() * 2 + 0.5,
                         brightness: Math.random(),
                         speed: 0.5 + Math.random() * 1.5
                     });
                 }
             }
-            // Move stars down
+            // Move stars up
             for (const star of state.stars) {
-                star.y += star.speed;
-                if (star.y > h) {
-                    star.y = -10;
+                star.y -= star.speed;
+                if (star.y < 0) {
+                    star.y = h + 10;
                     star.x = Math.random() * w;
                 }
                 const flicker = 0.5 + Math.sin(Date.now() * 0.003 + star.brightness * 10) * 0.3;
@@ -886,16 +886,38 @@ export default function TankCity({ onExit }) {
                 ctx.fillStyle = '#00ddff';
                 ctx.fillText(`SHIELD: ${state.shieldHealth}/3`, canvas.width / 2, baseY - 8);
                 
-                // Base
-                ctx.fillStyle = '#8b5cf6';
-                ctx.beginPath();
-                ctx.roundRect(baseX, baseY, TILE * 2, TILE * 1.5, 8);
-                ctx.fill();
+                // Base - draw globe/world icon
+                const centerX = baseX + TILE;
+                const centerY = baseY + TILE * 0.75;
+                const radius = TILE * 0.7;
                 
-                // Draw logo directly (already has transparent background)
-                if (imagesRef.current.logo) {
-                    ctx.drawImage(imagesRef.current.logo, baseX + TILE * 0.3, baseY + TILE * 0.1, TILE * 1.4, TILE * 1.3);
-                }
+                // Globe circle
+                ctx.strokeStyle = '#60a5fa';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Horizontal lines
+                ctx.beginPath();
+                ctx.moveTo(centerX - radius, centerY);
+                ctx.lineTo(centerX + radius, centerY);
+                ctx.stroke();
+                
+                // Vertical ellipse
+                ctx.beginPath();
+                ctx.ellipse(centerX, centerY, radius * 0.4, radius, 0, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Latitude lines
+                ctx.beginPath();
+                ctx.moveTo(centerX - radius * 0.85, centerY - radius * 0.4);
+                ctx.quadraticCurveTo(centerX, centerY - radius * 0.3, centerX + radius * 0.85, centerY - radius * 0.4);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(centerX - radius * 0.85, centerY + radius * 0.4);
+                ctx.quadraticCurveTo(centerX, centerY + radius * 0.3, centerX + radius * 0.85, centerY + radius * 0.4);
+                ctx.stroke();
             }
 
             // Draw tanks
