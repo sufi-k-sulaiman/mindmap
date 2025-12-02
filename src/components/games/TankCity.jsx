@@ -14,7 +14,7 @@ const PLAYER_TANK = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/
 const ENEMY_TANK_1 = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/abb6f137a_tank2.png';
 const ENEMY_TANK_2 = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/7a4edc67f_tank3.png';
 
-const TILE = 40;
+const TILE = 80; // 2x bigger tanks
 
 // Tile types
 const TILE_EMPTY = 0;
@@ -184,7 +184,7 @@ export default function TankCity({ onExit }) {
         const MAP_W = Math.floor(canvas.width / TILE);
         const MAP_H = Math.floor(canvas.height / TILE);
 
-        // Generate maze-like map with word bricks
+        // Generate maze with vertical and horizontal words
         const map = [];
         const wordBricks = [];
         const shuffledWords = [...wordData].sort(() => Math.random() - 0.5);
@@ -195,50 +195,70 @@ export default function TankCity({ onExit }) {
             }
         }
 
-        // Create maze-like pattern with words
+        const colors = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4', '#a855f7'];
         let wordIndex = 0;
-        const colors = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899'];
         
-        // Vertical walls with gaps
-        for (let col = 3; col < MAP_W - 3; col += 4) {
-            for (let row = 2; row < MAP_H - 5; row++) {
-                // Leave gaps for passages
-                if (row % 4 === 0 || row % 4 === 1) continue;
+        // Create vertical words (text rotated 90 degrees)
+        for (let col = 1; col < MAP_W - 2; col += 3) {
+            if (wordIndex >= shuffledWords.length) break;
+            const word = shuffledWords[wordIndex++];
+            const wordHeight = Math.min(word.primary.length * 18 + 30, TILE * 3);
+            const startRow = 1 + Math.floor(Math.random() * 2);
+            
+            wordBricks.push({
+                x: col * TILE + 10,
+                y: startRow * TILE,
+                width: TILE - 20,
+                height: wordHeight,
+                word: word.primary,
+                definition: word.definition,
+                health: 1,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                vertical: true
+            });
+        }
+        
+        // Create horizontal words
+        for (let row = 2; row < MAP_H - 3; row += 2) {
+            for (let col = 0; col < MAP_W - 3; col += 4) {
                 if (wordIndex >= shuffledWords.length) break;
+                if (Math.random() > 0.6) continue; // Random gaps
                 
                 const word = shuffledWords[wordIndex++];
+                const wordWidth = Math.max(TILE * 1.5, word.primary.length * 14 + 20);
+                
                 wordBricks.push({
-                    x: col * TILE,
-                    y: row * TILE,
-                    width: TILE * 2,
-                    height: TILE,
+                    x: col * TILE + 20,
+                    y: row * TILE + 10,
+                    width: wordWidth,
+                    height: TILE * 0.6,
                     word: word.primary,
                     definition: word.definition,
                     health: 1,
-                    color: colors[Math.floor(Math.random() * colors.length)]
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    vertical: false
                 });
             }
         }
         
-        // Horizontal walls with gaps
-        for (let row = 4; row < MAP_H - 6; row += 4) {
-            for (let col = 1; col < MAP_W - 2; col += 3) {
-                // Leave gaps and avoid overlapping with vertical walls
-                if (col % 4 === 3 || col % 4 === 0) continue;
-                if (wordIndex >= shuffledWords.length) break;
-                
-                const word = shuffledWords[wordIndex++];
-                wordBricks.push({
-                    x: col * TILE,
-                    y: row * TILE,
-                    width: TILE * 2,
-                    height: TILE,
-                    word: word.primary,
-                    definition: word.definition,
-                    health: 1,
-                    color: colors[Math.floor(Math.random() * colors.length)]
-                });
-            }
+        // Add more scattered words
+        for (let i = 0; i < 8 && wordIndex < shuffledWords.length; i++) {
+            const word = shuffledWords[wordIndex++];
+            const isVertical = Math.random() > 0.5;
+            const x = TILE + Math.random() * (canvas.width - TILE * 4);
+            const y = TILE * 2 + Math.random() * (canvas.height - TILE * 6);
+            
+            wordBricks.push({
+                x,
+                y,
+                width: isVertical ? TILE * 0.7 : Math.max(TILE, word.primary.length * 12 + 20),
+                height: isVertical ? Math.min(word.primary.length * 16 + 20, TILE * 2.5) : TILE * 0.5,
+                word: word.primary,
+                definition: word.definition,
+                health: 1,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                vertical: isVertical
+            });
         }
 
         // Place base at bottom center
@@ -500,71 +520,101 @@ export default function TankCity({ onExit }) {
 
             for (const enemy of state.enemies) {
                 enemy.shootTimer--;
-                enemy.moveTimer++;
+                enemy.thinkTimer = (enemy.thinkTimer || 0) + 1;
 
-                // AI: Change direction periodically or when blocked
-                // Enemies move forward, left, right but NEVER backwards
-                if (enemy.moveTimer > 60 + Math.random() * 60) {
-                    const currentDir = enemy.dir;
-                    const oppositeDir = (currentDir + 2) % 4;
-                    
-                    // Possible directions: current, left turn, right turn (NOT opposite/backwards)
-                    const possibleDirs = [0, 1, 2, 3].filter(d => d !== oppositeDir);
-                    
-                    // Bias towards player direction but never go backwards
-                    const dx = state.player.x - enemy.x;
-                    const dy = state.player.y - enemy.y;
-                    let preferredDir = currentDir;
-                    
-                    if (Math.abs(dx) > Math.abs(dy)) {
-                        preferredDir = dx > 0 ? 1 : 3;
+                // Smart AI - behave like a human player
+                const dx = state.player.x - enemy.x;
+                const dy = state.player.y - enemy.y;
+                const distToPlayer = Math.sqrt(dx * dx + dy * dy);
+                
+                // Determine best direction towards player
+                let targetDir = enemy.dir;
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    targetDir = dx > 0 ? 1 : 3; // Right or Left
+                } else {
+                    targetDir = dy > 0 ? 2 : 0; // Down or Up
+                }
+                
+                const oppositeDir = (enemy.dir + 2) % 4;
+                
+                // Think like a player - make decisions
+                if (enemy.thinkTimer > 30 + Math.random() * 40) {
+                    // If player is in line of sight, face them
+                    if (Math.abs(dx) < TILE && dy > 0) {
+                        enemy.targetDir = 2; // Face down
+                    } else if (Math.abs(dx) < TILE && dy < 0) {
+                        enemy.targetDir = 0; // Face up
+                    } else if (Math.abs(dy) < TILE && dx > 0) {
+                        enemy.targetDir = 1; // Face right
+                    } else if (Math.abs(dy) < TILE && dx < 0) {
+                        enemy.targetDir = 3; // Face left
                     } else {
-                        preferredDir = dy > 0 ? 2 : 0;
+                        // Navigate towards player - never go backwards
+                        const possibleDirs = [0, 1, 2, 3].filter(d => d !== oppositeDir);
+                        
+                        // Prefer direction towards player
+                        if (possibleDirs.includes(targetDir)) {
+                            enemy.targetDir = targetDir;
+                        } else {
+                            // Turn left or right
+                            const leftTurn = (enemy.dir + 3) % 4;
+                            const rightTurn = (enemy.dir + 1) % 4;
+                            enemy.targetDir = Math.random() > 0.5 ? leftTurn : rightTurn;
+                        }
                     }
-                    
-                    // Only use preferred if it's not backwards
-                    if (possibleDirs.includes(preferredDir) && Math.random() > 0.3) {
-                        enemy.targetDir = preferredDir;
-                    } else {
-                        enemy.targetDir = possibleDirs[Math.floor(Math.random() * possibleDirs.length)];
-                    }
-                    
-                    enemy.moveTimer = 0;
+                    enemy.thinkTimer = 0;
+                }
+                
+                // Smoothly change direction (never backwards)
+                if (enemy.targetDir !== oppositeDir) {
+                    enemy.dir = enemy.targetDir;
                 }
 
-                // Set direction (never backwards)
-                enemy.dir = enemy.targetDir;
-
-                // Shoot in the direction the tank is facing
-                if (enemy.shootTimer <= 0) {
+                // Shoot when player is roughly aligned
+                const aligned = (Math.abs(dx) < TILE * 1.5 || Math.abs(dy) < TILE * 1.5);
+                if (enemy.shootTimer <= 0 && (aligned || Math.random() > 0.7)) {
                     shoot(enemy, false);
-                    enemy.shootTimer = 80 + Math.random() * 60;
+                    enemy.shootTimer = 50 + Math.random() * 40;
                 }
 
                 // Move in current direction
-                let dx = 0, dy = 0;
-                if (enemy.dir === 0) dy = -enemy.speed;
-                else if (enemy.dir === 1) dx = enemy.speed;
-                else if (enemy.dir === 2) dy = enemy.speed;
-                else if (enemy.dir === 3) dx = -enemy.speed;
+                let moveX = 0, moveY = 0;
+                if (enemy.dir === 0) moveY = -enemy.speed;
+                else if (enemy.dir === 1) moveX = enemy.speed;
+                else if (enemy.dir === 2) moveY = enemy.speed;
+                else if (enemy.dir === 3) moveX = -enemy.speed;
 
-                const newX = enemy.x + dx;
-                const newY = enemy.y + dy;
+                const newX = enemy.x + moveX;
+                const newY = enemy.y + moveY;
 
                 if (canMove(newX, newY, TILE, enemy)) {
                     enemy.x = newX;
                     enemy.y = newY;
                 } else {
-                    // Change direction when blocked - only left or right turn, never backwards
-                    const currentDir = enemy.dir;
-                    const oppositeDir = (currentDir + 2) % 4;
-                    const leftTurn = (currentDir + 3) % 4;
-                    const rightTurn = (currentDir + 1) % 4;
+                    // Blocked - turn left or right (like a player would)
+                    const leftTurn = (enemy.dir + 3) % 4;
+                    const rightTurn = (enemy.dir + 1) % 4;
                     
-                    // Try left or right turn only
-                    const possibleDirs = [leftTurn, rightTurn];
-                    enemy.targetDir = possibleDirs[Math.floor(Math.random() * possibleDirs.length)];
-                    enemy.moveTimer = 0;
+                    // Check which turn is better
+                    const leftClear = canMove(
+                        enemy.x + (leftTurn === 1 ? enemy.speed : leftTurn === 3 ? -enemy.speed : 0),
+                        enemy.y + (leftTurn === 0 ? -enemy.speed : leftTurn === 2 ? enemy.speed : 0),
+                        TILE, enemy
+                    );
+                    const rightClear = canMove(
+                        enemy.x + (rightTurn === 1 ? enemy.speed : rightTurn === 3 ? -enemy.speed : 0),
+                        enemy.y + (rightTurn === 0 ? -enemy.speed : rightTurn === 2 ? enemy.speed : 0),
+                        TILE, enemy
+                    );
+                    
+                    if (leftClear && !rightClear) {
+                        enemy.targetDir = leftTurn;
+                    } else if (rightClear && !leftClear) {
+                        enemy.targetDir = rightTurn;
+                    } else {
+                        enemy.targetDir = Math.random() > 0.5 ? leftTurn : rightTurn;
+                    }
+                    enemy.thinkTimer = 0;
                 }
             }
         };
@@ -715,27 +765,37 @@ export default function TankCity({ onExit }) {
                 ctx.stroke();
             }
 
-            // Draw word bricks
+            // Draw word bricks (vertical and horizontal)
             for (const brick of wordBricks) {
                 if (brick.health <= 0) continue;
-                
+
                 ctx.fillStyle = brick.color;
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 15;
                 ctx.shadowColor = brick.color;
-                
+
                 // Rounded rectangle
-                const r = 8;
+                const r = 6;
                 ctx.beginPath();
                 ctx.roundRect(brick.x, brick.y, brick.width, brick.height, r);
                 ctx.fill();
                 ctx.shadowBlur = 0;
-                
+
                 // Word text
+                ctx.save();
                 ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 14px Inter, sans-serif';
+                ctx.font = 'bold 13px Inter, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(brick.word.toUpperCase(), brick.x + brick.width/2, brick.y + brick.height/2);
+
+                if (brick.vertical) {
+                    // Rotate text for vertical words
+                    ctx.translate(brick.x + brick.width/2, brick.y + brick.height/2);
+                    ctx.rotate(-Math.PI / 2);
+                    ctx.fillText(brick.word.toUpperCase(), 0, 0);
+                } else {
+                    ctx.fillText(brick.word.toUpperCase(), brick.x + brick.width/2, brick.y + brick.height/2);
+                }
+                ctx.restore();
             }
 
             // Draw base with logo
