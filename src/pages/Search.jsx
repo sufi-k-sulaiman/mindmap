@@ -598,22 +598,7 @@ export default function SearchPage() {
         }
     };
 
-    // Audio element for pod player
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.ontimeupdate = () => {
-                if (audioRef.current.duration) {
-                    setPodPlayer(prev => ({
-                        ...prev,
-                        progress: (audioRef.current.currentTime / audioRef.current.duration) * 100
-                    }));
-                }
-            };
-            audioRef.current.onended = () => {
-                setPodPlayer(prev => ({ ...prev, isPlaying: false, progress: 0 }));
-            };
-        }
-    }, []);
+
 
     return (
         <div className="min-h-screen bg-gray-50 p-4 md:p-6">
@@ -668,24 +653,31 @@ export default function SearchPage() {
                         )}
 
                         {/* Tabbed Results */}
-                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                            <TabsList className="w-full justify-start bg-white border border-gray-200 rounded-xl p-1 mb-4 flex-wrap h-auto gap-1">
-                                <TabsTrigger value="news" className="rounded-lg data-[state=active]:bg-red-600 data-[state=active]:text-white">
+                        <Tabs value={activeTab} onValueChange={(tab) => {
+                            setActiveTab(tab);
+                            // Auto-trigger Qwirey when switching to that tab
+                            if (tab === 'qwirey' && !qwireyResult && !qwireyLoading && searchedQuery) {
+                                setQwireyPrompt(searchedQuery);
+                                setTimeout(() => handleQwireySubmit(), 100);
+                            }
+                        }} className="w-full">
+                            <TabsList className="w-full justify-start bg-white rounded-2xl p-2 mb-4 flex-wrap h-auto gap-2 shadow-sm border border-gray-100">
+                                <TabsTrigger value="news" className="rounded-xl px-4 py-2.5 text-sm font-medium border border-transparent data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:border-gray-200 data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50 transition-all">
                                     <Newspaper className="w-4 h-4 mr-2" /> News
                                 </TabsTrigger>
-                                <TabsTrigger value="pods" className="rounded-lg data-[state=active]:bg-pink-600 data-[state=active]:text-white">
+                                <TabsTrigger value="pods" className="rounded-xl px-4 py-2.5 text-sm font-medium border border-transparent data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:border-gray-200 data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50 transition-all">
                                     <Headphones className="w-4 h-4 mr-2" /> Pods
                                 </TabsTrigger>
-                                <TabsTrigger value="mindmaps" className="rounded-lg data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
+                                <TabsTrigger value="mindmaps" className="rounded-xl px-4 py-2.5 text-sm font-medium border border-transparent data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:border-gray-200 data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50 transition-all">
                                     <Brain className="w-4 h-4 mr-2" /> MindMaps
                                 </TabsTrigger>
-                                <TabsTrigger value="learning" className="rounded-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white">
+                                <TabsTrigger value="learning" className="rounded-xl px-4 py-2.5 text-sm font-medium border border-transparent data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:border-gray-200 data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50 transition-all">
                                     <GraduationCap className="w-4 h-4 mr-2" /> Learning
                                 </TabsTrigger>
-                                <TabsTrigger value="intelligence" className="rounded-lg data-[state=active]:bg-violet-600 data-[state=active]:text-white">
+                                <TabsTrigger value="intelligence" className="rounded-xl px-4 py-2.5 text-sm font-medium border border-transparent data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:border-gray-200 data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50 transition-all">
                                     <Lightbulb className="w-4 h-4 mr-2" /> Intelligence
                                 </TabsTrigger>
-                                <TabsTrigger value="qwirey" className="rounded-lg data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                                <TabsTrigger value="qwirey" className="rounded-xl px-4 py-2.5 text-sm font-medium border border-transparent data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:border-gray-200 data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:bg-gray-50 transition-all">
                                     <Sparkles className="w-4 h-4 mr-2" /> Qwirey
                                 </TabsTrigger>
                             </TabsList>
@@ -961,26 +953,15 @@ export default function SearchPage() {
                                         </div>
                                     </div>
                                     
-                                    <div className="flex gap-2 mb-4">
-                                        <input
-                                            type="text"
-                                            value={qwireyPrompt}
-                                            onChange={(e) => setQwireyPrompt(e.target.value)}
-                                            placeholder="Ask a follow-up question..."
-                                            className="flex-1 h-12 px-4 rounded-xl border border-gray-200 focus:border-purple-300 focus:ring-2 focus:ring-purple-100 outline-none"
-                                            onKeyDown={(e) => e.key === 'Enter' && handleQwireySubmit()}
-                                        />
-                                        <Button 
-                                            onClick={handleQwireySubmit}
-                                            disabled={qwireyLoading}
-                                            className="bg-purple-600 hover:bg-purple-700 h-12 px-4"
-                                        >
-                                            {qwireyLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                                        </Button>
-                                    </div>
+                                    {qwireyLoading && !qwireyResult && (
+                                        <div className="flex items-center justify-center py-12">
+                                            <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+                                            <span className="ml-3 text-gray-600">Analyzing "{searchedQuery}"...</span>
+                                        </div>
+                                    )}
                                     
                                     {qwireyResult && (
-                                        <div className="space-y-4">
+                                        <div className="space-y-4 mb-4">
                                             <div className="bg-purple-50 rounded-xl p-4 border border-purple-100">
                                                 <div className="prose prose-sm max-w-none text-gray-700">
                                                     <ReactMarkdown>{qwireyResult.answer}</ReactMarkdown>
@@ -1023,7 +1004,25 @@ export default function SearchPage() {
                                         </div>
                                     )}
                                     
-                                    <div className="mt-4 text-center">
+                                    <div className="flex gap-2 mb-4">
+                                        <input
+                                            type="text"
+                                            value={qwireyPrompt}
+                                            onChange={(e) => setQwireyPrompt(e.target.value)}
+                                            placeholder="Ask a follow-up question..."
+                                            className="flex-1 h-12 px-4 rounded-xl border border-gray-200 focus:border-purple-300 focus:ring-2 focus:ring-purple-100 outline-none"
+                                            onKeyDown={(e) => e.key === 'Enter' && handleQwireySubmit()}
+                                        />
+                                        <Button 
+                                            onClick={handleQwireySubmit}
+                                            disabled={qwireyLoading}
+                                            className="bg-purple-600 hover:bg-purple-700 h-12 px-4"
+                                        >
+                                            {qwireyLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                                        </Button>
+                                    </div>
+                                    
+                                    <div className="text-center">
                                         <Link to={createPageUrl('Qwirey')}>
                                             <Button variant="outline" className="text-purple-600 border-purple-200 hover:bg-purple-50">
                                                 Open Full Qwirey <ChevronRight className="w-4 h-4 ml-1" />
