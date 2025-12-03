@@ -14,6 +14,73 @@ import RadialProgressCard from '@/components/dashboard/RadialProgressCard';
 
 const CHART_COLORS = ['#8b5cf6', '#6366f1', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b'];
 
+// Helper to extract domain from URL
+const extractDomain = (url) => {
+    if (!url) return null;
+    try {
+        const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+        return urlObj.hostname.replace('www.', '');
+    } catch {
+        const match = url.match(/(?:https?:\/\/)?(?:www\.)?([^\/\?\s]+)/);
+        return match ? match[1] : url;
+    }
+};
+
+// Parse text and convert markdown links to clickable badges
+const TextWithLinks = ({ text }) => {
+    if (!text) return null;
+    
+    // Match patterns like ([domain](url)) or [domain](url)
+    const parts = [];
+    let lastIndex = 0;
+    const linkRegex = /\(?(\[([^\]]+)\]\(([^)]+)\))\)?/g;
+    let match;
+    
+    while ((match = linkRegex.exec(text)) !== null) {
+        // Add text before the link
+        if (match.index > lastIndex) {
+            parts.push({ type: 'text', content: text.slice(lastIndex, match.index) });
+        }
+        // Add the link
+        parts.push({ type: 'link', domain: match[2], url: match[3] });
+        lastIndex = match.index + match[0].length;
+    }
+    
+    // Add remaining text
+    if (lastIndex < text.length) {
+        parts.push({ type: 'text', content: text.slice(lastIndex) });
+    }
+    
+    // If no links found, return plain text
+    if (parts.length === 0) {
+        return <span>{text}</span>;
+    }
+    
+    return (
+        <span>
+            {parts.map((part, i) => {
+                if (part.type === 'text') {
+                    return <span key={i}>{part.content}</span>;
+                }
+                const cleanDomain = extractDomain(part.url) || part.domain;
+                return (
+                    <a 
+                        key={i}
+                        href={part.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 transition-colors px-1.5 py-0.5 bg-purple-50 hover:bg-purple-100 rounded mx-1"
+                        title={part.url}
+                    >
+                        {cleanDomain}
+                        <ExternalLink className="w-3 h-3" />
+                    </a>
+                );
+            })}
+        </span>
+    );
+};
+
 export default function LearnMoreModal({ keyword, isOpen, onClose, containerRef }) {
     const [activeTab, setActiveTab] = useState('overview');
     const [data, setData] = useState(null);
