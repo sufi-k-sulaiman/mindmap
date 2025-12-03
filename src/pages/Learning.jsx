@@ -45,24 +45,15 @@ const RANKS = [
 ];
 
 export default function Learning() {
-    // Parse URL params
-    const getSubjectsFromUrl = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const subjectIds = urlParams.get('subjects')?.split(',').filter(Boolean) || [];
-        if (subjectIds.length > 0) {
-            const foundSubjects = subjectIds.map(id => SUBJECTS.find(s => s.id === id)).filter(Boolean);
-            return foundSubjects.length > 0 ? foundSubjects : [SUBJECTS[0]];
-        }
-        return [SUBJECTS[0]];
-    };
-
+    // Update URL for display only (aesthetic, not parsed)
     const updateUrl = (subjects) => {
-        const params = new URLSearchParams();
+        const basePath = window.location.pathname;
         if (subjects.length > 0) {
-            params.set('subjects', subjects.map(s => s.id).join(','));
+            const subjectSlugs = subjects.map(s => s.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()).join('/');
+            window.history.pushState({ subjectIds: subjects.map(s => s.id) }, '', `${basePath}/${subjectSlugs}`);
+        } else {
+            window.history.pushState({}, '', basePath);
         }
-        const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
-        window.history.pushState({}, '', newUrl);
     };
 
     useEffect(() => {
@@ -70,15 +61,21 @@ export default function Learning() {
         document.querySelector('meta[name="description"]')?.setAttribute('content', 'Learning Archipelago uses AI agents to create automated learning islands for growth on all subjects.');
         document.querySelector('meta[name="keywords"]')?.setAttribute('content', 'Learning Archipelago, Learning islands');
         
-        // Handle browser back/forward
-        const handlePopState = () => {
-            setSelectedSubjects(getSubjectsFromUrl());
+        // Handle browser back/forward - restore from history state only
+        const handlePopState = (event) => {
+            const state = event.state || {};
+            if (state.subjectIds?.length > 0) {
+                const foundSubjects = state.subjectIds.map(id => SUBJECTS.find(s => s.id === id)).filter(Boolean);
+                setSelectedSubjects(foundSubjects.length > 0 ? foundSubjects : [SUBJECTS[0]]);
+            } else {
+                setSelectedSubjects([SUBJECTS[0]]);
+            }
         };
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
     }, []);
 
-    const [selectedSubjects, setSelectedSubjects] = useState(() => getSubjectsFromUrl());
+    const [selectedSubjects, setSelectedSubjects] = useState([SUBJECTS[0]]);
     const [subTopics, setSubTopics] = useState([]);
     const [loadingTopics, setLoadingTopics] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState(null);

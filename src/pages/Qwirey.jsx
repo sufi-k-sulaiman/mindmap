@@ -139,39 +139,23 @@ const TextWithLinks = ({ text }) => {
 };
 
 export default function Qwirey() {
-    // Parse URL params
-    const getStateFromUrl = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        return {
-            query: urlParams.get('query') || '',
-            format: urlParams.get('format') || 'short'
-        };
-    };
-
+    // Update URL for display only (aesthetic, not parsed)
     const updateUrl = (query, format) => {
-        const params = new URLSearchParams();
-        if (query) params.set('query', query);
-        if (format && format !== 'short') params.set('format', format);
-        const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
-        window.history.pushState({}, '', newUrl);
+        const basePath = window.location.pathname;
+        if (query) {
+            const querySlug = query.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase().substring(0, 50);
+            const formatSlug = format !== 'short' ? `/${format}` : '';
+            window.history.pushState({}, '', `${basePath}/${querySlug}${formatSlug}`);
+        }
     };
 
     useEffect(() => {
         document.title = 'Ai agent thats paradigm shifts and enchances your workflow.';
         document.querySelector('meta[name="description"]')?.setAttribute('content', 'Agentic AI that adapts and enhances workflows, creating a new paradigm of productivity.');
         document.querySelector('meta[name="keywords"]')?.setAttribute('content', 'AI agent, agentic AI');
-        
-        // Auto-search from URL if query is provided
-        const { query, format } = getStateFromUrl();
-        if (query) {
-            setPrompt(query);
-            setResponseFormat(format);
-            // Delay to ensure component is mounted
-            setTimeout(() => handleSubmit(query), 100);
-        }
     }, []);
 
-    const [prompt, setPrompt] = useState(() => getStateFromUrl().query);
+    const [prompt, setPrompt] = useState('');
     const [selectedModel, setSelectedModel] = useState('qwirey');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);

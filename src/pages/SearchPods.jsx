@@ -118,21 +118,9 @@ export default function SearchPods() {
         document.title = 'Search and Ai generated Audio Podcasts';
         document.querySelector('meta[name="description"]')?.setAttribute('content', 'SearchPods delivers AI generated audio podcasts, making discovery simple and productivity smarter.');
         document.querySelector('meta[name="keywords"]')?.setAttribute('content', 'Ai Podcasts, SearchPods');
-        
-        // Auto-play from URL if topic is provided
-        const urlParams = new URLSearchParams(window.location.search);
-        const topic = urlParams.get('topic');
-        if (topic) {
-            setSearchQuery(topic);
-            // Delay to ensure component is mounted
-            setTimeout(() => playEpisode({ title: topic, category: 'URL' }), 100);
-        }
     }, []);
 
-    const [searchQuery, setSearchQuery] = useState(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('topic') || '';
-    });
+    const [searchQuery, setSearchQuery] = useState('');
     const [categoryData, setCategoryData] = useState({});
     const [expandedCategory, setExpandedCategory] = useState(null);
     const [loadingCategory, setLoadingCategory] = useState(null);
@@ -549,10 +537,9 @@ export default function SearchPods() {
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            // Update URL with topic
-            const params = new URLSearchParams();
-            params.set('topic', searchQuery.trim());
-            window.history.pushState({}, '', `?${params.toString()}`);
+            // Update URL for display only (aesthetic)
+            const topicSlug = searchQuery.trim().replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+            window.history.pushState({}, '', `${window.location.pathname}/${topicSlug}`);
             playEpisode({ title: searchQuery, category: 'Search' });
         }
     };

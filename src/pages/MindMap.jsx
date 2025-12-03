@@ -153,26 +153,16 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
 }
 
 export default function MindMapPage() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const initialTopic = urlParams.get('topic') || '';
-    
     useEffect(() => {
         document.title = 'Ai Neural MindMap application';
         document.querySelector('meta[name="description"]')?.setAttribute('content', 'AI neural networks create interactive knowledge trees to explore knowledge.');
         document.querySelector('meta[name="keywords"]')?.setAttribute('content', 'mind mapping, Ai MindMap');
     }, []);
 
-    const [searchTerm, setSearchTerm] = useState(initialTopic);
+    const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
     const [treeData, setTreeData] = useState(null);
     const [error, setError] = useState(null);
-    
-    // Auto-generate mindmap if topic is passed via URL
-    useEffect(() => {
-        if (initialTopic && !treeData && !loading) {
-            handleSearch(initialTopic);
-        }
-    }, []);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [selectedKeyword, setSelectedKeyword] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -480,10 +470,9 @@ export default function MindMapPage() {
         setLoading(true);
         setError(null);
         
-        // Update URL with topic
-        const params = new URLSearchParams();
-        params.set('topic', topic);
-        window.history.pushState({}, '', `?${params.toString()}`);
+        // Update URL for display only (aesthetic)
+        const topicSlug = topic.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+        window.history.pushState({ topic }, '', `${window.location.pathname}/${topicSlug}`);
 
         try {
             const response = await base44.integrations.Core.InvokeLLM({

@@ -761,24 +761,22 @@ export default function Intelligence() {
         document.querySelector('meta[name="keywords"]')?.setAttribute('content', 'AI Intelligence, Intelligence');
     }, []);
 
-    // Parse URL params on mount
-    const getStateFromUrl = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const category = urlParams.get('category');
-        const item = urlParams.get('item');
-        return { category, item };
-    };
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null);
 
-    const [selectedCategory, setSelectedCategory] = useState(() => getStateFromUrl().category);
-    const [selectedItem, setSelectedItem] = useState(() => getStateFromUrl().item);
-
-    // Update URL when state changes
+    // Update URL for display only (aesthetic, not parsed)
     const updateUrl = (category, item) => {
-        const params = new URLSearchParams();
-        if (category) params.set('category', category);
-        if (item) params.set('item', item);
-        const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
-        window.history.pushState({}, '', newUrl);
+        const basePath = window.location.pathname;
+        let displayPath = basePath;
+        if (category) {
+            const catName = CATEGORIES[category]?.name?.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase() || category;
+            displayPath = `${basePath}/${catName}`;
+            if (item) {
+                const itemSlug = item.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                displayPath = `${basePath}/${catName}/${itemSlug}`;
+            }
+        }
+        window.history.pushState({ category, item }, '', displayPath);
     };
 
     const handleCategoryClick = (categoryKey) => {
@@ -803,12 +801,12 @@ export default function Intelligence() {
         }
     };
 
-    // Handle browser back/forward
+    // Handle browser back/forward - restore from history state only
     useEffect(() => {
-        const handlePopState = () => {
-            const { category, item } = getStateFromUrl();
-            setSelectedCategory(category);
-            setSelectedItem(item);
+        const handlePopState = (event) => {
+            const state = event.state || {};
+            setSelectedCategory(state.category || null);
+            setSelectedItem(state.item || null);
         };
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
