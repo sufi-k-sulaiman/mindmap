@@ -1150,15 +1150,24 @@ export default function Qwirey() {
                                                     
                                                     {/* Timeline - Separate */}
                                                     {result.dashboardData.timeline?.length > 0 && (
-                                                        <TimelineCard 
-                                                            title="Activity Timeline"
-                                                            events={result.dashboardData.timeline.slice(0, 4).map(e => ({
-                                                                time: e.time || 'Now',
-                                                                title: e.title,
-                                                                description: e.description,
-                                                                status: e.status || 'completed'
-                                                            }))}
-                                                        />
+                                                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                                            <h3 className="font-semibold text-gray-900 mb-4">Activity Timeline</h3>
+                                                            <div className="space-y-4">
+                                                                {result.dashboardData.timeline.slice(0, 4).map((e, i) => (
+                                                                    <div key={i} className="flex gap-4">
+                                                                        <div className="flex flex-col items-center">
+                                                                            <div className={`w-3 h-3 rounded-full ${e.status === 'completed' ? 'bg-green-500' : e.status === 'current' ? 'bg-blue-500' : 'bg-gray-300'}`} />
+                                                                            {i < 3 && <div className="w-0.5 h-full bg-gray-200 mt-1" />}
+                                                                        </div>
+                                                                        <div className="flex-1 pb-4">
+                                                                            <p className="text-xs text-gray-500">{e.time || 'Now'}</p>
+                                                                            <p className="font-medium text-gray-900">{e.title}</p>
+                                                                            <p className="text-sm text-gray-600"><TextWithLinks text={e.description} /></p>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
                                                     )}
                                                     
                                                     {/* Goals - Separate */}
