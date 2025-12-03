@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Search, Loader2, FileText, Lightbulb, ExternalLink, Brain, Map, BookOpen, Newspaper, Headphones, ChevronRight, Globe, ListTodo, Plus, Play, Clock, TrendingUp, Pause, Volume2, VolumeX, X, Sparkles, Send, GraduationCap } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Search, Loader2, FileText, Lightbulb, ExternalLink, Brain, Map, BookOpen, Newspaper, Headphones, ChevronRight, Globe, ListTodo, Plus, Play, Clock, TrendingUp, Pause, Volume2, VolumeX, X, Sparkles, Send, GraduationCap, RotateCcw, RotateCw, MessageSquarePlus, Radio, Eye } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { menuItems, LOGO_URL } from '@/components/NavigationConfig';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import ReactMarkdown from 'react-markdown';
 
 // In-app content definitions for searchable pages
@@ -81,9 +83,55 @@ const IN_APP_CONTENT = {
     }
 };
 
+// Clean text for speech synthesis
+const cleanTextForSpeech = (text) => {
+    if (!text) return '';
+    return text
+        .replace(/<[^>]*>/g, '')
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+        .replace(/\*([^*]+)\*/g, '$1')
+        .replace(/#+\s*/g, '')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/```[\s\S]*?```/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+};
+
+// Animated equalizer bars
+const AnimatedBars = ({ isPlaying = false, color = '#10B981' }) => {
+    const [heights, setHeights] = useState([4, 8, 6]);
+    
+    useEffect(() => {
+        if (!isPlaying) return;
+        const interval = setInterval(() => {
+            setHeights([
+                4 + Math.random() * 8,
+                4 + Math.random() * 8,
+                4 + Math.random() * 8
+            ]);
+        }, 150);
+        return () => clearInterval(interval);
+    }, [isPlaying]);
+
+    return (
+        <div className="flex items-end h-3 gap-0.5">
+            {heights.map((h, i) => (
+                <div
+                    key={i}
+                    className="w-0.5 rounded-full transition-all duration-150"
+                    style={{ height: `${h}px`, backgroundColor: color }}
+                />
+            ))}
+        </div>
+    );
+};
+
 export default function SearchPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const initialQuery = urlParams.get('q') || '';
+    const navigate = useNavigate();
     
     const [query, setQuery] = useState(initialQuery);
     const [results, setResults] = useState(null);
@@ -100,20 +148,25 @@ export default function SearchPage() {
         qwirey: { loading: false, data: null }
     });
 
-    // Pod Player State
-    const [podPlayer, setPodPlayer] = useState({
-        isGenerating: false,
-        isPlaying: false,
-        currentPod: null,
-        audio: null,
-        script: null,
-        progress: 0
-    });
+    // Full Pod Player State (like SearchPods)
+    const [showPodPlayer, setShowPodPlayer] = useState(false);
+    const [currentEpisode, setCurrentEpisode] = useState(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [generationStep, setGenerationStep] = useState('');
+    const [generationProgress, setGenerationProgress] = useState(0);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(80);
+    const [isMuted, setIsMuted] = useState(false);
+    const [currentCaption, setCurrentCaption] = useState('');
+    const [captionWords, setCaptionWords] = useState([]);
+    const [playbackSpeed, setPlaybackSpeed] = useState(1);
+    const [podImage, setPodImage] = useState(null);
+    const [imageLoading, setImageLoading] = useState(false);
+    const sentencesRef = useRef([]);
     const audioRef = useRef(null);
-
-    // MindMap State
-    const [mindmapData, setMindmapData] = useState(null);
-    const [mindmapLoading, setMindmapLoading] = useState(false);
+    const audioUrlRef = useRef(null);
 
     // Learning State
     const [learningData, setLearningData] = useState(null);
@@ -123,6 +176,19 @@ export default function SearchPage() {
     const [qwireyPrompt, setQwireyPrompt] = useState('');
     const [qwireyLoading, setQwireyLoading] = useState(false);
     const [qwireyResult, setQwireyResult] = useState(null);
+    
+    // Cleanup audio on unmount
+    useEffect(() => {
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+            if (audioUrlRef.current) {
+                URL.revokeObjectURL(audioUrlRef.current);
+            }
+        };
+    }, []);
 
     // Filter matching pages from navigation
     const matchingPages = menuItems.filter(item => 
@@ -322,104 +388,157 @@ export default function SearchPage() {
         }
     };
 
-    // Pod Generation & Player
-    const generatePod = async (episode) => {
-        setPodPlayer(prev => ({ ...prev, isGenerating: true, currentPod: episode }));
-        try {
-            // Generate script
-            const scriptResponse = await base44.integrations.Core.InvokeLLM({
-                prompt: `Write a 2-3 minute podcast script about: "${episode.title}". Description: ${episode.description}. Make it engaging and conversational.`,
-                response_json_schema: {
-                    type: "object",
-                    properties: {
-                        script: { type: "string" }
-                    }
-                }
-            });
-            
-            const script = scriptResponse?.script || `Welcome to this episode about ${episode.title}. ${episode.description}`;
-            
-            // Generate audio
-            const audioResponse = await base44.functions.invoke('elevenlabsTTS', {
-                text: script.substring(0, 4000),
-                voice_id: 'pNInz6obpgDQGcFmaJgB'
-            });
-            
-            if (audioResponse.data?.audio) {
-                const audioBlob = new Blob(
-                    [Uint8Array.from(atob(audioResponse.data.audio), c => c.charCodeAt(0))],
-                    { type: 'audio/mpeg' }
-                );
-                const audioUrl = URL.createObjectURL(audioBlob);
-                
-                if (audioRef.current) {
-                    audioRef.current.src = audioUrl;
-                    audioRef.current.play();
-                }
-                
-                setPodPlayer(prev => ({
-                    ...prev,
-                    isGenerating: false,
-                    isPlaying: true,
-                    audio: audioUrl,
-                    script
-                }));
-            }
-        } catch (error) {
-            console.error('Pod generation failed:', error);
-            setPodPlayer(prev => ({ ...prev, isGenerating: false }));
-        }
-    };
-
-    const togglePodPlayback = () => {
-        if (audioRef.current) {
-            if (podPlayer.isPlaying) {
-                audioRef.current.pause();
-            } else {
-                audioRef.current.play();
-            }
-            setPodPlayer(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
-        }
-    };
-
-    const closePodPlayer = () => {
+    // Full Pod Player (like SearchPods)
+    const playEpisode = async (episode) => {
         if (audioRef.current) {
             audioRef.current.pause();
-            audioRef.current.src = '';
+            audioRef.current = null;
         }
-        setPodPlayer({ isGenerating: false, isPlaying: false, currentPod: null, audio: null, script: null, progress: 0 });
+        if (audioUrlRef.current) {
+            URL.revokeObjectURL(audioUrlRef.current);
+            audioUrlRef.current = null;
+        }
+
+        setCurrentEpisode(episode);
+        setShowPodPlayer(true);
+        setCurrentTime(0);
+        setDuration(0);
+        setIsPlaying(false);
+        setIsGenerating(true);
+        setGenerationStep('Researching topic...');
+        setGenerationProgress(10);
+        setPodImage(null);
+        setImageLoading(true);
+        setCurrentCaption('Generating audio...');
+        setCaptionWords([]);
+
+        // Generate image in parallel
+        base44.integrations.Core.GenerateImage({
+            prompt: `Beautiful lifestyle photography representing "${episode.title}". Authentic, natural scene. Warm lighting, editorial style. No text, no words, no logos.`
+        }).then(result => {
+            setPodImage(result.url);
+            setImageLoading(false);
+        }).catch(() => setImageLoading(false));
+
+        try {
+            setGenerationStep('Writing script...');
+            setGenerationProgress(25);
+
+            const scriptResponse = await base44.integrations.Core.InvokeLLM({
+                prompt: `Write a detailed, engaging 5-minute podcast script about "${episode.title}". Write in a conversational, friendly tone. Do NOT use markdown formatting.`,
+                add_context_from_internet: true
+            });
+            
+            const rawText = scriptResponse || `Welcome to this episode about ${episode.title}.`;
+            
+            setGenerationStep('Generating audio...');
+            setGenerationProgress(50);
+            const cleanText = cleanTextForSpeech(rawText);
+
+            const sentences = cleanText
+                .replace(/\n+/g, ' ')
+                .split(/(?<=[.!?])\s+/)
+                .map(s => s.trim())
+                .filter(s => s.length > 3);
+
+            if (sentences.length === 0) {
+                sentences.push(`Welcome to ${episode.title}.`);
+            }
+
+            sentencesRef.current = sentences;
+
+            const ttsResponse = await base44.functions.invoke('elevenlabsTTS', {
+                text: cleanText,
+                voice_id: 'EXAVITQu4vr4xnSDxMaL'
+            });
+
+            setGenerationProgress(75);
+
+            if (!ttsResponse?.data?.audio) {
+                throw new Error('No audio data received');
+            }
+
+            setGenerationProgress(90);
+
+            const binaryString = atob(ttsResponse.data.audio);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            const blob = new Blob([bytes], { type: 'audio/mpeg' });
+            const audioUrl = URL.createObjectURL(blob);
+            audioUrlRef.current = audioUrl;
+
+            const audio = new Audio(audioUrl);
+            audioRef.current = audio;
+
+            audio.onloadedmetadata = () => setDuration(audio.duration);
+
+            audio.ontimeupdate = () => {
+                setCurrentTime(audio.currentTime);
+                if (sentences.length > 0 && audio.duration > 0) {
+                    const progress = audio.currentTime / audio.duration;
+                    const sentenceIndex = Math.min(Math.floor(progress * sentences.length), sentences.length - 1);
+                    setCurrentCaption(sentences[sentenceIndex]);
+                    setCaptionWords(sentences[sentenceIndex].split(/\s+/));
+                }
+            };
+
+            audio.onended = () => setIsPlaying(false);
+
+            setGenerationProgress(100);
+            setIsGenerating(false);
+            setCurrentCaption(sentences[0] || 'Ready to play');
+            setCaptionWords((sentences[0] || '').split(/\s+/));
+
+            audio.play().then(() => setIsPlaying(true)).catch(() => {});
+
+        } catch (error) {
+            console.error('Generation error:', error);
+            setIsGenerating(false);
+        }
     };
 
-    // MindMap Generation
-    const generateMindmap = async (topic) => {
-        setMindmapLoading(true);
-        try {
-            const response = await base44.integrations.Core.InvokeLLM({
-                prompt: `Create a detailed mind map for: "${topic.title}". Include the central topic and 5-7 main branches, each with 2-3 sub-branches.`,
-                response_json_schema: {
-                    type: "object",
-                    properties: {
-                        centralTopic: { type: "string" },
-                        branches: {
-                            type: "array",
-                            items: {
-                                type: "object",
-                                properties: {
-                                    name: { type: "string" },
-                                    color: { type: "string" },
-                                    children: { type: "array", items: { type: "string" } }
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            setMindmapData(response);
-        } catch (error) {
-            console.error('Mindmap generation failed:', error);
-        } finally {
-            setMindmapLoading(false);
+    const togglePlay = useCallback(() => {
+        if (!audioRef.current) return;
+        if (isPlaying) {
+            audioRef.current.pause();
+            setIsPlaying(false);
+        } else {
+            audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
         }
+    }, [isPlaying]);
+
+    const closePodPlayer = useCallback(() => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current = null;
+        }
+        if (audioUrlRef.current) {
+            URL.revokeObjectURL(audioUrlRef.current);
+            audioUrlRef.current = null;
+        }
+        setShowPodPlayer(false);
+        setCurrentEpisode(null);
+    }, []);
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const skipForward = () => {
+        if (audioRef.current) audioRef.current.currentTime = Math.min(audioRef.current.currentTime + 30, duration);
+    };
+
+    const skipBackward = () => {
+        if (audioRef.current) audioRef.current.currentTime = Math.max(audioRef.current.currentTime - 15, 0);
+    };
+
+    // Navigate to MindMap page with topic
+    const navigateToMindmap = (topic) => {
+        navigate(createPageUrl('MindMap') + `?topic=${encodeURIComponent(topic.title)}`);
     };
 
     // Learning Island Generation
@@ -642,7 +761,7 @@ export default function SearchPage() {
                                 )}
                             </TabsContent>
 
-                            {/* Pods Tab - Generate directly */}
+                            {/* Pods Tab - Full Player */}
                             <TabsContent value="pods">
                                 {tabResults.pods.loading ? (
                                     <div className="flex items-center justify-center py-12">
@@ -653,7 +772,7 @@ export default function SearchPage() {
                                         {tabResults.pods.data.episodes.map((episode, i) => (
                                             <div 
                                                 key={i}
-                                                onClick={() => generatePod(episode)}
+                                                onClick={() => playEpisode(episode)}
                                                 className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md hover:border-pink-300 transition-all cursor-pointer group"
                                             >
                                                 <div className="flex items-start gap-3">
@@ -682,50 +801,9 @@ export default function SearchPage() {
                                 )}
                             </TabsContent>
 
-                            {/* MindMaps Tab - Generate directly */}
+                            {/* MindMaps Tab - Navigate to MindMap page */}
                             <TabsContent value="mindmaps">
-                                {mindmapData ? (
-                                    <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                        <div className="flex items-center justify-between mb-6">
-                                            <h3 className="text-xl font-bold text-gray-900">{mindmapData.centralTopic}</h3>
-                                            <Button variant="outline" size="sm" onClick={() => setMindmapData(null)}>
-                                                <X className="w-4 h-4 mr-1" /> Close
-                                            </Button>
-                                        </div>
-                                        <div className="flex flex-wrap justify-center gap-4">
-                                            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-center p-4 text-sm">
-                                                {mindmapData.centralTopic}
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
-                                            {mindmapData.branches?.map((branch, i) => (
-                                                <div key={i} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
-                                                    <h4 className="font-semibold text-gray-900 mb-2">{branch.name}</h4>
-                                                    <ul className="space-y-1">
-                                                        {branch.children?.map((child, j) => (
-                                                            <li key={j} className="text-sm text-gray-600 flex items-start gap-2">
-                                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0" />
-                                                                {child}
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className="mt-4 text-center">
-                                            <Link to={createPageUrl('MindMap') + `?topic=${encodeURIComponent(mindmapData.centralTopic)}`}>
-                                                <Button className="bg-emerald-600 hover:bg-emerald-700">
-                                                    Open Full MindMap Editor <ChevronRight className="w-4 h-4 ml-1" />
-                                                </Button>
-                                            </Link>
-                                        </div>
-                                    </div>
-                                ) : mindmapLoading ? (
-                                    <div className="flex items-center justify-center py-12">
-                                        <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
-                                        <span className="ml-3 text-gray-600">Generating mindmap...</span>
-                                    </div>
-                                ) : tabResults.mindmaps.loading ? (
+                                {tabResults.mindmaps.loading ? (
                                     <div className="flex items-center justify-center py-12">
                                         <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
                                     </div>
@@ -734,7 +812,7 @@ export default function SearchPage() {
                                         {tabResults.mindmaps.data.map((topic, i) => (
                                             <div 
                                                 key={i}
-                                                onClick={() => generateMindmap(topic)}
+                                                onClick={() => navigateToMindmap(topic)}
                                                 className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer group"
                                             >
                                                 <div className="flex items-start gap-3 mb-3">
@@ -755,7 +833,7 @@ export default function SearchPage() {
                                                 )}
                                                 <div className="pt-3 border-t border-gray-100">
                                                     <span className="text-emerald-600 text-sm font-medium flex items-center gap-1">
-                                                        <Brain className="w-4 h-4" /> Generate MindMap
+                                                        <Brain className="w-4 h-4" /> Open in MindMap
                                                     </span>
                                                 </div>
                                             </div>
@@ -1022,8 +1100,141 @@ export default function SearchPage() {
                                 </div>
                             </div>
                         )}
-                    </div>
-                )}
+                        </div>
+                        )}
+
+                        {/* Pod Player Modal */}
+                        <Dialog open={showPodPlayer} onOpenChange={closePodPlayer}>
+                        <DialogContent className="max-w-lg p-0 bg-white border-gray-200 overflow-hidden" aria-describedby={undefined}>
+                        <DialogTitle className="sr-only">Now Playing</DialogTitle>
+                        <div className="p-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <button onClick={closePodPlayer} className="text-gray-400 hover:text-gray-600">
+                                    <X className="w-6 h-6" />
+                                </button>
+                                <span className="text-gray-500 text-sm uppercase tracking-wider">Now Playing</span>
+                                <div className="w-6" />
+                            </div>
+
+                            <div className="flex justify-center mb-6">
+                                <div className="relative w-56 h-56 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-2xl shadow-purple-500/30 overflow-hidden">
+                                    {podImage && (
+                                        <img src={podImage} alt="Podcast cover" className="absolute inset-0 w-full h-full object-cover rounded-2xl" />
+                                    )}
+                                    {imageLoading && (
+                                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/90 to-indigo-600/90 flex flex-col items-center justify-center gap-2">
+                                            <Loader2 className="w-8 h-8 text-white/80 animate-spin" />
+                                            <span className="text-white/70 text-xs">Creating artwork...</span>
+                                        </div>
+                                    )}
+                                    {isGenerating && !imageLoading ? (
+                                        <div className={`${podImage ? 'absolute inset-0 bg-black/50' : ''} flex flex-col items-center justify-center gap-3 px-6`}>
+                                            <Loader2 className="w-10 h-10 text-white/80 animate-spin" />
+                                            <span className="text-white/80 text-sm">{generationStep}</span>
+                                            <div className="w-full max-w-[180px]">
+                                                <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-white/80 rounded-full transition-all duration-500" style={{ width: `${generationProgress}%` }} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : !isGenerating && !imageLoading ? (
+                                        <>
+                                            {!podImage && <Radio className="w-16 h-16 text-white/80" />}
+                                            {isPlaying && (
+                                                <div className={`${podImage ? 'absolute inset-0 bg-black/30 flex items-center justify-center' : 'absolute inset-0 flex items-center justify-center'}`}>
+                                                    <div className="scale-[2.6]">
+                                                        <AnimatedBars isPlaying={true} color="#ffffff" />
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : null}
+                                </div>
+                            </div>
+
+                            <div className="text-center mb-4">
+                                <h2 className="text-gray-900 text-xl font-bold mb-1 line-clamp-2">{currentEpisode?.title}</h2>
+                                <p className="text-purple-600 text-sm">{currentEpisode?.description?.substring(0, 50)}</p>
+                            </div>
+
+                            {!isGenerating && (
+                                <div className="mb-6">
+                                    <div className="bg-gray-50 rounded-xl p-4 h-[84px] border border-gray-200 flex items-center justify-center overflow-hidden">
+                                        <p className="text-center leading-relaxed text-sm text-gray-700 line-clamp-3">
+                                            {captionWords.map((word, i) => (
+                                                <span key={i}>{word} </span>
+                                            ))}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="mb-6">
+                                <div 
+                                    className="relative h-2 bg-gray-200 rounded-full cursor-pointer group"
+                                    onClick={(e) => {
+                                        if (!audioRef.current || !duration) return;
+                                        const rect = e.currentTarget.getBoundingClientRect();
+                                        const percent = (e.clientX - rect.left) / rect.width;
+                                        audioRef.current.currentTime = percent * duration;
+                                    }}
+                                >
+                                    <div className="absolute h-full bg-purple-600 rounded-full transition-all" style={{ width: `${(currentTime / (duration || 1)) * 100}%` }} />
+                                </div>
+                                <div className="flex justify-between text-xs text-gray-400 mt-2">
+                                    <span>{formatTime(currentTime)}</span>
+                                    <span>{formatTime(duration)}</span>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-center gap-4">
+                                <button onClick={skipBackward} disabled={isGenerating} className="text-gray-400 hover:text-gray-600 p-2 flex flex-col items-center disabled:opacity-50">
+                                    <RotateCcw className="w-6 h-6" />
+                                    <span className="text-xs mt-0.5">15s</span>
+                                </button>
+                                <button onClick={togglePlay} disabled={isGenerating} className="w-16 h-16 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center text-white disabled:opacity-50 transition-all shadow-lg shadow-purple-500/30">
+                                    {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" fill="currentColor" />}
+                                </button>
+                                <button onClick={skipForward} disabled={isGenerating} className="text-gray-400 hover:text-gray-600 p-2 flex flex-col items-center disabled:opacity-50">
+                                    <RotateCw className="w-6 h-6" />
+                                    <span className="text-xs mt-0.5">30s</span>
+                                </button>
+                            </div>
+
+                            <div className="flex items-center justify-between mt-6 gap-4">
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => setIsMuted(!isMuted)} className="text-gray-500 hover:text-gray-700">
+                                        {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                                    </button>
+                                    <Slider
+                                        value={[isMuted ? 0 : volume]}
+                                        max={100}
+                                        onValueChange={([v]) => { 
+                                            setVolume(v); 
+                                            setIsMuted(v === 0);
+                                            if (audioRef.current) audioRef.current.volume = v / 100;
+                                        }}
+                                        className="w-20"
+                                    />
+                                </div>
+                                <div className="flex gap-1">
+                                    {[0.75, 1, 1.25, 1.5].map((speed) => (
+                                        <button
+                                            key={speed}
+                                            onClick={() => {
+                                                setPlaybackSpeed(speed);
+                                                if (audioRef.current) audioRef.current.playbackRate = speed;
+                                            }}
+                                            className={`px-2 py-1 rounded text-xs transition-all ${playbackSpeed === speed ? 'bg-purple-600 text-white' : 'text-gray-500 hover:bg-gray-100'}`}
+                                        >
+                                            {speed}x
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        </DialogContent>
+                        </Dialog>
 
                 {/* Default State - Show all features */}
                 {!loading && !results && (
