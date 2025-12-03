@@ -1030,7 +1030,7 @@ export default function Qwirey() {
                                         <div className="space-y-6">
                                             <div className="mb-6">
                                                 <h2 className="text-xl font-bold text-gray-900 mb-2">{result.reviewsData.title || 'User Reviews'}</h2>
-                                                <p className="text-gray-600 leading-relaxed">{(result.reviewsData.intro || '').slice(0, 400)}</p>
+                                                <p className="text-gray-600 leading-relaxed"><TextWithLinks text={(result.reviewsData.intro || '').slice(0, 400)} /></p>
                                             </div>
                                             <div className="space-y-4">
                                                 {result.reviewsData.reviews.slice(0, 5).map((review, i) => (
@@ -1053,16 +1053,16 @@ export default function Qwirey() {
                                                                 ))}
                                                             </div>
                                                         </div>
-                                                        <p className="text-gray-700 leading-relaxed">{review.text}</p>
+                                                        <p className="text-gray-700 leading-relaxed"><TextWithLinks text={review.text} /></p>
                                                         {review.source_url && (
                                                             <a 
                                                                 href={review.source_url} 
                                                                 target="_blank" 
                                                                 rel="noopener noreferrer"
-                                                                className="inline-flex items-center gap-1 text-sm text-purple-600 hover:text-purple-800 mt-2"
+                                                                className="inline-flex items-center gap-1.5 text-xs text-purple-600 hover:text-purple-800 transition-colors px-2 py-1 bg-purple-50 hover:bg-purple-100 rounded mt-2"
                                                             >
+                                                                {extractDomain(review.source_url)}
                                                                 <ExternalLink className="w-3 h-3" />
-                                                                View Source
                                                             </a>
                                                         )}
                                                     </div>
