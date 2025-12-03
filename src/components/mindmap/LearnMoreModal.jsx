@@ -637,10 +637,7 @@ For each document, provide the actual URL where it can be found.`,
                                                                         )}
                                                                     </div>
                                                                 </div>
-                                                                <p className="text-gray-600 text-xs mt-1.5 line-clamp-2">{doc.description}</p>
-                                                                {doc.url && (
-                                                                    <p className="text-xs text-blue-500 mt-1.5 truncate">{doc.url}</p>
-                                                                )}
+                                                                <p className="text-gray-600 text-xs mt-1.5 line-clamp-2"><TextWithLinks text={doc.description} /></p>
                                                             </div>
                                                         </div>
                                                     </a>
