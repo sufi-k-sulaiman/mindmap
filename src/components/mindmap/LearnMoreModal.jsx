@@ -478,7 +478,7 @@ For each document, provide the actual URL where it can be found.`,
                                                                 </span>
                                                                 <h4 className="font-semibold text-gray-900 text-xs md:text-base">{event.title}</h4>
                                                             </div>
-                                                            <p className="text-gray-600 text-xs md:text-sm">{event.description}</p>
+                                                            <p className="text-gray-600 text-xs md:text-sm"><TextWithLinks text={event.description} /></p>
                                                         </div>
                                                     </div>
                                                 ))}
