@@ -743,10 +743,82 @@ function ItemDetailView({ item, category, onNavigateToTopic }) {
                     <h3 className="font-semibold text-gray-900 mb-2">Current Research</h3>
                     <p className="text-gray-600"><TextWithLinks text={data?.currentResearch} /></p>
                 </div>
-            </div>
-        </div>
-    );
-}
+
+                {/* Historical Timeline */}
+                {data?.historicalTimeline?.length > 0 && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-5">
+                        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <Clock className="w-5 h-5" style={{ color: category?.color }} />
+                            Historical Timeline
+                        </h3>
+                        <div className="space-y-4">
+                            {data.historicalTimeline.map((event, i) => (
+                                <div key={i} className="flex gap-4">
+                                    <div className="flex flex-col items-center">
+                                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: category?.color }} />
+                                        {i < data.historicalTimeline.length - 1 && <div className="w-0.5 h-full bg-gray-200 mt-1" />}
+                                    </div>
+                                    <div className="flex-1 pb-4">
+                                        <p className="text-xs font-medium" style={{ color: category?.color }}>{event.year}</p>
+                                        <p className="font-medium text-gray-900">{event.title}</p>
+                                        <p className="text-sm text-gray-600">{event.description}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Common Applications */}
+                {data?.applications?.length > 0 && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-5">
+                        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <Lightbulb className="w-5 h-5" style={{ color: category?.color }} />
+                            Common Applications
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {data.applications.map((app, i) => (
+                                <div key={i} className="p-4 rounded-lg border border-gray-100 hover:shadow-md transition-all" style={{ backgroundColor: `${category?.color}05` }}>
+                                    <h4 className="font-medium text-gray-900 mb-1">{app.name}</h4>
+                                    <p className="text-sm text-gray-600">{app.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Challenges & Considerations */}
+                {data?.challenges?.length > 0 && (
+                    <div className="bg-white rounded-xl border border-gray-200 p-5">
+                        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <AlertCircle className="w-5 h-5" style={{ color: category?.color }} />
+                            Challenges & Considerations
+                        </h3>
+                        <div className="space-y-3">
+                            {data.challenges.map((challenge, i) => (
+                                <div key={i} className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
+                                    <span className="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-sm font-bold flex-shrink-0">{i + 1}</span>
+                                    <p className="text-gray-700 text-sm">{challenge}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Future Outlook */}
+                {data?.futureOutlook && (
+                    <div className="bg-gradient-to-r rounded-xl p-5 text-white" style={{ background: `linear-gradient(135deg, ${category?.color}dd, ${category?.color}99)` }}>
+                        <h3 className="font-semibold mb-3 flex items-center gap-2">
+                            <Rocket className="w-5 h-5" />
+                            Future Outlook
+                        </h3>
+                        <p className="text-white/90 leading-relaxed">{data.futureOutlook}</p>
+                    </div>
+                )}
+                </div>
+                </div>
+                );
+                }
 
 export default function Intelligence() {
     useEffect(() => {
