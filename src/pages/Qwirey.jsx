@@ -975,7 +975,7 @@ export default function Qwirey() {
                                     {responseFormat === 'long' && result.longData && (
                                         <div className="prose prose-sm max-w-none text-gray-700 space-y-6">
                                             {result.longData.paragraphs?.map((para, i) => (
-                                                <p key={i} className="text-gray-700 leading-relaxed">{para}</p>
+                                                <p key={i} className="text-gray-700 leading-relaxed"><TextWithLinks text={para} /></p>
                                             ))}
                                         </div>
                                     )}
