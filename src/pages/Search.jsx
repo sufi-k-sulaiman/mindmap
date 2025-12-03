@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Search, Loader2, FileText, Lightbulb, ExternalLink, Brain, Map, BookOpen, Newspaper, Headphones, ChevronRight, Globe, ListTodo, Plus, Play, Clock, TrendingUp, Pause, Volume2, VolumeX, X, Sparkles, Send, GraduationCap, RotateCcw, RotateCw, MessageSquarePlus, Radio, Eye } from 'lucide-react';
+import { Search, Loader2, FileText, Lightbulb, ExternalLink, Brain, Map, BookOpen, Newspaper, Headphones, ChevronRight, Globe, ListTodo, Plus, Play, Clock, TrendingUp, Pause, Volume2, VolumeX, X, Sparkles, Send, GraduationCap, RotateCcw, RotateCw, MessageSquarePlus, Radio, Eye, Atom } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { menuItems, LOGO_URL } from '@/components/NavigationConfig';
@@ -9,6 +9,40 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import ReactMarkdown from 'react-markdown';
+import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+
+// Helper to extract domain from URL
+const extractDomain = (url) => {
+    if (!url) return null;
+    try {
+        const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+        return urlObj.hostname.replace('www.', '');
+    } catch {
+        const match = url.match(/(?:https?:\/\/)?(?:www\.)?([^\/\?\s]+)/);
+        return match ? match[1] : url;
+    }
+};
+
+// Component to display source link nicely
+const SourceLink = ({ source }) => {
+    if (!source) return null;
+    let url = source;
+    let domain = source;
+    const markdownMatch = source.match(/\[([^\]]+)\]\(([^)]+)\)/);
+    if (markdownMatch) {
+        domain = markdownMatch[1];
+        url = markdownMatch[2];
+    } else {
+        domain = extractDomain(source);
+        url = source.startsWith('http') ? source : `https://${source}`;
+    }
+    if (!domain) return <span className="text-xs text-gray-400">{source}</span>;
+    return (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 hover:underline transition-colors" title={url}>
+            <ExternalLink className="w-3 h-3" />{domain}
+        </a>
+    );
+};
 
 // In-app content definitions for searchable pages
 const IN_APP_CONTENT = {
@@ -241,16 +275,28 @@ export default function SearchPage() {
         setTabResults(prev => ({ ...prev, intelligence: { loading: true, data: null } }));
         try {
             const response = await base44.integrations.Core.InvokeLLM({
-                prompt: `Provide detailed intelligence about: "${searchQuery}". Include key facts, statistics, and insights.`,
+                prompt: `Provide comprehensive intelligence about: "${searchQuery}". Include:
+1. Overview: detailed description (3-4 sentences)
+2. Key Facts: 5 interesting facts with source URLs
+3. Physical Composition: 3-5 key properties or components
+4. Chart Data for visualization:
+   - distributionData: 4-5 items with name and value (percentage)
+   - trendData: 6 data points showing trends (year and value 0-1)
+   - comparisonData: 3-4 items comparing aspects (name, valueA 0-50, valueB 0-50)
+   - radarData: 5 attributes with scores (0-100)`,
                 add_context_from_internet: true,
                 response_json_schema: {
                     type: "object",
                     properties: {
                         title: { type: "string" },
+                        category: { type: "string" },
                         overview: { type: "string" },
-                        keyFacts: { type: "array", items: { type: "string" } },
-                        statistics: { type: "array", items: { type: "object", properties: { label: { type: "string" }, value: { type: "string" } } } },
-                        relatedTopics: { type: "array", items: { type: "string" } }
+                        keyFacts: { type: "array", items: { type: "object", properties: { fact: { type: "string" }, source: { type: "string" } } } },
+                        physicalComposition: { type: "array", items: { type: "object", properties: { property: { type: "string" }, description: { type: "string" } } } },
+                        distributionData: { type: "array", items: { type: "object", properties: { name: { type: "string" }, value: { type: "number" } } } },
+                        trendData: { type: "array", items: { type: "object", properties: { year: { type: "string" }, value: { type: "number" } } } },
+                        comparisonData: { type: "array", items: { type: "object", properties: { name: { type: "string" }, valueA: { type: "number" }, valueB: { type: "number" } } } },
+                        radarData: { type: "array", items: { type: "object", properties: { attribute: { type: "string" }, score: { type: "number" } } } }
                     }
                 }
             });
@@ -889,66 +935,161 @@ export default function SearchPage() {
                             <TabsContent value="intelligence">
                                 {tabResults.intelligence.loading ? (
                                     <div className="flex items-center justify-center py-12">
-                                        <Loader2 className="w-8 h-8 text-violet-600 animate-spin" />
+                                        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+                                        <span className="ml-3 text-gray-600">Gathering intelligence...</span>
                                     </div>
                                 ) : tabResults.intelligence.data && (tabResults.intelligence.data.title || tabResults.intelligence.data.overview) ? (
                                     <div className="space-y-4">
-                                        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-                                            {tabResults.intelligence.data.title && (
-                                                <h3 className="text-xl font-bold text-gray-900">{tabResults.intelligence.data.title}</h3>
-                                            )}
-                                            {tabResults.intelligence.data.overview && (
-                                                <p className="text-gray-600">{tabResults.intelligence.data.overview}</p>
-                                            )}
-                                            {tabResults.intelligence.data.keyFacts?.length > 0 && (
+                                        {/* Header with gradient */}
+                                        <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-6 text-white">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
+                                                    <Sparkles className="w-7 h-7 text-white" />
+                                                </div>
                                                 <div>
-                                                    <h4 className="font-semibold text-gray-800 mb-2">Key Facts</h4>
-                                                    <ul className="space-y-1">
-                                                        {tabResults.intelligence.data.keyFacts.map((fact, i) => (
-                                                            <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                                                                <TrendingUp className="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0" />
-                                                                {fact}
-                                                            </li>
-                                                        ))}
-                                                    </ul>
+                                                    <p className="text-white/70 text-sm">{tabResults.intelligence.data.category || 'Intelligence'}</p>
+                                                    <h2 className="text-2xl font-bold">{tabResults.intelligence.data.title || searchedQuery}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Overview */}
+                                        {tabResults.intelligence.data.overview && (
+                                            <div className="bg-white rounded-xl border border-gray-200 p-5">
+                                                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                                    <Globe className="w-5 h-5 text-orange-500" /> Overview
+                                                </h3>
+                                                <p className="text-gray-700 leading-relaxed">{tabResults.intelligence.data.overview}</p>
+                                            </div>
+                                        )}
+
+                                        {/* Charts Grid */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {/* Distribution Pie Chart */}
+                                            {tabResults.intelligence.data.distributionData?.length > 0 && (
+                                                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                                                    <h3 className="font-semibold text-gray-900 mb-4">Distribution Analysis</h3>
+                                                    <ResponsiveContainer width="100%" height={200}>
+                                                        <PieChart>
+                                                            <Pie data={tabResults.intelligence.data.distributionData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                                                                {tabResults.intelligence.data.distributionData.map((_, index) => (
+                                                                    <Cell key={index} fill={['#F59E0B', '#10B981', '#3B82F6', '#EF4444', '#8B5CF6'][index % 5]} />
+                                                                ))}
+                                                            </Pie>
+                                                            <Tooltip />
+                                                        </PieChart>
+                                                    </ResponsiveContainer>
                                                 </div>
                                             )}
-                                            {tabResults.intelligence.data.statistics?.length > 0 && (
-                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                                    {tabResults.intelligence.data.statistics.map((stat, i) => (
-                                                        <div key={i} className="bg-violet-50 rounded-lg p-3 text-center">
-                                                            <div className="text-lg font-bold text-violet-700">{stat.value}</div>
-                                                            <div className="text-xs text-gray-600">{stat.label}</div>
-                                                        </div>
-                                                    ))}
+
+                                            {/* Trend Line Chart */}
+                                            {tabResults.intelligence.data.trendData?.length > 0 && (
+                                                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                                                    <h3 className="font-semibold text-gray-900 mb-4">Trend Over Time</h3>
+                                                    <ResponsiveContainer width="100%" height={200}>
+                                                        <LineChart data={tabResults.intelligence.data.trendData}>
+                                                            <XAxis dataKey="year" tick={{ fontSize: 12 }} />
+                                                            <YAxis tick={{ fontSize: 12 }} />
+                                                            <Tooltip />
+                                                            <Line type="monotone" dataKey="value" stroke="#8B5CF6" strokeWidth={2} dot={{ fill: '#8B5CF6' }} />
+                                                        </LineChart>
+                                                    </ResponsiveContainer>
+                                                </div>
+                                            )}
+
+                                            {/* Comparison Bar Chart */}
+                                            {tabResults.intelligence.data.comparisonData?.length > 0 && (
+                                                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                                                    <h3 className="font-semibold text-gray-900 mb-4">Comparative Analysis</h3>
+                                                    <ResponsiveContainer width="100%" height={200}>
+                                                        <BarChart data={tabResults.intelligence.data.comparisonData}>
+                                                            <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                                                            <YAxis tick={{ fontSize: 12 }} />
+                                                            <Tooltip />
+                                                            <Legend />
+                                                            <Bar dataKey="valueA" fill="#F59E0B" name="Primary" />
+                                                            <Bar dataKey="valueB" fill="#10B981" name="Secondary" />
+                                                        </BarChart>
+                                                    </ResponsiveContainer>
+                                                </div>
+                                            )}
+
+                                            {/* Radar Chart */}
+                                            {tabResults.intelligence.data.radarData?.length > 0 && (
+                                                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                                                    <h3 className="font-semibold text-gray-900 mb-4">Attribute Analysis</h3>
+                                                    <ResponsiveContainer width="100%" height={200}>
+                                                        <RadarChart data={tabResults.intelligence.data.radarData}>
+                                                            <PolarGrid />
+                                                            <PolarAngleAxis dataKey="attribute" tick={{ fontSize: 10 }} />
+                                                            <Radar dataKey="score" stroke="#10B981" fill="#10B981" fillOpacity={0.5} />
+                                                            <Tooltip />
+                                                        </RadarChart>
+                                                    </ResponsiveContainer>
                                                 </div>
                                             )}
                                         </div>
-                                        {tabResults.intelligence.data.relatedTopics?.length > 0 && (
-                                            <div>
-                                                <h4 className="text-sm font-medium text-gray-500 mb-3">Explore Related Topics</h4>
-                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                                    {tabResults.intelligence.data.relatedTopics.map((topic, i) => (
-                                                        <Link key={i} to={createPageUrl('Intelligence')}
-                                                           className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md hover:border-violet-300 transition-all group flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
-                                                                <Lightbulb className="w-5 h-5 text-violet-600" />
+
+                                        {/* Fun Facts */}
+                                        {tabResults.intelligence.data.keyFacts?.length > 0 && (
+                                            <div className="bg-white rounded-xl border border-gray-200 p-5">
+                                                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                                    <Lightbulb className="w-5 h-5 text-amber-500" /> Fun Facts
+                                                </h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                    {tabResults.intelligence.data.keyFacts.map((item, i) => (
+                                                        <div key={i} className="flex items-start gap-3 p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg">
+                                                            <span className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0" style={{ backgroundColor: ['#F59E0B', '#10B981', '#3B82F6', '#EF4444', '#8B5CF6'][i % 5] }}>
+                                                                {i + 1}
+                                                            </span>
+                                                            <div className="flex-1">
+                                                                <p className="text-gray-700 text-sm">{typeof item === 'string' ? item : item.fact}</p>
+                                                                {item.source && (
+                                                                    <div className="mt-1">
+                                                                        <SourceLink source={item.source} />
+                                                                    </div>
+                                                                )}
                                                             </div>
-                                                            <span className="font-medium text-gray-900 group-hover:text-violet-600">{topic}</span>
-                                                        </Link>
+                                                        </div>
                                                     ))}
                                                 </div>
                                             </div>
                                         )}
+
+                                        {/* Physical Composition */}
+                                        {tabResults.intelligence.data.physicalComposition?.length > 0 && (
+                                            <div className="bg-white rounded-xl border border-gray-200 p-5">
+                                                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                                    <Atom className="w-5 h-5 text-orange-500" /> Physical Composition
+                                                </h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                    {tabResults.intelligence.data.physicalComposition.map((comp, i) => (
+                                                        <div key={i} className="p-4 rounded-lg bg-orange-50 border border-orange-100">
+                                                            <h4 className="font-semibold text-gray-900 mb-1">{comp.property}</h4>
+                                                            <p className="text-sm text-gray-600">{comp.description}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Link to full Intelligence */}
+                                        <div className="text-center">
+                                            <Link to={createPageUrl('Intelligence')}>
+                                                <Button className="bg-orange-500 hover:bg-orange-600">
+                                                    Explore More in Intelligence <ChevronRight className="w-4 h-4 ml-1" />
+                                                </Button>
+                                            </Link>
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="text-center py-12">
-                                        <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center mx-auto mb-4">
-                                            <Lightbulb className="w-8 h-8 text-violet-600" />
+                                        <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-4">
+                                            <Lightbulb className="w-8 h-8 text-orange-500" />
                                         </div>
                                         <p className="text-gray-500 mb-4">Intelligence data is being processed</p>
                                         <Link to={createPageUrl('Intelligence')}>
-                                            <Button className="bg-violet-600 hover:bg-violet-700">
+                                            <Button className="bg-orange-500 hover:bg-orange-600">
                                                 Explore Intelligence Platform <ChevronRight className="w-4 h-4 ml-1" />
                                             </Button>
                                         </Link>
