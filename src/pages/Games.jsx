@@ -68,7 +68,7 @@ export default function Games() {
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Gamified Education</h1>
                     </div>
                     <p className="text-gray-500">Game Arcade transforms learning into play by merging education with immersive, AI‑powered
-games. Instead of traditional study methods, it gamifies knowledge so every challenge feels
+games.</p> <p className="text-gray-500">Instead of traditional study methods, it gamifies knowledge so every challenge feels
 like fun.</p>
                 </div>
 
