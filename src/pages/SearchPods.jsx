@@ -861,19 +861,42 @@ export default function SearchPods() {
                     </div>
                 </div>
 
-                {/* Quick Generate */}
-                <div className="flex items-center gap-3 flex-wrap">
-                    <span className="text-gray-500 text-sm">Quick Generate:</span>
-                    {QUICK_TOPICS.map((topic) => (
+                {/* Search & Generate */}
+                <div className="space-y-4">
+                    <form onSubmit={handleSearch} className="relative">
+                        <Input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search or generate podcasts on any topic..."
+                            className="w-full h-14 pl-6 pr-32 rounded-full border-gray-200 bg-white shadow-sm focus:border-purple-300 focus:ring-2 focus:ring-purple-100 text-lg"
+                        />
                         <button
-                            key={topic}
-                            onClick={() => playEpisode({ title: topic, category: 'Quick' })}
-                            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white hover:bg-purple-50 text-gray-700 hover:text-purple-600 border border-gray-200 hover:border-purple-300 transition-all text-sm shadow-sm"
+                            type="submit"
+                            disabled={!searchQuery.trim()}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 px-5 h-10 rounded-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-white font-medium transition-colors"
                         >
                             <Sparkles className="w-4 h-4" />
-                            {topic}
+                            Generate
                         </button>
-                    ))}
+                    </form>
+                    
+                    {/* Quick topic suggestions */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-gray-400 text-sm">Try:</span>
+                        {QUICK_TOPICS.map((topic) => (
+                            <button
+                                key={topic}
+                                onClick={() => {
+                                    setSearchQuery(topic);
+                                    playEpisode({ title: topic, category: 'Quick' });
+                                }}
+                                className="px-3 py-1.5 rounded-full bg-gray-100 hover:bg-purple-100 text-gray-600 hover:text-purple-600 text-sm transition-all"
+                            >
+                                {topic}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Categories Grid */}
