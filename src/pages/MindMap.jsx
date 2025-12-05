@@ -641,7 +641,7 @@ export default function MindMapPage() {
                             <p className="text-gray-500 max-w-md text-center mb-4 text-sm">
                                 Search for any topic to generate 
                             </p>
-                                        <p className="text-gray-500 max-w-md text-center mb-4 text-sm">
+                                        <p>
                                 an interactive knowledge tree.
                             </p>
 
