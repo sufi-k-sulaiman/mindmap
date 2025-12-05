@@ -751,15 +751,15 @@ export default function MindMapPage() {
                             <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
                                 <div className="flex gap-0.5 md:gap-1 bg-white/95 backdrop-blur-sm rounded-lg p-0.5 md:p-1 shadow-lg border border-gray-200">
                                     <Button
-                                        variant={annotationMode === null && !spacePressed ? "secondary" : "ghost"}
-                                        size="sm"
-                                        onClick={() => setAnnotationMode(null)}
-                                        title="Hand / Pan (Space)"
-                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
-                                    >
-                                        <Hand className={`w-3 h-3 md:w-4 md:h-4 ${annotationMode === null && !spacePressed ? 'text-purple-600' : ''}`} />
-                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">Space</span>
-                                    </Button>
+                                                                                  variant={annotationMode === null && !spacePressed ? "secondary" : "ghost"}
+                                                                                  size="sm"
+                                                                                  onClick={() => setAnnotationMode(null)}
+                                                                                  title="Hand / Pan (Space)"
+                                                                                  className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2 hidden md:flex"
+                                                                              >
+                                                                                  <Hand className={`w-4 h-4 md:w-5 md:h-5 ${annotationMode === null && !spacePressed ? 'text-purple-600' : ''}`} />
+                                                                                  <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">Space</span>
+                                                                              </Button>
                                     <Button
                                         variant={annotationMode === 'draw' ? "secondary" : "ghost"}
                                         size="sm"
@@ -767,7 +767,7 @@ export default function MindMapPage() {
                                         title="Pencil (P)"
                                         className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
                                     >
-                                        <Pencil className={`w-3 h-3 md:w-4 md:h-4 ${annotationMode === 'draw' ? 'text-purple-600' : ''}`} />
+                                        <Pencil className={`w-4 h-4 md:w-5 md:h-5 ${annotationMode === 'draw' ? 'text-purple-600' : ''}`} />
                                         <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">P</span>
                                     </Button>
                                     <Button
@@ -777,7 +777,7 @@ export default function MindMapPage() {
                                         title="Text (T)"
                                         className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
                                     >
-                                        <Type className={`w-3 h-3 md:w-4 md:h-4 ${annotationMode === 'text' ? 'text-purple-600' : ''}`} />
+                                        <Type className={`w-4 h-4 md:w-5 md:h-5 ${annotationMode === 'text' ? 'text-purple-600' : ''}`} />
                                         <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">T</span>
                                     </Button>
                                     <Button
@@ -787,7 +787,7 @@ export default function MindMapPage() {
                                         title="Rectangle (R)"
                                         className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
                                     >
-                                        <Square className={`w-3 h-3 md:w-4 md:h-4 ${annotationMode === 'rectangle' ? 'text-purple-600' : ''}`} />
+                                        <Square className={`w-4 h-4 md:w-5 md:h-5 ${annotationMode === 'rectangle' ? 'text-purple-600' : ''}`} />
                                         <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">R</span>
                                     </Button>
                                     <Button
@@ -797,7 +797,7 @@ export default function MindMapPage() {
                                         title="Circle (O/C)"
                                         className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
                                     >
-                                        <Circle className={`w-3 h-3 md:w-4 md:h-4 ${annotationMode === 'circle' ? 'text-purple-600' : ''}`} />
+                                        <Circle className={`w-4 h-4 md:w-5 md:h-5 ${annotationMode === 'circle' ? 'text-purple-600' : ''}`} />
                                         <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">O</span>
                                     </Button>
                                     <Popover>
