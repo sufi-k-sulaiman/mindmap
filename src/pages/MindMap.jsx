@@ -43,6 +43,8 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
     };
 
     const handleExplore = async () => {
+        if (isExpanding) return; // Prevent double-click
+        
         if (isExpanded && hasChildren) {
             // Collapse
             return;
