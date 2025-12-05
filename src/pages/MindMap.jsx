@@ -618,6 +618,28 @@ export default function MindMapPage() {
                                                 </div>
                                                 </PopoverContent>
                                                 </Popover>
+                                                <div className="w-px h-6 bg-gray-300 mx-1" />
+                                                <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="sm" disabled={exporting} className="h-7 md:h-8 px-1.5 md:px-2">
+                                                {exporting ? <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" /> : <Download className="w-3 h-3 md:w-4 md:h-4" />}
+                                                </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent>
+                                                <DropdownMenuItem onClick={() => exportMindMap('pdf')}>Export as PDF</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => exportMindMap('png')}>Export as PNG</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => exportMindMap('jpeg')}>Export as JPEG</DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                                </DropdownMenu>
+                                                <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => { setTreeData(null); setPanOffset({ x: 0, y: 0 }); setAnnotations([]); window.history.pushState({}, '', window.location.pathname); }}
+                                                title="Back"
+                                                className="h-7 md:h-8 px-1.5 md:px-2"
+                                                >
+                                                <X className="w-3 h-3 md:w-4 md:h-4" />
+                                                </Button>
                                                 </div>
                                                 )}
 
@@ -629,32 +651,7 @@ export default function MindMapPage() {
                                 )}
                                 </div>
 
-                                <div className="flex gap-1 md:gap-2 flex-wrap">
-                                {/* Export dropdown */}
-                            {treeData && (
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="outline" className="gap-1 md:gap-2 text-xs md:text-sm h-7 md:h-9 px-2 md:px-4" disabled={exporting}>
-                                            {exporting ? <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" /> : <Download className="w-3 h-3 md:w-4 md:h-4" />}
-                                            <span className="hidden sm:inline">Export</span>
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent>
-                                        <DropdownMenuItem onClick={() => exportMindMap('pdf')}>
-                                            Export as PDF
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => exportMindMap('png')}>
-                                            Export as PNG
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => exportMindMap('jpeg')}>
-                                            Export as JPEG
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            )}
 
-
-                        </div>
                     </div>
                     {!treeData && !loading ? (
                         <div className="h-full flex flex-col items-center pt-2 overflow-auto px-2">
