@@ -9,8 +9,7 @@ import {
     User, MapPin, Calendar, Target, Award, Users, GraduationCap,
     TrendingUp, Lightbulb, ExternalLink, Building, ImageIcon
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import RadialProgressCard from '@/components/dashboard/RadialProgressCard';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, RadialBarChart, RadialBar } from 'recharts';
 
 const CHART_COLORS = ['#8b5cf6', '#6366f1', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b'];
 
@@ -503,20 +502,11 @@ For each document, provide the actual URL where it can be found.`,
                                     {/* Deep Insights Tab */}
                                     <TabsContent value="insights" className="m-0">
                                         <div className="space-y-4 md:space-y-6">
-                                            {/* Key Stats with Radial Progress Cards */}
+                                            {/* Key Stats */}
                                             {data?.insights?.keyStats && (
                                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-                                                    {data.insights.keyStats.slice(0, 2).map((stat, i) => (
-                                                        <RadialProgressCard 
-                                                            key={i}
-                                                            percentage={parseInt(stat.value) || (i + 1) * 25}
-                                                            title={stat.label}
-                                                            size="medium"
-                                                            color={CHART_COLORS[i]}
-                                                        />
-                                                    ))}
-                                                    {data.insights.keyStats.slice(2).map((stat, i) => (
-                                                        <div key={i + 2} className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg md:rounded-xl p-3 md:p-4 text-white flex flex-col justify-center">
+                                                    {data.insights.keyStats.map((stat, i) => (
+                                                        <div key={i} className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg md:rounded-xl p-3 md:p-4 text-white flex flex-col justify-center">
                                                             <p className="text-white/70 text-xs md:text-sm">{stat.label}</p>
                                                             <p className="text-xl md:text-2xl font-bold">{stat.value}</p>
                                                         </div>
