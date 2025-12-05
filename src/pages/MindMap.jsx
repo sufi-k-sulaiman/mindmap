@@ -46,7 +46,15 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
         if (isExpanding) return; // Prevent double-click
         
         if (isExpanded && hasChildren) {
-            // Collapse
+            // Collapse - toggle off
+            setIsExpanded(false);
+            return;
+        }
+        
+        // If we already have children loaded, just expand
+        if (children && children.length > 0) {
+            setIsExpanded(true);
+            scrollToCenter();
             return;
         }
         
@@ -97,8 +105,13 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
                 <p className="font-semibold text-sm md:text-base leading-tight mb-2.5 break-words">{node.name}</p>
                 <div className="flex gap-1.5 md:gap-2 justify-center flex-wrap">
                     <button
-                        onClick={(e) => { e.stopPropagation(); handleExplore(); }}
+                        onClick={(e) => { 
+                            e.stopPropagation(); 
+                            e.preventDefault();
+                            handleExplore(); 
+                        }}
                         disabled={isExpanding}
+                        type="button"
                         className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded text-xs md:text-sm font-medium transition-colors disabled:opacity-50"
                     >
                         {isExpanding ? (
@@ -109,7 +122,12 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
                         {isExpanding ? '...' : 'Explore'}
                     </button>
                     <button
-                        onClick={(e) => { e.stopPropagation(); onLearn(node); }}
+                        onClick={(e) => { 
+                            e.stopPropagation(); 
+                            e.preventDefault();
+                            onLearn(node); 
+                        }}
+                        type="button"
                         className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded text-xs md:text-sm font-medium transition-colors"
                     >
                         <BookOpen className="w-3 md:w-3.5 h-3 md:h-3.5" />
