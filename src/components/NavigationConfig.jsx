@@ -1,24 +1,11 @@
 
-import { Globe, Sparkles, BarChart3, Gamepad2, Settings, Radio, Brain, FileText, GraduationCap, ListTodo, StickyNote, Lightbulb, ScrollText, Newspaper } from 'lucide-react';
+import { Brain } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 
 export const LOGO_URL = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/a1a505225_1cPublishing-logo.png';
 
 export const menuItems = [
     { label: 'MindMap', icon: Brain, href: createPageUrl('MindMap') },
-    { label: 'Qwirey', icon: Sparkles, href: createPageUrl('Qwirey') },
-    { label: 'SearchPods', icon: Radio, href: createPageUrl('SearchPods') },
-    { label: 'Markets', icon: BarChart3, href: createPageUrl('Markets') },
-    { label: 'News', icon: Newspaper, href: createPageUrl('News') },
-    { label: 'Learning', icon: GraduationCap, href: createPageUrl('Learning') },
-    { label: 'Geospatial', icon: Globe, href: createPageUrl('Geospatial') },
-    { label: 'Intelligence', icon: Lightbulb, href: createPageUrl('Intelligence') },
-    { label: 'Games', icon: Gamepad2, href: createPageUrl('Games') },
-    { label: 'Tasks', icon: ListTodo, href: createPageUrl('Tasks') },
-    { label: 'Notes', icon: StickyNote, href: createPageUrl('Notes') },
-    { label: 'ResumePro', icon: FileText, href: createPageUrl('ResumeBuilder') },
-    { label: 'Settings', icon: Settings, href: createPageUrl('Settings') },
-    { label: 'Terms of Use', icon: ScrollText, href: createPageUrl('TermsOfUse') },
 ];
 
 export const NAVIGATION_ITEMS = menuItems.map(item => ({
@@ -26,7 +13,4 @@ export const NAVIGATION_ITEMS = menuItems.map(item => ({
     page: item.label,
 }));
 
-export const footerLinks = [
-    { label: 'Terms of Use', href: '/TermsOfUse' },
-    { label: 'Contact Us', href: '/ContactUs' },
-];
+export const footerLinks = [];
