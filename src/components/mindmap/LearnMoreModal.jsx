@@ -353,28 +353,28 @@ For each document, provide the actual URL where it can be found.`,
                                                                 <Calendar className="w-3 h-3 md:w-5 md:h-5" />
                                                                 <span className="font-semibold text-xs md:text-sm">When</span>
                                                             </div>
-                                                            <p className="text-gray-700 text-xs md:text-sm">{data.overview?.when}</p>
+                                                            <p className="text-gray-700 text-xs md:text-sm"><TextWithLinks text={data.overview?.when} /></p>
                                                         </div>
                                                         <div className="bg-blue-50 rounded-lg md:rounded-xl p-2 md:p-4">
                                                             <div className="flex items-center gap-1 md:gap-2 text-blue-700 mb-1 md:mb-2">
                                                                 <User className="w-3 h-3 md:w-5 md:h-5" />
                                                                 <span className="font-semibold text-xs md:text-sm">Who</span>
                                                             </div>
-                                                            <p className="text-gray-700 text-xs md:text-sm">{data.overview?.who}</p>
+                                                            <p className="text-gray-700 text-xs md:text-sm"><TextWithLinks text={data.overview?.who} /></p>
                                                         </div>
                                                         <div className="bg-emerald-50 rounded-lg md:rounded-xl p-2 md:p-4">
                                                             <div className="flex items-center gap-1 md:gap-2 text-emerald-700 mb-1 md:mb-2">
                                                                 <Target className="w-3 h-3 md:w-5 md:h-5" />
                                                                 <span className="font-semibold text-xs md:text-sm">What</span>
                                                             </div>
-                                                            <p className="text-gray-700 text-xs md:text-sm">{data.overview?.what}</p>
+                                                            <p className="text-gray-700 text-xs md:text-sm"><TextWithLinks text={data.overview?.what} /></p>
                                                         </div>
                                                         <div className="bg-orange-50 rounded-lg md:rounded-xl p-2 md:p-4">
                                                             <div className="flex items-center gap-1 md:gap-2 text-orange-700 mb-1 md:mb-2">
                                                                 <MapPin className="w-3 h-3 md:w-5 md:h-5" />
                                                                 <span className="font-semibold text-xs md:text-sm">Where</span>
                                                             </div>
-                                                            <p className="text-gray-700 text-xs md:text-sm">{data.overview?.where}</p>
+                                                            <p className="text-gray-700 text-xs md:text-sm"><TextWithLinks text={data.overview?.where} /></p>
                                                         </div>
                                                     </div>
 
