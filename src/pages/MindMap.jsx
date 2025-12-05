@@ -538,7 +538,7 @@ export default function MindMapPage() {
     return (
         <div
             ref={containerRef}
-            className={`min-h-screen bg-gray-50 ${isFullscreen ? 'p-1 overflow-auto' : 'p-1'}`}
+            className={`mindmap-page min-h-screen bg-gray-50 ${isFullscreen ? 'p-1 overflow-auto' : 'p-1'}`}
         >
             <div className={`${isFullscreen ? 'max-w-none' : 'max-w-[96rem] mx-auto'}`}>
                 {/* Mind Map Content */}
@@ -740,10 +740,20 @@ export default function MindMapPage() {
                                     onLearn={handleLearn}
                                 />
                             </div>
-                        </div>
-                    )}
-                </div>
-            </div>
+                            {/* Watermark logo */}
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
+                                <img src={LOGO_URL} alt="" className="w-12 h-12 opacity-20 grayscale" />
+                            </div>
+                            </div>
+                            )}
+                            </div>
+                            </div>
+                            <style>{`
+                            .mindmap-page ~ footer,
+                            [class*="Footer"] {
+                            display: none !important;
+                            }
+                            `}</style>
 
             {/* Learn More Modal - rendered in portal to work in fullscreen */}
             {showModal && (
