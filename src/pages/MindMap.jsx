@@ -601,10 +601,10 @@ export default function MindMapPage() {
                         </div>
                     )}
                     {!treeData && !loading ? (
-                        <div className="h-full flex flex-col items-center pt-2 overflow-auto px-2">
+                        <div className="h-full flex flex-col items-center pt-2 overflow-auto px-2 pb-20 md:pb-2">
 
-                            {/* Search Bar - Right below icon */}
-                            <div className="w-full max-w-xl mx-auto mb-4">
+                            {/* Search Bar - Hidden on mobile, shown on desktop */}
+                            <div className="hidden md:block w-full max-w-xl mx-auto mb-4">
                                 <div className="relative">
                                     <input
                                         type="text"
@@ -657,9 +657,30 @@ export default function MindMapPage() {
                                         onClick={handleSearch}
                                     />
                                 ))}
-                            </div>
-                        </div>
-                    ) : loading ? (
+                                </div>
+
+                                {/* Mobile Sticky Search Bar */}
+                                <div className="fixed bottom-4 left-4 right-4 md:hidden z-50">
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(searchTerm); }}
+                                        placeholder="Search anything..."
+                                        className="w-full h-12 pl-5 pr-14 rounded-full border border-gray-200 bg-white shadow-lg focus:border-purple-300 focus:ring-2 focus:ring-purple-100 outline-none transition-all text-gray-700 placeholder:text-gray-400"
+                                    />
+                                    <button
+                                        onClick={() => handleSearch(searchTerm)}
+                                        disabled={loading || !searchTerm.trim()}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 flex items-center justify-center transition-colors"
+                                    >
+                                        {loading ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Search className="w-4 h-4 text-white" />}
+                                    </button>
+                                </div>
+                                </div>
+                                </div>
+                                ) : loading ? (
                         <div className="h-full flex flex-col items-center justify-center py-20">
                             <Loader2 className="w-12 h-12 animate-spin text-purple-600 mb-4" />
                             <p className="text-gray-600">Building knowledge network...</p>
