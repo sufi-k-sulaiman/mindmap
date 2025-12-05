@@ -503,7 +503,7 @@ For each document, provide the actual URL where it can be found.`,
                                     <TabsContent value="insights" className="m-0">
                                         <div className="space-y-4 md:space-y-6">
                                             {/* Key Stats */}
-                                            {data?.insights?.keyStats && data.insights.keyStats.length > 0 ? (
+                                            {data?.insights?.keyStats && (
                                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
                                                     {data.insights.keyStats.map((stat, i) => (
                                                         <div key={i} className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg md:rounded-xl p-3 md:p-4 text-white flex flex-col justify-center">
@@ -512,32 +512,13 @@ For each document, provide the actual URL where it can be found.`,
                                                         </div>
                                                     ))}
                                                 </div>
-                                            ) : (
-                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-                                                    <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg md:rounded-xl p-3 md:p-4 text-white flex flex-col justify-center">
-                                                        <p className="text-white/70 text-xs md:text-sm">Topic</p>
-                                                        <p className="text-lg md:text-xl font-bold truncate">{keyword?.name}</p>
-                                                    </div>
-                                                    <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg md:rounded-xl p-3 md:p-4 text-white flex flex-col justify-center">
-                                                        <p className="text-white/70 text-xs md:text-sm">Data Points</p>
-                                                        <p className="text-xl md:text-2xl font-bold">{data?.timeline?.length || 0}+</p>
-                                                    </div>
-                                                    <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg md:rounded-xl p-3 md:p-4 text-white flex flex-col justify-center">
-                                                        <p className="text-white/70 text-xs md:text-sm">Skills</p>
-                                                        <p className="text-xl md:text-2xl font-bold">{data?.professional?.skills?.length || 0}</p>
-                                                    </div>
-                                                    <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-lg md:rounded-xl p-3 md:p-4 text-white flex flex-col justify-center">
-                                                        <p className="text-white/70 text-xs md:text-sm">Experts</p>
-                                                        <p className="text-xl md:text-2xl font-bold">{data?.professional?.experts?.length || 0}</p>
-                                                    </div>
-                                                </div>
                                             )}
 
                                             <div className="grid md:grid-cols-2 gap-3 md:gap-6">
-                                                {/* Bar Chart */}
-                                                {data?.insights?.barChartData && data.insights.barChartData.length > 0 ? (
+                                                {/* Stacked Bar Chart */}
+                                                {data?.insights?.barChartData && (
                                                     <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5">
-                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.barChartTitle || 'Distribution'}</h3>
+                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.barChartTitle}</h3>
                                                         <div className="h-64 md:h-64">
                                                             <ResponsiveContainer width="100%" height="100%">
                                                                 <BarChart data={data.insights.barChartData} layout="vertical">
@@ -545,25 +526,8 @@ For each document, provide the actual URL where it can be found.`,
                                                                     <XAxis type="number" tick={{ fontSize: 11 }} />
                                                                     <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={80} />
                                                                     <Tooltip />
-                                                                    <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
-                                                                </BarChart>
-                                                            </ResponsiveContainer>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5">
-                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">Related Subjects</h3>
-                                                        <div className="h-64 md:h-64">
-                                                            <ResponsiveContainer width="100%" height="100%">
-                                                                <BarChart 
-                                                                    data={(data?.professional?.relatedSubjects || ['Subject 1', 'Subject 2', 'Subject 3']).map((s, i) => ({ name: s, value: 100 - i * 15 }))} 
-                                                                    layout="vertical"
-                                                                >
-                                                                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                                                                    <XAxis type="number" tick={{ fontSize: 11 }} />
-                                                                    <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={80} />
-                                                                    <Tooltip />
-                                                                    <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+                                                                    <Bar dataKey="value" stackId="a" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+                                                                    <Bar dataKey="value2" stackId="a" fill="#c4b5fd" radius={[0, 4, 4, 0]} />
                                                                 </BarChart>
                                                             </ResponsiveContainer>
                                                         </div>
@@ -571,9 +535,9 @@ For each document, provide the actual URL where it can be found.`,
                                                 )}
 
                                                 {/* Area Chart */}
-                                                {data?.insights?.lineChartData && data.insights.lineChartData.length > 0 ? (
+                                                {data?.insights?.lineChartData && (
                                                     <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5">
-                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.lineChartTitle || 'Trend'}</h3>
+                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.lineChartTitle}</h3>
                                                         <div className="h-64 md:h-64">
                                                             <ResponsiveContainer width="100%" height="100%">
                                                                 <AreaChart data={data.insights.lineChartData}>
@@ -582,32 +546,8 @@ For each document, provide the actual URL where it can be found.`,
                                                                             <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
                                                                             <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
                                                                         </linearGradient>
-                                                                    </defs>
-                                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                                                    <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                                                                    <YAxis tick={{ fontSize: 11 }} />
-                                                                    <Tooltip />
-                                                                    <Area type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={2} fill="url(#areaGradient)" />
-                                                                </AreaChart>
-                                                            </ResponsiveContainer>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5">
-                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">Interest Over Time</h3>
-                                                        <div className="h-64 md:h-64">
-                                                            <ResponsiveContainer width="100%" height="100%">
-                                                                <AreaChart data={[
-                                                                    { year: '2019', value: 30 },
-                                                                    { year: '2020', value: 45 },
-                                                                    { year: '2021', value: 60 },
-                                                                    { year: '2022', value: 75 },
-                                                                    { year: '2023', value: 85 },
-                                                                    { year: '2024', value: 95 }
-                                                                ]}>
-                                                                    <defs>
-                                                                        <linearGradient id="areaGradientFallback" x1="0" y1="0" x2="0" y2="1">
-                                                                            <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.8}/>
+                                                                        <linearGradient id="areaGradient2" x1="0" y1="0" x2="0" y2="1">
+                                                                            <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.6}/>
                                                                             <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.1}/>
                                                                         </linearGradient>
                                                                     </defs>
@@ -615,7 +555,8 @@ For each document, provide the actual URL where it can be found.`,
                                                                     <XAxis dataKey="year" tick={{ fontSize: 11 }} />
                                                                     <YAxis tick={{ fontSize: 11 }} />
                                                                     <Tooltip />
-                                                                    <Area type="monotone" dataKey="value" stroke="#06b6d4" strokeWidth={2} fill="url(#areaGradientFallback)" />
+                                                                    <Area type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={2} fill="url(#areaGradient)" />
+                                                                    <Area type="monotone" dataKey="value2" stroke="#06b6d4" strokeWidth={2} fill="url(#areaGradient2)" />
                                                                 </AreaChart>
                                                             </ResponsiveContainer>
                                                         </div>
@@ -623,9 +564,9 @@ For each document, provide the actual URL where it can be found.`,
                                                 )}
 
                                                 {/* Pie Chart */}
-                                                {data?.insights?.pieChartData && data.insights.pieChartData.length > 0 ? (
+                                                {data?.insights?.pieChartData && (
                                                     <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5 md:col-span-2">
-                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.pieChartTitle || 'Distribution'}</h3>
+                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.pieChartTitle}</h3>
                                                         <div className="h-72 md:h-64">
                                                             <ResponsiveContainer width="100%" height="100%">
                                                                 <PieChart>
@@ -638,29 +579,6 @@ For each document, provide the actual URL where it can be found.`,
                                                                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                                                     >
                                                                         {data.insights.pieChartData.map((entry, index) => (
-                                                                            <Cell key={index} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                                                                        ))}
-                                                                    </Pie>
-                                                                    <Tooltip />
-                                                                </PieChart>
-                                                            </ResponsiveContainer>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5 md:col-span-2">
-                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">Skills Distribution</h3>
-                                                        <div className="h-72 md:h-64">
-                                                            <ResponsiveContainer width="100%" height="100%">
-                                                                <PieChart>
-                                                                    <Pie
-                                                                        data={(data?.professional?.skills || ['Skill 1', 'Skill 2', 'Skill 3', 'Skill 4']).slice(0, 6).map((s, i) => ({ name: s, value: 100 - i * 10 }))}
-                                                                        cx="50%"
-                                                                        cy="50%"
-                                                                        outerRadius={80}
-                                                                        dataKey="value"
-                                                                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                                                    >
-                                                                        {(data?.professional?.skills || []).slice(0, 6).map((entry, index) => (
                                                                             <Cell key={index} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                                                                         ))}
                                                                     </Pie>
