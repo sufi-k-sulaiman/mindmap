@@ -18,8 +18,9 @@ export default function PageLayout({ children, activePage }) {
         }
     }, [sidebarOpen]);
 
-    // Hide header on MindMap page
+    // Hide header and footer on MindMap page
     const hideHeader = activePage === 'MindMap';
+    const hideFooter = activePage === 'MindMap';
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -39,7 +40,7 @@ export default function PageLayout({ children, activePage }) {
                 </main>
             </div>
             
-            <Footer />
+            {!hideFooter && <Footer />}
         </div>
     );
 }
