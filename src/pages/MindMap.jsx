@@ -522,8 +522,12 @@ export default function MindMapPage() {
         setError(null);
         
         // Update URL for display only (aesthetic)
-        const topicSlug = topic.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-        window.history.pushState({ topic }, '', `${window.location.pathname}/${topicSlug}`);
+                    try {
+                        const topicSlug = topic.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                        window.history.pushState({ topic }, '', `${window.location.pathname}?topic=${topicSlug}`);
+                    } catch (e) {
+                        // Ignore pushState errors in production
+                    }
 
         try {
             const response = await base44.integrations.Core.InvokeLLM({
@@ -848,7 +852,7 @@ export default function MindMapPage() {
                                             setTreeData(null); 
                                             setPanOffset({ x: 0, y: 0 }); 
                                             setAnnotations([]); 
-                                            window.history.pushState({}, '', window.location.pathname); 
+                                            try { window.history.pushState({}, '', window.location.pathname); } catch (e) {} 
                                         }}
                                         title="Back"
                                         className="h-7 md:h-8 px-1.5 md:px-2"
