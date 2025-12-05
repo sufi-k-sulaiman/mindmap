@@ -9,9 +9,26 @@ import {
     User, MapPin, Calendar, Target, Award, Users, GraduationCap,
     TrendingUp, Lightbulb, ExternalLink, Building, ImageIcon
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, Legend } from 'recharts';
 
 const CHART_COLORS = ['#8b5cf6', '#6366f1', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b'];
+
+// Custom mobile-friendly tooltip
+const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg px-3 py-2 shadow-lg text-xs md:text-sm max-w-[200px]">
+                <p className="font-medium text-gray-900 truncate">{label || payload[0]?.name}</p>
+                {payload.map((entry, i) => (
+                    <p key={i} style={{ color: entry.color }} className="truncate">
+                        {entry.name}: {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
+                    </p>
+                ))}
+            </div>
+        );
+    }
+    return null;
+};
 
 // Helper to extract domain from URL
 const extractDomain = (url) => {
@@ -519,14 +536,14 @@ For each document, provide the actual URL where it can be found.`,
                                                 {data?.insights?.barChartData && data.insights.barChartData.length > 0 && (
                                                     <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5">
                                                         <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.barChartTitle || 'Distribution'}</h3>
-                                                        <div className="h-64 md:h-64">
+                                                        <div className="h-56 md:h-64">
                                                             <ResponsiveContainer width="100%" height="100%">
-                                                                <BarChart data={data.insights.barChartData} layout="vertical">
+                                                                <BarChart data={data.insights.barChartData} layout="vertical" margin={{ left: 0, right: 10 }}>
                                                                     <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                                                                    <XAxis type="number" tick={{ fontSize: 11 }} />
-                                                                    <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={80} />
-                                                                    <Tooltip />
-                                                                    <Bar dataKey="value" stackId="a" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+                                                                    <XAxis type="number" tick={{ fontSize: 10 }} />
+                                                                    <YAxis dataKey="name" type="category" tick={{ fontSize: 9 }} width={60} />
+                                                                    <Tooltip content={<CustomTooltip />} />
+                                                                    <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
                                                                 </BarChart>
                                                             </ResponsiveContainer>
                                                         </div>
@@ -537,9 +554,9 @@ For each document, provide the actual URL where it can be found.`,
                                                 {data?.insights?.lineChartData && data.insights.lineChartData.length > 0 && (
                                                     <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5">
                                                         <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.lineChartTitle || 'Trends Over Time'}</h3>
-                                                        <div className="h-64 md:h-64">
+                                                        <div className="h-56 md:h-64">
                                                             <ResponsiveContainer width="100%" height="100%">
-                                                                <AreaChart data={data.insights.lineChartData}>
+                                                                <AreaChart data={data.insights.lineChartData} margin={{ left: -10, right: 10 }}>
                                                                     <defs>
                                                                         <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
                                                                             <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
@@ -547,9 +564,9 @@ For each document, provide the actual URL where it can be found.`,
                                                                         </linearGradient>
                                                                     </defs>
                                                                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                                                    <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                                                                    <YAxis tick={{ fontSize: 11 }} />
-                                                                    <Tooltip />
+                                                                    <XAxis dataKey="year" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
+                                                                    <YAxis tick={{ fontSize: 9 }} width={40} />
+                                                                    <Tooltip content={<CustomTooltip />} />
                                                                     <Area type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={2} fill="url(#areaGradient)" />
                                                                 </AreaChart>
                                                             </ResponsiveContainer>
@@ -561,22 +578,30 @@ For each document, provide the actual URL where it can be found.`,
                                                 {data?.insights?.pieChartData && data.insights.pieChartData.length > 0 && (
                                                     <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5 md:col-span-2">
                                                         <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.pieChartTitle || 'Distribution'}</h3>
-                                                        <div className="h-72 md:h-64">
+                                                        <div className="h-64 md:h-72">
                                                             <ResponsiveContainer width="100%" height="100%">
                                                                 <PieChart>
                                                                     <Pie
                                                                         data={data.insights.pieChartData}
                                                                         cx="50%"
-                                                                        cy="50%"
-                                                                        outerRadius={80}
+                                                                        cy="45%"
+                                                                        outerRadius={60}
+                                                                        innerRadius={25}
                                                                         dataKey="value"
-                                                                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                                                        label={false}
                                                                     >
                                                                         {data.insights.pieChartData.map((entry, index) => (
                                                                             <Cell key={index} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                                                                         ))}
                                                                     </Pie>
-                                                                    <Tooltip />
+                                                                    <Tooltip content={<CustomTooltip />} />
+                                                                    <Legend 
+                                                                        layout="horizontal" 
+                                                                        verticalAlign="bottom" 
+                                                                        align="center"
+                                                                        wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
+                                                                        formatter={(value) => <span className="text-gray-700 text-[10px] md:text-xs">{value}</span>}
+                                                                    />
                                                                 </PieChart>
                                                             </ResponsiveContainer>
                                                         </div>
