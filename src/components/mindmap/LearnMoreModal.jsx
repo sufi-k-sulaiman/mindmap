@@ -316,9 +316,23 @@ For each document, provide the actual URL where it can be found.`,
 
                         <div className="flex-1 overflow-y-auto p-3 md:p-6">
                             {loading ? (
-                                <div className="flex items-center justify-center h-64">
-                                    <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-                                    <span className="ml-3 text-gray-600">Loading comprehensive data...</span>
+                                <div className="flex flex-col items-center justify-center h-64">
+                                    <style>{`
+                                        @keyframes logoPulse {
+                                            0%, 100% { opacity: 0.4; transform: scale(1); }
+                                            50% { opacity: 0.7; transform: scale(1.03); }
+                                        }
+                                    `}</style>
+                                    <div className="relative mb-4 flex items-center justify-center">
+                                        <div className="absolute w-16 h-16 rounded-full border-4 border-purple-200 border-t-purple-600 animate-spin" />
+                                        <img 
+                                            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692729a5f5180fbd43f297e9/622024f26_image-loading-logo.png" 
+                                            alt="Loading" 
+                                            className="w-12 h-12 object-contain grayscale opacity-50"
+                                            style={{ animation: 'logoPulse 1.5s ease-in-out infinite' }}
+                                        />
+                                    </div>
+                                    <span className="text-gray-600">Loading comprehensive data...</span>
                                 </div>
                             ) : (
                                 <>
