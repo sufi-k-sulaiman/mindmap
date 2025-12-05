@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from './layout/Header';
 import Footer from './layout/Footer';
-import Sidebar from './layout/Sidebar';
 import { Toaster } from 'sonner';
 
 export default function PageLayout({ children, activePage }) {
@@ -30,12 +29,6 @@ export default function PageLayout({ children, activePage }) {
             />
             
             <div className="flex flex-1 overflow-hidden">
-                <Sidebar 
-                    isOpen={sidebarOpen} 
-                    activePage={activePage} 
-                    onClose={() => setSidebarOpen(false)} 
-                />
-                
                 <main className="flex-1 overflow-auto">
                     {children}
                 </main>
