@@ -360,11 +360,11 @@ For each document, provide the actual URL where it can be found.`,
                                             
                                             {data?.overview && (
                                                 <>
-                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-                                                        <div className="bg-purple-50 rounded-lg md:rounded-xl p-2 md:p-4">
-                                                            <div className="flex items-center gap-1 md:gap-2 text-purple-700 mb-1 md:mb-2">
-                                                                <Calendar className="w-3 h-3 md:w-5 md:h-5" />
-                                                                <span className="font-semibold text-xs md:text-sm">When</span>
+                                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-4">
+                                                                                                              <div className="bg-purple-50 rounded-lg md:rounded-xl p-2 md:p-4">
+                                                                                                                  <div className="flex items-center gap-1 md:gap-2 text-purple-700 mb-1 md:mb-2">
+                                                                                                                      <Calendar className="w-3 h-3 md:w-5 md:h-5" />
+                                                                                                                      <span className="font-semibold text-xs md:text-sm">When</span>
                                                             </div>
                                                             <p className="text-gray-700 text-xs md:text-sm"><TextWithLinks text={data.overview?.when} /></p>
                                                         </div>
