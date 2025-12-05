@@ -18,15 +18,20 @@ export default function PageLayout({ children, activePage }) {
         }
     }, [sidebarOpen]);
 
+    // Hide header on MindMap page
+    const hideHeader = activePage === 'MindMap';
+
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <Toaster position="bottom-right" />
-            <Header 
-                title={activePage} 
-                sidebarOpen={sidebarOpen} 
-                setSidebarOpen={setSidebarOpen}
-                currentPage={activePage}
-            />
+            {!hideHeader && (
+                <Header 
+                    title={activePage} 
+                    sidebarOpen={sidebarOpen} 
+                    setSidebarOpen={setSidebarOpen}
+                    currentPage={activePage}
+                />
+            )}
             
             <div className="flex flex-1 overflow-hidden">
                 <main className="flex-1 overflow-auto">
