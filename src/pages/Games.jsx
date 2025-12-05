@@ -72,7 +72,7 @@ games.</p> <p className="text-gray-500">Instead of traditional study methods, it
 like fun.</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {/* Space Battle Game Card */}
                   <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm text-center flex flex-col">
                       <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
