@@ -226,7 +226,7 @@ export default function CourseModal({ isOpen, onClose, topic, onComplete }) {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className={`max-w-full w-full h-full max-h-full rounded-none md:max-w-4xl md:max-h-[90vh] md:rounded-lg overflow-hidden p-0 transition-all ${isFullscreen ? '!max-w-full !w-full !h-full !max-h-full !rounded-none' : ''}`}>
+            <DialogContent className={`max-w-full w-full h-full max-h-full rounded-none md:max-w-4xl md:max-h-[90vh] md:rounded-lg overflow-hidden p-0 transition-all [&>button]:hidden ${isFullscreen ? '!max-w-full !w-full !h-full !max-h-full !rounded-none' : ''}`}>
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20">
                         <Loader2 className="w-12 h-12 animate-spin mb-4" style={{ color: topic.color }} />
