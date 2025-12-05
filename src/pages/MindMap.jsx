@@ -623,10 +623,8 @@ export default function MindMapPage() {
                                     </button>
                                 </div>
                             </div>
-
-                            <h2 className="text-xl font-bold text-gray-900 mb-2">Start Exploring</h2>
                             <p className="text-gray-500 max-w-md text-center mb-4 text-sm">
-                                Search for any topic to generate an interactive knowledge tree. Click Explore to dive deeper or Learn for detailed insights.
+                                Search for any topic to generate an interactive knowledge tree.
                             </p>
 
                             {/* Recent Searches */}
