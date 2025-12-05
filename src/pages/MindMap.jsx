@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2 } from 'lucide-react';
+import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2, X } from 'lucide-react';
 import { LOGO_URL } from '@/components/NavigationConfig';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
