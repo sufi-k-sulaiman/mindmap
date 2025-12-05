@@ -168,6 +168,7 @@ export default function MindMapPage() {
     const [selectedKeyword, setSelectedKeyword] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [exporting, setExporting] = useState(false);
+    const [recentSearches, setRecentSearches] = useState([]);
     const containerRef = useRef(null);
     const mindmapRef = useRef(null);
     
@@ -634,7 +635,18 @@ export default function MindMapPage() {
                                                 <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                onClick={() => { setTreeData(null); setPanOffset({ x: 0, y: 0 }); setAnnotations([]); window.history.pushState({}, '', window.location.pathname); }}
+                                                onClick={() => { 
+                                                    if (treeData?.name) {
+                                                        setRecentSearches(prev => {
+                                                            const filtered = prev.filter(s => s !== treeData.name);
+                                                            return [treeData.name, ...filtered].slice(0, 5);
+                                                        });
+                                                    }
+                                                    setTreeData(null); 
+                                                    setPanOffset({ x: 0, y: 0 }); 
+                                                    setAnnotations([]); 
+                                                    window.history.pushState({}, '', window.location.pathname); 
+                                                }}
                                                 title="Back"
                                                 className="h-7 md:h-8 px-1.5 md:px-2"
                                                 >
@@ -681,6 +693,22 @@ export default function MindMapPage() {
                             <p className="text-gray-500 max-w-md text-center mb-4 text-sm">
                                 Search for any topic to generate an interactive knowledge tree. Click Explore to dive deeper or Learn for detailed insights.
                             </p>
+
+                            {/* Recent Searches */}
+                            {recentSearches.length > 0 && (
+                                <div className="w-full max-w-4xl mb-6 px-4">
+                                    <h3 className="text-sm font-medium text-gray-500 mb-2">Recent</h3>
+                                    <div className="flex flex-wrap gap-3 justify-center">
+                                        {recentSearches.map(topic => (
+                                            <TopicThumbnail
+                                                key={topic}
+                                                topic={topic}
+                                                onClick={handleSearch}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full justify-items-center mx-auto px-4">
                                 {[
