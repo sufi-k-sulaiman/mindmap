@@ -588,11 +588,11 @@ export default function MindMapPage() {
     return (
         <div
             ref={containerRef}
-            className={`mindmap-page min-h-screen bg-gray-50 ${isFullscreen ? 'p-1 overflow-auto' : 'p-1'}`}
+            className={`mindmap-page min-h-screen bg-gray-50 ${isFullscreen ? 'p-0 overflow-auto' : 'p-0'}`}
         >
-            <div className={`${isFullscreen ? 'max-w-none' : 'max-w-[96rem] mx-auto'}`}>
-                {/* Mind Map Content */}
-                <div className={`bg-white rounded-xl border border-gray-200 ${isFullscreen ? 'h-[calc(100vh-8px)]' : 'h-[calc(100vh-16px)]'} overflow-hidden p-2`}>
+            <div className={`${isFullscreen ? 'max-w-none' : 'max-w-none'}`}>
+                                {/* Mind Map Content */}
+                                <div className={`bg-white ${isFullscreen ? 'h-screen' : 'h-screen'} overflow-hidden p-0`}>
                     {/* Header inside the card */}
                     {!treeData && (
                         <div className="flex items-center justify-center mb-3 gap-2 py-1">
