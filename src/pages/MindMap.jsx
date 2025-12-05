@@ -292,21 +292,30 @@ export default function MindMapPage() {
 
     const [isDrawing, setIsDrawing] = useState(false);
 
-    const handleCanvasMouseDown = (e) => {
-        // Prevent default to stop text selection
-        e.preventDefault();
-        
-        if (spacePressed) {
-            setIsDragging(true);
-            setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
-            return;
-        }
-        
-        if (!annotationMode) return;
-        
-        const rect = canvasOverlayRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left + canvasOverlayRef.current.scrollLeft;
-        const y = e.clientY - rect.top + canvasOverlayRef.current.scrollTop;
+    const getEventCoords = (e) => {
+                if (e.touches && e.touches.length > 0) {
+                    return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+                }
+                return { clientX: e.clientX, clientY: e.clientY };
+            };
+
+            const handleCanvasMouseDown = (e) => {
+                // Prevent default to stop text selection
+                e.preventDefault();
+
+                const { clientX, clientY } = getEventCoords(e);
+
+                if (spacePressed) {
+                    setIsDragging(true);
+                    setDragStart({ x: clientX - panOffset.x, y: clientY - panOffset.y });
+                    return;
+                }
+
+                if (!annotationMode) return;
+
+                const rect = canvasOverlayRef.current.getBoundingClientRect();
+                const x = clientX - rect.left + canvasOverlayRef.current.scrollLeft;
+                const y = clientY - rect.top + canvasOverlayRef.current.scrollTop;
         
         if (annotationMode === 'text') {
             setTextInput({ visible: true, x, y, value: '' });
@@ -341,19 +350,21 @@ export default function MindMapPage() {
     };
 
     const handleCanvasMouseMove = (e) => {
-        if (isDragging && spacePressed) {
-            setPanOffset({
-                x: e.clientX - dragStart.x,
-                y: e.clientY - dragStart.y
-            });
-            return;
-        }
-        
-        if (!currentAnnotation || !isDrawing) return;
-        
-        const rect = canvasOverlayRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left + canvasOverlayRef.current.scrollLeft;
-        const y = e.clientY - rect.top + canvasOverlayRef.current.scrollTop;
+                const { clientX, clientY } = getEventCoords(e);
+
+                if (isDragging && spacePressed) {
+                    setPanOffset({
+                        x: clientX - dragStart.x,
+                        y: clientY - dragStart.y
+                    });
+                    return;
+                }
+
+                if (!currentAnnotation || !isDrawing) return;
+
+                const rect = canvasOverlayRef.current.getBoundingClientRect();
+                const x = clientX - rect.left + canvasOverlayRef.current.scrollLeft;
+                const y = clientY - rect.top + canvasOverlayRef.current.scrollTop;
         
         if (currentAnnotation.type === 'draw') {
             setCurrentAnnotation(prev => ({
@@ -697,9 +708,12 @@ export default function MindMapPage() {
                             className={`relative flex justify-center overflow-auto pt-4 ${spacePressed ? 'select-none cursor-grab' : ''} ${isDragging ? 'cursor-grabbing' : ''} ${annotationMode === 'draw' || annotationMode === 'rectangle' || annotationMode === 'circle' ? 'cursor-crosshair' : ''} ${annotationMode === 'text' ? 'cursor-text' : ''} ${annotationMode === 'eraser' ? 'cursor-cell' : ''}`}
                             ref={canvasOverlayRef}
                             onMouseDown={(annotationMode || spacePressed) ? handleCanvasMouseDown : undefined}
-                            onMouseMove={(annotationMode || spacePressed || isDragging || isDrawing) ? handleCanvasMouseMove : undefined}
-                            onMouseUp={(annotationMode || spacePressed || isDragging || isDrawing) ? handleCanvasMouseUp : undefined}
-                            onMouseLeave={(annotationMode || spacePressed || isDragging || isDrawing) ? handleCanvasMouseUp : undefined}
+                                                            onMouseMove={(annotationMode || spacePressed || isDragging || isDrawing) ? handleCanvasMouseMove : undefined}
+                                                            onMouseUp={(annotationMode || spacePressed || isDragging || isDrawing) ? handleCanvasMouseUp : undefined}
+                                                            onMouseLeave={(annotationMode || spacePressed || isDragging || isDrawing) ? handleCanvasMouseUp : undefined}
+                                                            onTouchStart={(annotationMode || spacePressed) ? handleCanvasMouseDown : undefined}
+                                                            onTouchMove={(annotationMode || spacePressed || isDragging || isDrawing) ? handleCanvasMouseMove : undefined}
+                                                            onTouchEnd={(annotationMode || spacePressed || isDragging || isDrawing) ? handleCanvasMouseUp : undefined}
                             style={{ height: '100%', width: '100%' }}
                         >
                             {renderAnnotations()}
