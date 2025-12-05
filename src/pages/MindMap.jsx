@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Network, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2 } from 'lucide-react';
+import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2 } from 'lucide-react';
+import { LOGO_URL } from '@/components/NavigationConfig';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import html2canvas from 'html2canvas';
@@ -545,9 +546,7 @@ export default function MindMapPage() {
                     {/* Header inside the card */}
                     <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                         <div className="flex items-center gap-2 md:gap-3">
-                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-purple-100 flex items-center justify-center">
-                                <Network className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
-                            </div>
+                            <img src={LOGO_URL} alt="Logo" className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl" />
                             <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">Neural MindMaps</h1>
                         </div>
 
