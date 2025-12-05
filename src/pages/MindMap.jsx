@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2, X } from 'lucide-react';
+import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2, X, Undo2, Redo2 } from 'lucide-react';
 import { LOGO_URL } from '@/components/NavigationConfig';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -182,10 +182,38 @@ export default function MindMapPage() {
     // Annotation state
     const [annotationMode, setAnnotationMode] = useState(null); // null, 'draw', 'text', 'rectangle', 'circle', 'eraser'
     const [annotations, setAnnotations] = useState([]);
+    const [annotationHistory, setAnnotationHistory] = useState([]);
+    const [historyIndex, setHistoryIndex] = useState(-1);
     const [currentAnnotation, setCurrentAnnotation] = useState(null);
     const [annotationColor, setAnnotationColor] = useState('#00BCD4');
     const canvasOverlayRef = useRef(null);
     const [textInput, setTextInput] = useState({ visible: false, x: 0, y: 0, value: '' });
+
+    // Helper to add annotation with history
+    const addAnnotation = (newAnnotation) => {
+        const newAnnotations = [...annotations, newAnnotation];
+        setAnnotations(newAnnotations);
+        const newHistory = [...annotationHistory.slice(0, historyIndex + 1), newAnnotations];
+        setAnnotationHistory(newHistory);
+        setHistoryIndex(newHistory.length - 1);
+    };
+
+    const undo = () => {
+        if (historyIndex > 0) {
+            setHistoryIndex(historyIndex - 1);
+            setAnnotations(annotationHistory[historyIndex - 1]);
+        } else if (historyIndex === 0) {
+            setHistoryIndex(-1);
+            setAnnotations([]);
+        }
+    };
+
+    const redo = () => {
+        if (historyIndex < annotationHistory.length - 1) {
+            setHistoryIndex(historyIndex + 1);
+            setAnnotations(annotationHistory[historyIndex + 1]);
+        }
+    };
 
     // Handle keyboard shortcuts for tools and panning
     useEffect(() => {
@@ -323,28 +351,29 @@ export default function MindMapPage() {
 
     const handleCanvasMouseUp = () => {
         setIsDragging(false);
+        setIsDragging(false);
         setIsDrawing(false);
         if (currentAnnotation) {
             // Only add if there's actual content
             if (currentAnnotation.type === 'draw' && currentAnnotation.points.length > 1) {
-                setAnnotations(prev => [...prev, currentAnnotation]);
+                addAnnotation(currentAnnotation);
             } else if ((currentAnnotation.type === 'rectangle' || currentAnnotation.type === 'circle') && 
                        (Math.abs(currentAnnotation.width) > 5 || Math.abs(currentAnnotation.height) > 5)) {
-                setAnnotations(prev => [...prev, currentAnnotation]);
+                addAnnotation(currentAnnotation);
             }
             setCurrentAnnotation(null);
         }
-    };
+        };
 
     const handleTextSubmit = () => {
         if (textInput.value.trim()) {
-            setAnnotations(prev => [...prev, {
+            addAnnotation({
                 type: 'text',
                 x: textInput.x,
                 y: textInput.y,
                 text: textInput.value,
                 color: annotationColor
-            }]);
+            });
         }
         setTextInput({ visible: false, x: 0, y: 0, value: '' });
     };
@@ -732,9 +761,30 @@ export default function MindMapPage() {
                                                 ))}
                                             </div>
                                         </PopoverContent>
-                                    </Popover>
-                                    <div className="w-px h-6 bg-gray-300 mx-1" />
-                                    <DropdownMenu>
+                                        </Popover>
+                                        <div className="w-px h-6 bg-gray-300 mx-1" />
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={undo}
+                                            disabled={historyIndex < 0}
+                                            title="Undo"
+                                            className="h-7 md:h-8 px-1.5 md:px-2"
+                                        >
+                                            <Undo2 className="w-3 h-3 md:w-4 md:h-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={redo}
+                                            disabled={historyIndex >= annotationHistory.length - 1}
+                                            title="Redo"
+                                            className="h-7 md:h-8 px-1.5 md:px-2"
+                                        >
+                                            <Redo2 className="w-3 h-3 md:w-4 md:h-4" />
+                                        </Button>
+                                        <div className="w-px h-6 bg-gray-300 mx-1" />
+                                        <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" size="sm" disabled={exporting} className="h-7 md:h-8 px-1.5 md:px-2">
                                                 {exporting ? <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" /> : <Download className="w-3 h-3 md:w-4 md:h-4" />}
