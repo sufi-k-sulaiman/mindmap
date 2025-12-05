@@ -639,12 +639,8 @@ export default function MindMapPage() {
                                 </div>
                             </div>
                             <p className="text-gray-500 max-w-md text-center mb-4 text-sm">
-                                Search for any topic to generate 
+                                Search topics to generate an interactive knowledge tree.
                             </p>
-                                        <p>
-                                an interactive knowledge tree.
-                            </p>
-
                             {/* Recent Searches */}
                             {recentSearches.length > 0 && (
                                 <div className="w-full max-w-4xl mb-6 px-4">
