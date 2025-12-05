@@ -1,7 +1,12 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Sparkles, Radio, Settings, Brain, FileText, BarChart3, GraduationCap, ListTodo, Lightbulb, StickyNote, Newspaper, Gamepad2, Globe } from "lucide-react";
+
+// Redirect Home to MindMap
+export default function HomePage() {
+    return <Navigate to={createPageUrl('MindMap')} replace />;
+}
 
 const pages = [
     { name: 'Qwirey', page: 'Qwirey', icon: Sparkles, description: 'Your all-in-one Ai assistant, powered by Qwirey', color: 'from-purple-600 to-indigo-600' },
@@ -19,33 +24,4 @@ const pages = [
     { name: 'Settings', page: 'Settings', icon: Settings, description: 'Customize your experience with accessibility options', color: 'from-gray-600 to-slate-600' },
 ];
 
-export default function HomePage() {
-    useEffect(() => {
-        document.title = '1cPublishing, Ai Powered Platform to boost productivity';
-        document.querySelector('meta[name="description"]')?.setAttribute('content', 'AI powered platform with smart agents designed to boost productivity, efficiency, and growth.');
-        document.querySelector('meta[name="keywords"]')?.setAttribute('content', '1cPublishing, Ai Platform, Ai Agents');
-    }, []);
-
-    return (
-        <div className="p-4 md:p-8">
-            <div className="max-w-5xl mx-auto">
-                <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-800">Welcome</h1>
-                <p className="mb-6 md:mb-8 text-gray-600">Ai Powered Platform to boost productivity and make you smarter.</p>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    {pages.map((page) => (
-                        <Link key={page.name} to={createPageUrl(page.page)} className="group">
-                            <div className={`bg-gradient-to-br ${page.color} rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all hover:-translate-y-1 text-white h-full`}>
-                                <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center mb-4">
-                                    <page.icon className="w-7 h-7 text-white" />
-                                </div>
-                                <h3 className="font-bold text-xl mb-2">{page.name}</h3>
-                                <p className="text-white/80 text-sm">{page.description}</p>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-}
+// Keeping old pages array for reference if needed later
