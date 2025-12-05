@@ -173,7 +173,7 @@ For each document, provide the actual URL where it can be found.`,
             const fetchPromise = base44.integrations.Core.InvokeLLM({
                 prompt: `Provide comprehensive information about "${keyword.name}" for a knowledge exploration tool. Include:
                 
-1. Overview: A detailed description, when it originated, who pioneered it, what it is, where it's used, and 2-3 paragraphs about its significance.
+1. Overview: A detailed description, when it originated, who pioneered it, what it is, where it's used, and 4-5 paragraphs about its significance and importance.
 
 2. Professional: Required skills (5-7), related subjects (4-6), subject matter experts (3-5 real people with their roles), relevant job titles (5-7).
 
@@ -529,7 +529,7 @@ For each document, provide the actual URL where it can be found.`,
                                                 {data?.insights?.barChartData && (
                                                     <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5">
                                                         <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.barChartTitle}</h3>
-                                                        <div className="h-48 md:h-64">
+                                                        <div className="h-64 md:h-64">
                                                             <ResponsiveContainer width="100%" height="100%">
                                                                 <BarChart data={data.insights.barChartData} layout="vertical">
                                                                     <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
@@ -548,7 +548,7 @@ For each document, provide the actual URL where it can be found.`,
                                                 {data?.insights?.lineChartData && (
                                                     <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5">
                                                         <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.lineChartTitle}</h3>
-                                                        <div className="h-48 md:h-64">
+                                                        <div className="h-64 md:h-64">
                                                             <ResponsiveContainer width="100%" height="100%">
                                                                 <AreaChart data={data.insights.lineChartData}>
                                                                     <defs>
@@ -577,7 +577,7 @@ For each document, provide the actual URL where it can be found.`,
                                                 {data?.insights?.pieChartData && (
                                                     <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5 md:col-span-2">
                                                         <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.pieChartTitle}</h3>
-                                                        <div className="h-48 md:h-64">
+                                                        <div className="h-72 md:h-64">
                                                             <ResponsiveContainer width="100%" height="100%">
                                                                 <PieChart>
                                                                     <Pie
