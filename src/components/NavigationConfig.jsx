@@ -13,10 +13,10 @@ export const menuItems = [
     { label: 'Learning', icon: GraduationCap, href: createPageUrl('Learning') },
     { label: 'Geospatial', icon: Globe, href: createPageUrl('Geospatial') },
     { label: 'Intelligence', icon: Lightbulb, href: createPageUrl('Intelligence') },
-    { label: 'ResumePro', icon: FileText, href: createPageUrl('ResumeBuilder') },
+    { label: 'Games', icon: Gamepad2, href: createPageUrl('Games') },
     { label: 'Tasks', icon: ListTodo, href: createPageUrl('Tasks') },
     { label: 'Notes', icon: StickyNote, href: createPageUrl('Notes') },
-    { label: 'Games', icon: Gamepad2, href: createPageUrl('Games') },
+    { label: 'ResumePro', icon: FileText, href: createPageUrl('ResumeBuilder') },
     { label: 'Settings', icon: Settings, href: createPageUrl('Settings') },
     { label: 'Terms of Use', icon: ScrollText, href: createPageUrl('TermsOfUse') },
 ];
