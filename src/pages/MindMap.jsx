@@ -5,9 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2 } from 'lucide-react';
 import { LOGO_URL } from '@/components/NavigationConfig';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
-import { menuItems } from '@/components/NavigationConfig';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -551,24 +548,6 @@ export default function MindMapPage() {
                         <div className="flex items-center gap-2 md:gap-3">
                             <img src={LOGO_URL} alt="Logo" className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl" />
                             <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">Mindmap</h1>
-                            {/* Navigation Menu */}
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="ml-2 text-gray-500 hover:text-gray-700">
-                                        Menu ▾
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="start" className="w-48">
-                                    {menuItems.map((item) => (
-                                        <DropdownMenuItem key={item.label} asChild>
-                                            <Link to={item.href} className="flex items-center gap-2 w-full">
-                                                <item.icon className="w-4 h-4" />
-                                                {item.label}
-                                            </Link>
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
                         </div>
 
                         <div className="flex gap-1 md:gap-2 flex-wrap">
