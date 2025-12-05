@@ -639,7 +639,7 @@ export default function MindMapPage() {
                                 </div>
                             </div>
                             <p className="text-gray-500 max-w-md text-center mb-4 text-sm">
-                                Search topics to generate an interactive knowledge tree.
+                                Search to generate interactive knowledge tree.
                             </p>
                             {/* Recent Searches */}
                             {recentSearches.length > 0 && (
