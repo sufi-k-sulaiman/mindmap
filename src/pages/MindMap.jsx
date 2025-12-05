@@ -545,126 +545,12 @@ export default function MindMapPage() {
                 {/* Mind Map Content */}
                 <div className={`bg-white rounded-xl border border-gray-200 ${isFullscreen ? 'h-[calc(100vh-8px)]' : 'h-[calc(100vh-16px)]'} overflow-hidden p-2`}>
                     {/* Header inside the card */}
-                    <div className="sticky top-0 z-30 bg-white flex items-center justify-between mb-3 flex-wrap gap-2 py-1">
-                        <div className="flex items-center gap-2 md:gap-3 flex-1 justify-center">
-                            {/* Annotation tools */}
-                            {treeData && (
-                                <div className="flex gap-0.5 md:gap-1 bg-gray-100 rounded-lg p-0.5 md:p-1">
-                                    <Button
-                                        variant={annotationMode === null && !spacePressed ? "secondary" : "ghost"}
-                                        size="sm"
-                                        onClick={() => setAnnotationMode(null)}
-                                        title="Hand / Pan (Space)"
-                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
-                                    >
-                                        <Hand className="w-3 h-3 md:w-4 md:h-4" />
-                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">Space</span>
-                                    </Button>
-                                    <Button
-                                        variant={annotationMode === 'draw' ? "secondary" : "ghost"}
-                                        size="sm"
-                                        onClick={() => setAnnotationMode('draw')}
-                                        title="Pencil (P)"
-                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
-                                    >
-                                        <Pencil className="w-3 h-3 md:w-4 md:h-4" />
-                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">P</span>
-                                    </Button>
-                                    <Button
-                                        variant={annotationMode === 'text' ? "secondary" : "ghost"}
-                                        size="sm"
-                                        onClick={() => setAnnotationMode('text')}
-                                        title="Text (T)"
-                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
-                                    >
-                                        <Type className="w-3 h-3 md:w-4 md:h-4" />
-                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">T</span>
-                                    </Button>
-                                    <Button
-                                        variant={annotationMode === 'rectangle' ? "secondary" : "ghost"}
-                                        size="sm"
-                                        onClick={() => setAnnotationMode('rectangle')}
-                                        title="Rectangle (R)"
-                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
-                                    >
-                                        <Square className="w-3 h-3 md:w-4 md:h-4" />
-                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">R</span>
-                                    </Button>
-                                    <Button
-                                        variant={annotationMode === 'circle' ? "secondary" : "ghost"}
-                                        size="sm"
-                                        onClick={() => setAnnotationMode('circle')}
-                                        title="Circle (O/C)"
-                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
-                                    >
-                                        <Circle className="w-3 h-3 md:w-4 md:h-4" />
-                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">O</span>
-                                    </Button>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button variant="ghost" size="sm" title="Color" className="h-7 md:h-8 px-1.5 md:px-2">
-                                                <div className="w-3 h-3 md:w-4 md:h-4 rounded-full border-2 border-gray-300" style={{ backgroundColor: annotationColor }} />
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-2">
-                                            <div className="flex gap-1">
-                                                {['#FF9800', '#E91E63', '#00BCD4', '#4CAF50', '#9DD5E8', '#2196F3', '#000000'].map(color => (
-                                                    <button
-                                                        key={color}
-                                                        className={`w-6 h-6 rounded-full border-2 ${annotationColor === color ? 'border-gray-800' : 'border-transparent'}`}
-                                                        style={{ backgroundColor: color }}
-                                                        onClick={() => setAnnotationColor(color)}
-                                                    />
-                                                ))}
-                                                </div>
-                                                </PopoverContent>
-                                                </Popover>
-                                                <div className="w-px h-6 bg-gray-300 mx-1" />
-                                                <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="sm" disabled={exporting} className="h-7 md:h-8 px-1.5 md:px-2">
-                                                {exporting ? <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" /> : <Download className="w-3 h-3 md:w-4 md:h-4" />}
-                                                </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent>
-                                                <DropdownMenuItem onClick={() => exportMindMap('pdf')}>Export as PDF</DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => exportMindMap('png')}>Export as PNG</DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => exportMindMap('jpeg')}>Export as JPEG</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                                </DropdownMenu>
-                                                <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => { 
-                                                    if (treeData?.name) {
-                                                        setRecentSearches(prev => {
-                                                            const filtered = prev.filter(s => s !== treeData.name);
-                                                            return [treeData.name, ...filtered].slice(0, 5);
-                                                        });
-                                                    }
-                                                    setTreeData(null); 
-                                                    setPanOffset({ x: 0, y: 0 }); 
-                                                    setAnnotations([]); 
-                                                    window.history.pushState({}, '', window.location.pathname); 
-                                                }}
-                                                title="Back"
-                                                className="h-7 md:h-8 px-1.5 md:px-2"
-                                                >
-                                                <X className="w-3 h-3 md:w-4 md:h-4" />
-                                                </Button>
-                                                </div>
-                                                )}
-
-                                {!treeData && (
-                                <>
-                                    <img src={LOGO_URL} alt="Logo" className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl" />
-                                    <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">Mindmap</h1>
-                                </>
-                                )}
-                                </div>
-
-
-                    </div>
+                    {!treeData && (
+                        <div className="flex items-center justify-center mb-3 gap-2 py-1">
+                            <img src={LOGO_URL} alt="Logo" className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl" />
+                            <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">Mindmap</h1>
+                        </div>
+                    )}
                     {!treeData && !loading ? (
                         <div className="h-full flex flex-col items-center pt-2 overflow-auto px-2">
 
@@ -769,8 +655,115 @@ export default function MindMapPage() {
                                 />
                             </div>
                             {/* Watermark logo */}
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
+                            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 pointer-events-none">
                                 <img src={LOGO_URL} alt="" className="w-12 h-12 opacity-20 grayscale" />
+                            </div>
+                            {/* Annotation toolbar at bottom */}
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30">
+                                <div className="flex gap-0.5 md:gap-1 bg-white/95 backdrop-blur-sm rounded-lg p-0.5 md:p-1 shadow-lg border border-gray-200">
+                                    <Button
+                                        variant={annotationMode === null && !spacePressed ? "secondary" : "ghost"}
+                                        size="sm"
+                                        onClick={() => setAnnotationMode(null)}
+                                        title="Hand / Pan (Space)"
+                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
+                                    >
+                                        <Hand className="w-3 h-3 md:w-4 md:h-4" />
+                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">Space</span>
+                                    </Button>
+                                    <Button
+                                        variant={annotationMode === 'draw' ? "secondary" : "ghost"}
+                                        size="sm"
+                                        onClick={() => setAnnotationMode('draw')}
+                                        title="Pencil (P)"
+                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
+                                    >
+                                        <Pencil className="w-3 h-3 md:w-4 md:h-4" />
+                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">P</span>
+                                    </Button>
+                                    <Button
+                                        variant={annotationMode === 'text' ? "secondary" : "ghost"}
+                                        size="sm"
+                                        onClick={() => setAnnotationMode('text')}
+                                        title="Text (T)"
+                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
+                                    >
+                                        <Type className="w-3 h-3 md:w-4 md:h-4" />
+                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">T</span>
+                                    </Button>
+                                    <Button
+                                        variant={annotationMode === 'rectangle' ? "secondary" : "ghost"}
+                                        size="sm"
+                                        onClick={() => setAnnotationMode('rectangle')}
+                                        title="Rectangle (R)"
+                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
+                                    >
+                                        <Square className="w-3 h-3 md:w-4 md:h-4" />
+                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">R</span>
+                                    </Button>
+                                    <Button
+                                        variant={annotationMode === 'circle' ? "secondary" : "ghost"}
+                                        size="sm"
+                                        onClick={() => setAnnotationMode('circle')}
+                                        title="Circle (O/C)"
+                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
+                                    >
+                                        <Circle className="w-3 h-3 md:w-4 md:h-4" />
+                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">O</span>
+                                    </Button>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="ghost" size="sm" title="Color" className="h-7 md:h-8 px-1.5 md:px-2">
+                                                <div className="w-3 h-3 md:w-4 md:h-4 rounded-full border-2 border-gray-300" style={{ backgroundColor: annotationColor }} />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-2" side="top">
+                                            <div className="flex gap-1">
+                                                {['#FF9800', '#E91E63', '#00BCD4', '#4CAF50', '#9DD5E8', '#2196F3', '#000000'].map(color => (
+                                                    <button
+                                                        key={color}
+                                                        className={`w-6 h-6 rounded-full border-2 ${annotationColor === color ? 'border-gray-800' : 'border-transparent'}`}
+                                                        style={{ backgroundColor: color }}
+                                                        onClick={() => setAnnotationColor(color)}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <div className="w-px h-6 bg-gray-300 mx-1" />
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="sm" disabled={exporting} className="h-7 md:h-8 px-1.5 md:px-2">
+                                                {exporting ? <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" /> : <Download className="w-3 h-3 md:w-4 md:h-4" />}
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent side="top">
+                                            <DropdownMenuItem onClick={() => exportMindMap('pdf')}>Export as PDF</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => exportMindMap('png')}>Export as PNG</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => exportMindMap('jpeg')}>Export as JPEG</DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => { 
+                                            if (treeData?.name) {
+                                                setRecentSearches(prev => {
+                                                    const filtered = prev.filter(s => s !== treeData.name);
+                                                    return [treeData.name, ...filtered].slice(0, 5);
+                                                });
+                                            }
+                                            setTreeData(null); 
+                                            setPanOffset({ x: 0, y: 0 }); 
+                                            setAnnotations([]); 
+                                            window.history.pushState({}, '', window.location.pathname); 
+                                        }}
+                                        title="Back"
+                                        className="h-7 md:h-8 px-1.5 md:px-2"
+                                    >
+                                        <X className="w-3 h-3 md:w-4 md:h-4" />
+                                    </Button>
+                                </div>
                             </div>
                             </div>
                             )}
