@@ -686,8 +686,8 @@ export default function MindMapPage() {
                                 />
                             </div>
                             {/* Watermark logo */}
-                            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 pointer-events-none">
-                                <img src={LOGO_URL} alt="" className="w-12 h-12 opacity-20 grayscale" />
+                            <div className="absolute top-2 left-2 pointer-events-none">
+                                <img src={LOGO_URL} alt="" className="w-9 h-9 opacity-20 grayscale" />
                             </div>
                             </div>
                             )}
