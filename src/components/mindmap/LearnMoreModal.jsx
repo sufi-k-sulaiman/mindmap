@@ -503,7 +503,7 @@ For each document, provide the actual URL where it can be found.`,
                                     <TabsContent value="insights" className="m-0">
                                         <div className="space-y-4 md:space-y-6">
                                             {/* Key Stats */}
-                                            {data?.insights?.keyStats && (
+                                            {data?.insights?.keyStats && data.insights.keyStats.length > 0 && (
                                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
                                                     {data.insights.keyStats.map((stat, i) => (
                                                         <div key={i} className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg md:rounded-xl p-3 md:p-4 text-white flex flex-col justify-center">
@@ -516,9 +516,9 @@ For each document, provide the actual URL where it can be found.`,
 
                                             <div className="grid md:grid-cols-2 gap-3 md:gap-6">
                                                 {/* Stacked Bar Chart */}
-                                                {data?.insights?.barChartData && (
+                                                {data?.insights?.barChartData && data.insights.barChartData.length > 0 && (
                                                     <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5">
-                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.barChartTitle}</h3>
+                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.barChartTitle || 'Distribution'}</h3>
                                                         <div className="h-64 md:h-64">
                                                             <ResponsiveContainer width="100%" height="100%">
                                                                 <BarChart data={data.insights.barChartData} layout="vertical">
@@ -527,7 +527,6 @@ For each document, provide the actual URL where it can be found.`,
                                                                     <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={80} />
                                                                     <Tooltip />
                                                                     <Bar dataKey="value" stackId="a" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
-                                                                    <Bar dataKey="value2" stackId="a" fill="#c4b5fd" radius={[0, 4, 4, 0]} />
                                                                 </BarChart>
                                                             </ResponsiveContainer>
                                                         </div>
@@ -535,9 +534,9 @@ For each document, provide the actual URL where it can be found.`,
                                                 )}
 
                                                 {/* Area Chart */}
-                                                {data?.insights?.lineChartData && (
+                                                {data?.insights?.lineChartData && data.insights.lineChartData.length > 0 && (
                                                     <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5">
-                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.lineChartTitle}</h3>
+                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.lineChartTitle || 'Trends Over Time'}</h3>
                                                         <div className="h-64 md:h-64">
                                                             <ResponsiveContainer width="100%" height="100%">
                                                                 <AreaChart data={data.insights.lineChartData}>
@@ -546,17 +545,12 @@ For each document, provide the actual URL where it can be found.`,
                                                                             <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
                                                                             <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
                                                                         </linearGradient>
-                                                                        <linearGradient id="areaGradient2" x1="0" y1="0" x2="0" y2="1">
-                                                                            <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.6}/>
-                                                                            <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.1}/>
-                                                                        </linearGradient>
                                                                     </defs>
                                                                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                                                                     <XAxis dataKey="year" tick={{ fontSize: 11 }} />
                                                                     <YAxis tick={{ fontSize: 11 }} />
                                                                     <Tooltip />
                                                                     <Area type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={2} fill="url(#areaGradient)" />
-                                                                    <Area type="monotone" dataKey="value2" stroke="#06b6d4" strokeWidth={2} fill="url(#areaGradient2)" />
                                                                 </AreaChart>
                                                             </ResponsiveContainer>
                                                         </div>
@@ -564,9 +558,9 @@ For each document, provide the actual URL where it can be found.`,
                                                 )}
 
                                                 {/* Pie Chart */}
-                                                {data?.insights?.pieChartData && (
+                                                {data?.insights?.pieChartData && data.insights.pieChartData.length > 0 && (
                                                     <div className="bg-white rounded-lg md:rounded-xl border p-3 md:p-5 md:col-span-2">
-                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.pieChartTitle}</h3>
+                                                        <h3 className="font-semibold text-gray-900 mb-3 md:mb-4 text-sm md:text-base">{data.insights.pieChartTitle || 'Distribution'}</h3>
                                                         <div className="h-72 md:h-64">
                                                             <ResponsiveContainer width="100%" height="100%">
                                                                 <PieChart>
@@ -589,6 +583,14 @@ For each document, provide the actual URL where it can be found.`,
                                                     </div>
                                                 )}
                                             </div>
+                                            
+                                            {/* Show message if no insights data available */}
+                                            {(!data?.insights || (!data.insights.keyStats?.length && !data.insights.barChartData?.length && !data.insights.lineChartData?.length && !data.insights.pieChartData?.length)) && (
+                                                <div className="text-center py-8 text-gray-500">
+                                                    <BarChart3 className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                                                    <p>Loading insights data...</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </TabsContent>
 
