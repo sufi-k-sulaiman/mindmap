@@ -92,24 +92,24 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
             {/* Node Card */}
             <div className={`${color.bg} text-white rounded-lg md:rounded-xl px-4 py-4 md:px-6 md:py-5 shadow-lg min-w-[150px] md:min-w-[220px] max-w-[225px] md:max-w-[315px] text-center transition-all hover:scale-105 hover:shadow-xl`}>
                 <p className="font-semibold text-sm md:text-base leading-tight mb-2.5 break-words">{node.name}</p>
-                <div className="flex gap-1 md:gap-1.5 justify-center flex-wrap">
+                <div className="flex gap-1.5 md:gap-2 justify-center flex-wrap">
                     <button
                         onClick={(e) => { e.stopPropagation(); handleExplore(); }}
                         disabled={isExpanding}
-                        className="flex items-center gap-1 px-2 md:px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded text-[10px] md:text-xs font-medium transition-colors disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded text-xs md:text-sm font-medium transition-colors disabled:opacity-50"
                     >
                         {isExpanding ? (
-                            <Loader2 className="w-2.5 md:w-3 h-2.5 md:h-3 animate-spin" />
+                            <Loader2 className="w-3 md:w-3.5 h-3 md:h-3.5 animate-spin" />
                         ) : (
-                            <Compass className="w-2.5 md:w-3 h-2.5 md:h-3" />
+                            <Compass className="w-3 md:w-3.5 h-3 md:h-3.5" />
                         )}
                         {isExpanding ? '...' : 'Explore'}
                     </button>
                     <button
                         onClick={(e) => { e.stopPropagation(); onLearn(node); }}
-                        className="flex items-center gap-1 px-2 md:px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded text-[10px] md:text-xs font-medium transition-colors"
+                        className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded text-xs md:text-sm font-medium transition-colors"
                     >
-                        <BookOpen className="w-2.5 md:w-3 h-2.5 md:h-3" />
+                        <BookOpen className="w-3 md:w-3.5 h-3 md:h-3.5" />
                         Learn
                     </button>
                 </div>
