@@ -547,7 +547,7 @@ export default function MindMapPage() {
                     <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                         <div className="flex items-center gap-2 md:gap-3">
                             <img src={LOGO_URL} alt="Logo" className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl" />
-                            <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">Neural MindMaps</h1>
+                            <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">Mindmap</h1>
                         </div>
 
                         <div className="flex gap-1 md:gap-2 flex-wrap">
