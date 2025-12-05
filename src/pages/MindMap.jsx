@@ -668,18 +668,7 @@ export default function MindMapPage() {
                                 </DropdownMenu>
                             )}
 
-                            {/* Fullscreen toggle */}
-                            <Button
-                                variant="outline"
-                                onClick={toggleFullscreen}
-                                className="gap-1 md:gap-2 h-7 md:h-9 px-2 md:px-4"
-                            >
-                                {isFullscreen ? (
-                                    <Minimize2 className="w-3 h-3 md:w-4 md:h-4" />
-                                ) : (
-                                    <Maximize2 className="w-3 h-3 md:w-4 md:h-4" />
-                                )}
-                            </Button>
+
                         </div>
                     </div>
                     {!treeData && !loading ? (
