@@ -546,11 +546,6 @@ export default function MindMapPage() {
                     {/* Header inside the card */}
                     <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                         <div className="flex items-center gap-2 md:gap-3">
-                            <img src={LOGO_URL} alt="Logo" className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl" />
-                            <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">Mindmap</h1>
-                        </div>
-
-                        <div className="flex gap-1 md:gap-2 flex-wrap">
                             {/* Annotation tools */}
                             {treeData && (
                                 <div className="flex gap-0.5 md:gap-1 bg-gray-100 rounded-lg p-0.5 md:p-1">
@@ -643,9 +638,18 @@ export default function MindMapPage() {
                                         <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
                                     </Button>
                                 </div>
-                            )}
+                                )}
 
-                            {/* Export dropdown */}
+                                {!treeData && (
+                                <>
+                                    <img src={LOGO_URL} alt="Logo" className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl" />
+                                    <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">Mindmap</h1>
+                                </>
+                                )}
+                                </div>
+
+                                <div className="flex gap-1 md:gap-2 flex-wrap">
+                                {/* Export dropdown */}
                             {treeData && (
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
