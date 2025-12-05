@@ -544,7 +544,7 @@ export default function MindMapPage() {
                 {/* Mind Map Content */}
                 <div className={`bg-white rounded-xl border border-gray-200 ${isFullscreen ? 'h-[calc(100vh-8px)]' : 'h-[calc(100vh-16px)]'} overflow-hidden p-2`}>
                     {/* Header inside the card */}
-                    <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <div className="sticky top-0 z-30 bg-white flex items-center justify-between mb-3 flex-wrap gap-2 py-1">
                         <div className="flex items-center gap-2 md:gap-3 flex-1 justify-center">
                             {/* Annotation tools */}
                             {treeData && (
