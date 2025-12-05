@@ -601,7 +601,7 @@ export default function MindMapPage() {
                         </div>
                     )}
                     {!treeData && !loading ? (
-                        <div className="h-full flex flex-col items-center pt-2 overflow-auto px-2 pb-20 md:pb-2">
+                        <div className="h-full flex flex-col items-center pt-2 overflow-auto px-2 pb-0 md:pb-0">
 
                             {/* Search Bar - Hidden on mobile, shown on desktop */}
                             <div className="hidden md:block w-full max-w-xl mx-auto mb-4">
