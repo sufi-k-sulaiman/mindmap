@@ -545,7 +545,7 @@ export default function MindMapPage() {
                 <div className={`bg-white rounded-xl border border-gray-200 ${isFullscreen ? 'h-[calc(100vh-8px)]' : 'h-[calc(100vh-16px)]'} overflow-hidden p-2`}>
                     {/* Header inside the card */}
                     <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                        <div className="flex items-center gap-2 md:gap-3">
+                        <div className="flex items-center gap-2 md:gap-3 flex-1 justify-center">
                             {/* Annotation tools */}
                             {treeData && (
                                 <div className="flex gap-0.5 md:gap-1 bg-gray-100 rounded-lg p-0.5 md:p-1">
@@ -599,16 +599,6 @@ export default function MindMapPage() {
                                         <Circle className="w-3 h-3 md:w-4 md:h-4" />
                                         <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">O</span>
                                     </Button>
-                                    <Button
-                                        variant={annotationMode === 'eraser' ? "secondary" : "ghost"}
-                                        size="sm"
-                                        onClick={() => setAnnotationMode('eraser')}
-                                        title="Eraser (E)"
-                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
-                                    >
-                                        <Eraser className="w-3 h-3 md:w-4 md:h-4" />
-                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">E</span>
-                                    </Button>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <Button variant="ghost" size="sm" title="Color" className="h-7 md:h-8 px-1.5 md:px-2">
@@ -625,20 +615,11 @@ export default function MindMapPage() {
                                                         onClick={() => setAnnotationColor(color)}
                                                     />
                                                 ))}
-                                            </div>
-                                        </PopoverContent>
-                                    </Popover>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={clearAnnotations}
-                                        title="Clear all annotations"
-                                        className="text-red-500 hover:text-red-600 hover:bg-red-50 h-7 md:h-8 px-1.5 md:px-2"
-                                    >
-                                        <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
-                                    </Button>
-                                </div>
-                                )}
+                                                </div>
+                                                </PopoverContent>
+                                                </Popover>
+                                                </div>
+                                                )}
 
                                 {!treeData && (
                                 <>
