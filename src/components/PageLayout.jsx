@@ -18,13 +18,13 @@ export default function PageLayout({ children, activePage }) {
         }
     }, [sidebarOpen]);
 
-    // Hide header on MindMap page
-    const hideHeader = activePage === 'MindMap';
+    // Hide header and footer on MindMap page
+    const isMindMap = activePage === 'MindMap';
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <Toaster position="bottom-right" />
-            {!hideHeader && (
+            {!isMindMap && (
                 <Header 
                     title={activePage} 
                     sidebarOpen={sidebarOpen} 
@@ -39,7 +39,7 @@ export default function PageLayout({ children, activePage }) {
                 </main>
             </div>
             
-            <Footer />
+            {!isMindMap && <Footer />}
         </div>
     );
 }
