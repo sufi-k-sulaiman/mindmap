@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2, X, Undo2, Redo2, Network } from 'lucide-react';
+import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2, X, Undo2, Redo2, Network, Triangle, Shapes } from 'lucide-react';
 import { LOGO_URL } from '@/components/NavigationConfig';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -281,7 +281,7 @@ export default function MindMapPage() {
     const [spacePressed, setSpacePressed] = useState(false);
     
     // Annotation state
-    const [annotationMode, setAnnotationMode] = useState(null); // null, 'draw', 'text', 'rectangle', 'circle', 'eraser'
+    const [annotationMode, setAnnotationMode] = useState(null); // null, 'draw', 'text', 'rectangle', 'circle', 'triangle', 'eraser'
     const [annotations, setAnnotations] = useState([]);
     const [annotationHistory, setAnnotationHistory] = useState([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
@@ -340,14 +340,12 @@ export default function MindMapPage() {
                     e.preventDefault();
                     setAnnotationMode('text');
                     break;
-                case 'r':
+                case 's':
                     e.preventDefault();
-                    setAnnotationMode('rectangle');
-                    break;
-                case 'c':
-                case 'o':
-                    e.preventDefault();
-                    setAnnotationMode('circle');
+                    // Cycle through shapes
+                    if (annotationMode === 'rectangle') setAnnotationMode('circle');
+                    else if (annotationMode === 'circle') setAnnotationMode('triangle');
+                    else setAnnotationMode('rectangle');
                     break;
                 case 'e':
                     e.preventDefault();
@@ -417,7 +415,7 @@ export default function MindMapPage() {
                 if (ann.type === 'text') {
                     return !(Math.abs(ann.x - x) < 50 && Math.abs(ann.y - y) < 20);
                 }
-                if (ann.type === 'rectangle' || ann.type === 'circle') {
+                if (ann.type === 'rectangle' || ann.type === 'circle' || ann.type === 'triangle') {
                     const centerX = ann.x + ann.width / 2;
                     const centerY = ann.y + ann.height / 2;
                     return !(Math.abs(centerX - x) < Math.max(ann.width / 2, threshold) && Math.abs(centerY - y) < Math.max(ann.height / 2, threshold));
@@ -430,7 +428,7 @@ export default function MindMapPage() {
         setIsDrawing(true);
         if (annotationMode === 'draw') {
             setCurrentAnnotation({ type: 'draw', points: [{ x, y }], color: annotationColor });
-        } else if (annotationMode === 'rectangle' || annotationMode === 'circle') {
+        } else if (annotationMode === 'rectangle' || annotationMode === 'circle' || annotationMode === 'triangle') {
             setCurrentAnnotation({ type: annotationMode, x, y, width: 0, height: 0, color: annotationColor });
         }
     };
@@ -457,7 +455,7 @@ export default function MindMapPage() {
                 ...prev,
                 points: [...prev.points, { x, y }]
             }));
-        } else if (currentAnnotation.type === 'rectangle' || currentAnnotation.type === 'circle') {
+        } else if (currentAnnotation.type === 'rectangle' || currentAnnotation.type === 'circle' || currentAnnotation.type === 'triangle') {
             setCurrentAnnotation(prev => ({
                 ...prev,
                 width: x - prev.x,
@@ -474,7 +472,7 @@ export default function MindMapPage() {
             // Only add if there's actual content
             if (currentAnnotation.type === 'draw' && currentAnnotation.points.length > 1) {
                 addAnnotation(currentAnnotation);
-            } else if ((currentAnnotation.type === 'rectangle' || currentAnnotation.type === 'circle') && 
+            } else if ((currentAnnotation.type === 'rectangle' || currentAnnotation.type === 'circle' || currentAnnotation.type === 'triangle') && 
                        (Math.abs(currentAnnotation.width) > 5 || Math.abs(currentAnnotation.height) > 5)) {
                 addAnnotation(currentAnnotation);
             }
@@ -534,6 +532,15 @@ export default function MindMapPage() {
                         const rx = Math.abs(ann.width / 2);
                         const ry = Math.abs(ann.height / 2);
                         return <ellipse key={i} cx={cx} cy={cy} rx={rx} ry={ry} stroke={strokeColor} strokeWidth={strokeWidth} fill="none" style={{ cursor: 'pointer' }} onClick={(e) => handleAnnotationClick(i, e)} />;
+                    }
+                    if (ann.type === 'triangle') {
+                        const x1 = ann.x + ann.width / 2;
+                        const y1 = ann.y;
+                        const x2 = ann.x;
+                        const y2 = ann.y + ann.height;
+                        const x3 = ann.x + ann.width;
+                        const y3 = ann.y + ann.height;
+                        return <polygon key={i} points={`${x1},${y1} ${x2},${y2} ${x3},${y3}`} stroke={strokeColor} strokeWidth={strokeWidth} fill="none" style={{ cursor: 'pointer' }} onClick={(e) => handleAnnotationClick(i, e)} />;
                     }
                     return null;
                 })}
@@ -792,7 +799,7 @@ export default function MindMapPage() {
                         />
                     ) : (
                         <div 
-                            className={`relative flex justify-center overflow-auto pt-4 ${spacePressed ? 'select-none cursor-grab' : ''} ${isDragging ? 'cursor-grabbing' : ''} ${annotationMode === 'draw' || annotationMode === 'rectangle' || annotationMode === 'circle' ? 'cursor-crosshair' : ''} ${annotationMode === 'text' ? 'cursor-text' : ''} ${annotationMode === 'eraser' ? 'cursor-cell' : ''}`}
+                            className={`relative flex justify-center overflow-auto pt-4 ${spacePressed ? 'select-none cursor-grab' : ''} ${isDragging ? 'cursor-grabbing' : ''} ${annotationMode === 'draw' || annotationMode === 'rectangle' || annotationMode === 'circle' || annotationMode === 'triangle' ? 'cursor-crosshair' : ''} ${annotationMode === 'text' ? 'cursor-text' : ''} ${annotationMode === 'eraser' ? 'cursor-cell' : ''}`}
                             ref={canvasOverlayRef}
                             onMouseDown={(annotationMode || spacePressed) ? handleCanvasMouseDown : undefined}
                                                             onMouseMove={(annotationMode || spacePressed || isDragging || isDrawing) ? handleCanvasMouseMove : undefined}
@@ -875,26 +882,38 @@ export default function MindMapPage() {
                                         <Type className={`w-5 h-5 md:w-6 md:h-6 ${annotationMode === 'text' ? 'text-purple-600' : ''}`} />
                                         <span className="text-[10px] md:text-xs text-gray-400 hidden sm:inline">T</span>
                                     </Button>
-                                    <Button
-                                        variant={annotationMode === 'rectangle' ? "secondary" : "ghost"}
-                                        size="sm"
-                                        onClick={() => setAnnotationMode('rectangle')}
-                                        title="Rectangle (R)"
-                                        className="gap-1 md:gap-1.5 h-9 md:h-10 px-2 md:px-3"
-                                    >
-                                        <Square className={`w-5 h-5 md:w-6 md:h-6 ${annotationMode === 'rectangle' ? 'text-purple-600' : ''}`} />
-                                        <span className="text-[10px] md:text-xs text-gray-400 hidden sm:inline">R</span>
-                                    </Button>
-                                    <Button
-                                        variant={annotationMode === 'circle' ? "secondary" : "ghost"}
-                                        size="sm"
-                                        onClick={() => setAnnotationMode('circle')}
-                                        title="Circle (O/C)"
-                                        className="gap-1 md:gap-1.5 h-9 md:h-10 px-2 md:px-3"
-                                    >
-                                        <Circle className={`w-5 h-5 md:w-6 md:h-6 ${annotationMode === 'circle' ? 'text-purple-600' : ''}`} />
-                                        <span className="text-[10px] md:text-xs text-gray-400 hidden sm:inline">O</span>
-                                    </Button>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                variant={['rectangle', 'circle', 'triangle'].includes(annotationMode) ? "secondary" : "ghost"}
+                                                size="sm"
+                                                title="Shapes (S)"
+                                                className="gap-1 md:gap-1.5 h-9 md:h-10 px-2 md:px-3"
+                                            >
+                                                {annotationMode === 'rectangle' ? (
+                                                    <Square className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
+                                                ) : annotationMode === 'circle' ? (
+                                                    <Circle className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
+                                                ) : annotationMode === 'triangle' ? (
+                                                    <Triangle className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
+                                                ) : (
+                                                    <Shapes className="w-5 h-5 md:w-6 md:h-6" />
+                                                )}
+                                                <span className="text-[10px] md:text-xs text-gray-400 hidden sm:inline">S</span>
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent side="top">
+                                            <DropdownMenuItem onClick={() => setAnnotationMode('rectangle')}>
+                                                <Square className="w-4 h-4 mr-2" /> Rectangle
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => setAnnotationMode('circle')}>
+                                                <Circle className="w-4 h-4 mr-2" /> Circle
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => setAnnotationMode('triangle')}>
+                                                <Triangle className="w-4 h-4 mr-2" /> Triangle
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <Button variant="ghost" size="sm" title="Color" className="h-9 md:h-10 px-2 md:px-3">
