@@ -966,51 +966,53 @@ export default function MindMapPage() {
                                             <Redo2 className="w-4 h-4 md:w-5 md:h-5" />
                                         </Button>
                                         <div className="w-px h-7 bg-gray-300 mx-1" />
-                                        <Button
-                                            variant={viewMode === 'radial' ? "secondary" : "ghost"}
-                                            size="sm"
-                                            onClick={() => setViewMode(viewMode === 'tree' ? 'radial' : 'tree')}
-                                            title="Toggle View"
-                                            className="h-9 md:h-10 px-2 md:px-3"
-                                        >
-                                            <Network className={`w-4 h-4 md:w-5 md:h-5 ${viewMode === 'radial' ? 'text-purple-600' : ''}`} />
-                                        </Button>
-                                        {viewMode === 'radial' && (
-                                            <>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => setZoom(prev => Math.max(prev - 0.1, 0.3))}
-                                                    disabled={zoom <= 0.3}
-                                                    title="Zoom Out (-)"
-                                                    className="h-9 md:h-10 px-2 md:px-3"
-                                                >
-                                                    <ZoomOut className="w-4 h-4 md:w-5 md:h-5" />
-                                                </Button>
-                                                <div className="flex items-center px-2 text-xs font-medium text-gray-600">
-                                                    {Math.round(zoom * 100)}%
+                                        <div className="relative">
+                                            <Button
+                                                variant={viewMode === 'radial' ? "secondary" : "ghost"}
+                                                size="sm"
+                                                onClick={() => setViewMode(viewMode === 'tree' ? 'radial' : 'tree')}
+                                                title="Toggle View"
+                                                className="h-9 md:h-10 px-2 md:px-3"
+                                            >
+                                                <Network className={`w-4 h-4 md:w-5 md:h-5 ${viewMode === 'radial' ? 'text-purple-600' : ''}`} />
+                                            </Button>
+                                            {viewMode === 'radial' && (
+                                                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm rounded-full p-1.5 md:p-2 shadow-lg border border-gray-200 flex gap-1 md:gap-2 items-center whitespace-nowrap">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setZoom(prev => Math.max(prev - 0.1, 0.3))}
+                                                        disabled={zoom <= 0.3}
+                                                        title="Zoom Out (-)"
+                                                        className="h-8 md:h-9 px-2 md:px-3"
+                                                    >
+                                                        <ZoomOut className="w-4 h-4 md:w-5 md:h-5" />
+                                                    </Button>
+                                                    <div className="flex items-center px-2 text-xs font-medium text-gray-600">
+                                                        {Math.round(zoom * 100)}%
+                                                    </div>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setZoom(prev => Math.min(prev + 0.1, 3))}
+                                                        disabled={zoom >= 3}
+                                                        title="Zoom In (+)"
+                                                        className="h-8 md:h-9 px-2 md:px-3"
+                                                    >
+                                                        <ZoomIn className="w-4 h-4 md:w-5 md:h-5" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setZoom(1)}
+                                                        title="Reset Zoom"
+                                                        className="h-8 md:h-9 px-2 md:px-3 text-xs"
+                                                    >
+                                                        Reset
+                                                    </Button>
                                                 </div>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => setZoom(prev => Math.min(prev + 0.1, 3))}
-                                                    disabled={zoom >= 3}
-                                                    title="Zoom In (+)"
-                                                    className="h-9 md:h-10 px-2 md:px-3"
-                                                >
-                                                    <ZoomIn className="w-4 h-4 md:w-5 md:h-5" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => setZoom(1)}
-                                                    title="Reset Zoom"
-                                                    className="h-9 md:h-10 px-2 md:px-3 text-xs"
-                                                >
-                                                    Reset
-                                                </Button>
-                                            </>
-                                        )}
+                                            )}
+                                        </div>
                                         <div className="w-px h-7 bg-gray-300 mx-1" />
                                         <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
