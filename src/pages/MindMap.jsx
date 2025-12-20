@@ -427,7 +427,7 @@ export default function MindMapPage() {
             <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 10 }}>
                 {allAnnotations.map((ann, i) => {
                     const isSelected = selectedAnnotation === i;
-                    const strokeWidth = isSelected ? 5 : 3;
+                    const strokeWidth = isSelected ? 7 : 4.2;
                     const strokeColor = isSelected ? '#8b5cf6' : ann.color;
                     
                     if (ann.type === 'draw') {
@@ -435,7 +435,7 @@ export default function MindMapPage() {
                         return <path key={i} d={pathData} stroke={strokeColor} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" style={{ cursor: 'pointer', pointerEvents: 'stroke' }} onClick={(e) => handleAnnotationClick(i, e)} />;
                     }
                     if (ann.type === 'text') {
-                        return <text key={i} x={ann.x} y={ann.y} fill={strokeColor} fontSize="16" fontWeight={isSelected ? '700' : '500'} style={{ cursor: 'pointer' }} onClick={(e) => handleAnnotationClick(i, e)}>{ann.text}</text>;
+                        return <text key={i} x={ann.x} y={ann.y} fill={strokeColor} fontSize="22" fontWeight={isSelected ? '700' : '500'} style={{ cursor: 'pointer' }} onClick={(e) => handleAnnotationClick(i, e)}>{ann.text}</text>;
                     }
                     if (ann.type === 'rectangle') {
                         const x = ann.width < 0 ? ann.x + ann.width : ann.x;
@@ -659,6 +659,8 @@ export default function MindMapPage() {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full justify-items-center mx-auto px-4">
                                 {[
+                                    'Artificial Intelligence', 'Quantum Computing', 'Climate Change', 'Cryptocurrency', 'Space Exploration', 'Renewable Energy',
+                                    'Neuroscience', 'Robotics', 'Biotechnology', 'Virtual Reality', 'Mental Health', 'Social Media',
                                     'Geography', 'Psychology', 'Music', 'Business', 'Sociology', 'Environment',
                                     'Mathematics', 'History', 'Literature', 'Sports', 'Science', 'Culture & Anthropology',
                                     'Health & Medicine', 'Education', 'Art', 'Economics', 'Philosophy', 'Politics'
@@ -739,70 +741,67 @@ export default function MindMapPage() {
                                     onLearn={handleLearn}
                                 />
                             </div>
-                            {/* Watermark logo */}
-                            <div className="absolute top-2 left-2 pointer-events-none">
-                                <img src={LOGO_URL} alt="" className="w-9 h-9 opacity-20 grayscale" />
-                            </div>
+
                             </div>
                             )}
                             {/* Annotation toolbar at bottom - fixed position */}
                             {treeData && !loading && !error && (
                             <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
-                                <div className="flex gap-0.5 md:gap-1 bg-white/95 backdrop-blur-sm rounded-lg p-0.5 md:p-1 shadow-lg border border-gray-200">
+                                <div className="flex gap-1 md:gap-2 bg-white/95 backdrop-blur-sm rounded-xl p-1.5 md:p-2 shadow-lg border border-gray-200">
                                     <Button
                                                                                   variant={annotationMode === null && !spacePressed ? "secondary" : "ghost"}
                                                                                   size="sm"
                                                                                   onClick={() => setAnnotationMode(null)}
                                                                                   title="Hand / Pan (Space)"
-                                                                                  className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2 hidden md:flex"
+                                                                                  className="gap-1 md:gap-1.5 h-9 md:h-10 px-2 md:px-3 hidden md:flex"
                                                                               >
-                                                                                  <Hand className={`w-4 h-4 md:w-5 md:h-5 ${annotationMode === null && !spacePressed ? 'text-purple-600' : ''}`} />
-                                                                                  <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">Space</span>
+                                                                                  <Hand className={`w-5 h-5 md:w-6 md:h-6 ${annotationMode === null && !spacePressed ? 'text-purple-600' : ''}`} />
+                                                                                  <span className="text-[10px] md:text-xs text-gray-400 hidden sm:inline">Space</span>
                                                                               </Button>
                                     <Button
                                         variant={annotationMode === 'draw' ? "secondary" : "ghost"}
                                         size="sm"
                                         onClick={() => setAnnotationMode('draw')}
                                         title="Pencil (P)"
-                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
+                                        className="gap-1 md:gap-1.5 h-9 md:h-10 px-2 md:px-3"
                                     >
-                                        <Pencil className={`w-4 h-4 md:w-5 md:h-5 ${annotationMode === 'draw' ? 'text-purple-600' : ''}`} />
-                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">P</span>
+                                        <Pencil className={`w-5 h-5 md:w-6 md:h-6 ${annotationMode === 'draw' ? 'text-purple-600' : ''}`} />
+                                        <span className="text-[10px] md:text-xs text-gray-400 hidden sm:inline">P</span>
                                     </Button>
                                     <Button
                                         variant={annotationMode === 'text' ? "secondary" : "ghost"}
                                         size="sm"
                                         onClick={() => setAnnotationMode('text')}
                                         title="Text (T)"
-                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
+                                        className="gap-1 md:gap-1.5 h-9 md:h-10 px-2 md:px-3"
                                     >
-                                        <Type className={`w-4 h-4 md:w-5 md:h-5 ${annotationMode === 'text' ? 'text-purple-600' : ''}`} />
-                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">T</span>
+                                        <Type className={`w-5 h-5 md:w-6 md:h-6 ${annotationMode === 'text' ? 'text-purple-600' : ''}`} />
+                                        <span className="text-[10px] md:text-xs text-gray-400 hidden sm:inline">T</span>
                                     </Button>
                                     <Button
                                         variant={annotationMode === 'rectangle' ? "secondary" : "ghost"}
                                         size="sm"
                                         onClick={() => setAnnotationMode('rectangle')}
                                         title="Rectangle (R)"
-                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
+                                        className="gap-1 md:gap-1.5 h-9 md:h-10 px-2 md:px-3"
                                     >
-                                        <Square className={`w-4 h-4 md:w-5 md:h-5 ${annotationMode === 'rectangle' ? 'text-purple-600' : ''}`} />
-                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">R</span>
+                                        <Square className={`w-5 h-5 md:w-6 md:h-6 ${annotationMode === 'rectangle' ? 'text-purple-600' : ''}`} />
+                                        <span className="text-[10px] md:text-xs text-gray-400 hidden sm:inline">R</span>
                                     </Button>
                                     <Button
                                         variant={annotationMode === 'circle' ? "secondary" : "ghost"}
                                         size="sm"
                                         onClick={() => setAnnotationMode('circle')}
                                         title="Circle (O/C)"
-                                        className="gap-0.5 md:gap-1 h-7 md:h-8 px-1.5 md:px-2"
+                                        className="gap-1 md:gap-1.5 h-9 md:h-10 px-2 md:px-3"
                                     >
-                                        <Circle className={`w-4 h-4 md:w-5 md:h-5 ${annotationMode === 'circle' ? 'text-purple-600' : ''}`} />
-                                        <span className="text-[9px] md:text-[10px] text-gray-400 hidden sm:inline">O</span>
+                                        <Circle className={`w-5 h-5 md:w-6 md:h-6 ${annotationMode === 'circle' ? 'text-purple-600' : ''}`} />
+                                        <span className="text-[10px] md:text-xs text-gray-400 hidden sm:inline">O</span>
                                     </Button>
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                            <Button variant="ghost" size="sm" title="Color" className="h-7 md:h-8 px-1.5 md:px-2">
-                                                <div className="w-3 h-3 md:w-4 md:h-4 rounded-full border-2 border-gray-300" style={{ backgroundColor: annotationColor }} />
+                                            <Button variant="ghost" size="sm" title="Color" className="h-9 md:h-10 px-2 md:px-3">
+                                                <div className="w-4 h-4 md:w-5 md:h-5 rounded-full border-2 border-gray-300" style={{ backgroundColor: annotationColor }} />
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-2" side="top">
@@ -818,16 +817,16 @@ export default function MindMapPage() {
                                             </div>
                                         </PopoverContent>
                                         </Popover>
-                                        <div className="w-px h-6 bg-gray-300 mx-1" />
+                                        <div className="w-px h-7 bg-gray-300 mx-1" />
                                         <Button
                                             variant="ghost"
                                             size="sm"
                                             onClick={undo}
                                             disabled={historyIndex < 0}
                                             title="Undo"
-                                            className="h-7 md:h-8 px-1.5 md:px-2"
+                                            className="h-9 md:h-10 px-2 md:px-3"
                                         >
-                                            <Undo2 className="w-3 h-3 md:w-4 md:h-4" />
+                                            <Undo2 className="w-4 h-4 md:w-5 md:h-5" />
                                         </Button>
                                         <Button
                                             variant="ghost"
@@ -835,15 +834,15 @@ export default function MindMapPage() {
                                             onClick={redo}
                                             disabled={historyIndex >= annotationHistory.length - 1}
                                             title="Redo"
-                                            className="h-7 md:h-8 px-1.5 md:px-2"
+                                            className="h-9 md:h-10 px-2 md:px-3"
                                         >
-                                            <Redo2 className="w-3 h-3 md:w-4 md:h-4" />
+                                            <Redo2 className="w-4 h-4 md:w-5 md:h-5" />
                                         </Button>
-                                        <div className="w-px h-6 bg-gray-300 mx-1" />
+                                        <div className="w-px h-7 bg-gray-300 mx-1" />
                                         <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="sm" disabled={exporting} className="h-7 md:h-8 px-1.5 md:px-2">
-                                                {exporting ? <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" /> : <Download className="w-3 h-3 md:w-4 md:h-4" />}
+                                            <Button variant="ghost" size="sm" disabled={exporting} className="h-9 md:h-10 px-2 md:px-3">
+                                                {exporting ? <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" /> : <Download className="w-4 h-4 md:w-5 md:h-5" />}
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent side="top">
@@ -868,9 +867,9 @@ export default function MindMapPage() {
                                             try { window.history.pushState({}, '', window.location.pathname); } catch (e) {} 
                                         }}
                                         title="Back"
-                                        className="h-7 md:h-8 px-1.5 md:px-2"
+                                        className="h-9 md:h-10 px-2 md:px-3"
                                     >
-                                        <X className="w-3 h-3 md:w-4 md:h-4" />
+                                        <X className="w-4 h-4 md:w-5 md:h-5" />
                                         </Button>
                                         </div>
                                         </div>
