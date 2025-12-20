@@ -28,7 +28,7 @@ const NODE_COLORS = [
 function RadialMindMap({ node, expandedNodes, onLearn }) {
     const colors = ['#9b59b6', '#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#1abc9c', '#e67e22', '#34495e'];
 
-    const renderBranch = (branchNode, angle, distance, depth, path, colorIndex) => {
+    const renderBranch = (branchNode, angle, distance, depth, path, colorIndex, parentX = 0, parentY = 0) => {
         const rad = (angle * Math.PI) / 180;
         const x = Math.cos(rad) * distance;
         const y = Math.sin(rad) * distance;
@@ -36,39 +36,50 @@ function RadialMindMap({ node, expandedNodes, onLearn }) {
         const nodeId = path.join('-');
         const children = expandedNodes[nodeId] || branchNode.children || [];
 
+        // Calculate curve control point for smooth connection to center
+        const controlX = x * 0.5;
+        const controlY = y * 0.5;
+
         return (
-            <g key={nodeId} transform={`translate(${x}, ${y})`}>
+            <g key={nodeId}>
                 <path
-                    d={`M 0,0 Q ${-x/2},${-y/2} ${-x},${-y}`}
+                    d={`M ${parentX},${parentY} Q ${controlX},${controlY} ${x},${y}`}
                     stroke={color}
-                    strokeWidth={Math.max(4 - depth, 1)}
+                    strokeWidth={Math.max(3 - depth * 0.5, 1)}
                     fill="none"
-                    opacity="0.6"
+                    opacity="0.7"
                 />
-                <foreignObject x="-80" y="-30" width="160" height="60">
-                    <div className="flex flex-col items-center">
-                        <div 
-                            className="px-4 py-2 rounded-full text-white text-xs md:text-sm font-medium shadow-lg cursor-pointer hover:scale-105 transition-transform"
-                            style={{ backgroundColor: color, border: `2px solid ${color}` }}
-                        >
-                            {branchNode.name}
+                <g transform={`translate(${x}, ${y})`}>
+                    <foreignObject x="-70" y="-25" width="140" height="50">
+                        <div className="flex flex-col items-center">
+                            <div 
+                                className="px-3 py-1.5 rounded-full text-white text-xs font-medium shadow-lg hover:scale-105 transition-transform"
+                                style={{ backgroundColor: color }}
+                            >
+                                {branchNode.name}
+                            </div>
                         </div>
-                    </div>
-                </foreignObject>
+                    </foreignObject>
+                </g>
 
                 {children.length > 0 && children.map((child, i) => {
-                    const childAngle = angle + (i - (children.length - 1) / 2) * (depth === 0 ? 45 : 30);
-                    return renderBranch(child, childAngle, 150, depth + 1, [...path, i], colorIndex);
+                    const childCount = children.length;
+                    const angleSpread = Math.min(90, 120 / Math.max(childCount, 1));
+                    const startAngle = angle - (angleSpread * (childCount - 1)) / 2;
+                    const childAngle = startAngle + i * angleSpread;
+                    const childDistance = distance + 180;
+                    return renderBranch(child, childAngle, childDistance, depth + 1, [...path, i], (colorIndex + i) % colors.length, x, y);
                 })}
             </g>
         );
     };
 
     const initialChildren = node.children || [];
-    const angleStep = 360 / Math.max(initialChildren.length, 1);
+    const childCount = initialChildren.length;
+    const angleStep = childCount > 0 ? 360 / childCount : 0;
 
     return (
-        <svg width="2000" height="2000" viewBox="-1000 -1000 2000 2000" className="w-full h-full">
+        <svg width="3000" height="3000" viewBox="-1500 -1500 3000 3000" className="w-full h-full">
             <g transform="translate(0, 0)">
                 <foreignObject x="-100" y="-40" width="200" height="80">
                     <div className="flex flex-col items-center gap-2">
@@ -89,7 +100,7 @@ function RadialMindMap({ node, expandedNodes, onLearn }) {
 
                 {initialChildren.map((child, i) => {
                     const angle = i * angleStep;
-                    return renderBranch(child, angle, 200, 0, [i], i);
+                    return renderBranch(child, angle, 250, 0, [i], i);
                 })}
             </g>
         </svg>
