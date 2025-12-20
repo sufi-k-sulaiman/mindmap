@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2, X, Undo2, Redo2 } from 'lucide-react';
+import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2, X, Undo2, Redo2, Network } from 'lucide-react';
 import { LOGO_URL } from '@/components/NavigationConfig';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -24,6 +24,120 @@ const NODE_COLORS = [
     { bg: 'bg-indigo-500' },
     { bg: 'bg-teal-500' },
 ];
+
+function RadialMindMap({ node, onLearn }) {
+    const [expandedPaths, setExpandedPaths] = useState({});
+    const [loadingPaths, setLoadingPaths] = useState({});
+
+    const colors = ['#9b59b6', '#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#1abc9c', '#e67e22', '#34495e'];
+
+    const expandNode = async (nodePath, nodeName) => {
+        const pathKey = nodePath.join('.');
+        if (loadingPaths[pathKey] || expandedPaths[pathKey]) return;
+
+        setLoadingPaths(prev => ({ ...prev, [pathKey]: true }));
+        try {
+            const response = await base44.integrations.Core.InvokeLLM({
+                prompt: `Generate 3-5 subtopics/related concepts for "${nodeName}". Each should have a name and brief description.`,
+                add_context_from_internet: true,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        subtopics: {
+                            type: "array",
+                            items: {
+                                type: "object",
+                                properties: {
+                                    name: { type: "string" },
+                                    description: { type: "string" }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const newChildren = response?.subtopics || [];
+            setExpandedPaths(prev => ({ ...prev, [pathKey]: newChildren }));
+        } catch (error) {
+            console.error('Failed to expand:', error);
+        } finally {
+            setLoadingPaths(prev => ({ ...prev, [pathKey]: false }));
+        }
+    };
+
+    const renderBranch = (branchNode, angle, distance, depth, path, colorIndex) => {
+        const rad = (angle * Math.PI) / 180;
+        const x = Math.cos(rad) * distance;
+        const y = Math.sin(rad) * distance;
+        const color = colors[colorIndex % colors.length];
+        const pathKey = path.join('.');
+        const children = expandedPaths[pathKey] || branchNode.children || [];
+        const isLoading = loadingPaths[pathKey];
+
+        return (
+            <g key={path.join('-')} transform={`translate(${x}, ${y})`}>
+                <path
+                    d={`M 0,0 Q ${-x/2},${-y/2} ${-x},${-y}`}
+                    stroke={color}
+                    strokeWidth={Math.max(4 - depth, 1)}
+                    fill="none"
+                    opacity="0.6"
+                />
+                <foreignObject x="-80" y="-30" width="160" height="60">
+                    <div className="flex flex-col items-center">
+                        <div 
+                            className="px-4 py-2 rounded-full text-white text-xs md:text-sm font-medium shadow-lg cursor-pointer hover:scale-105 transition-transform"
+                            style={{ backgroundColor: color, border: `2px solid ${color}` }}
+                            onClick={() => expandNode(path, branchNode.name)}
+                        >
+                            {branchNode.name}
+                        </div>
+                        {isLoading && (
+                            <Loader2 className="w-3 h-3 animate-spin mt-1" style={{ color }} />
+                        )}
+                    </div>
+                </foreignObject>
+
+                {children.length > 0 && children.map((child, i) => {
+                    const childAngle = angle + (i - (children.length - 1) / 2) * (depth === 0 ? 45 : 30);
+                    return renderBranch(child, childAngle, 150, depth + 1, [...path, i], colorIndex);
+                })}
+            </g>
+        );
+    };
+
+    const initialChildren = node.children || [];
+    const angleStep = 360 / Math.max(initialChildren.length, 1);
+
+    return (
+        <svg width="2000" height="2000" viewBox="-1000 -1000 2000 2000" className="w-full h-full">
+            <g transform="translate(0, 0)">
+                <foreignObject x="-100" y="-40" width="200" height="80">
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="px-6 py-3 rounded-full bg-white text-gray-800 text-base md:text-lg font-bold shadow-xl border-4 border-gray-300">
+                            {node.name}
+                        </div>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onLearn(node);
+                            }}
+                            className="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium hover:bg-purple-200 transition-colors"
+                        >
+                            Learn More
+                        </button>
+                    </div>
+                </foreignObject>
+
+                {initialChildren.map((child, i) => {
+                    const angle = i * angleStep;
+                    return renderBranch(child, angle, 200, 0, [i], i);
+                })}
+            </g>
+        </svg>
+    );
+}
 
 function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef = null }) {
     const [isExpanding, setIsExpanding] = useState(false);
@@ -203,6 +317,7 @@ export default function MindMapPage() {
     const [annotationColor, setAnnotationColor] = useState('#00BCD4');
     const canvasOverlayRef = useRef(null);
     const [textInput, setTextInput] = useState({ visible: false, x: 0, y: 0, value: '' });
+    const [viewMode, setViewMode] = useState('tree'); // 'tree' or 'radial'
 
     // Helper to add annotation with history
     const addAnnotation = (newAnnotation) => {
@@ -730,11 +845,18 @@ export default function MindMapPage() {
                                 style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}
                                 ref={mindmapRef}
                             >
-                                <TreeNode
-                                    node={treeData}
-                                    colorIndex={0}
-                                    onLearn={handleLearn}
-                                />
+                                {viewMode === 'tree' ? (
+                                    <TreeNode
+                                        node={treeData}
+                                        colorIndex={0}
+                                        onLearn={handleLearn}
+                                    />
+                                ) : (
+                                    <RadialMindMap
+                                        node={treeData}
+                                        onLearn={handleLearn}
+                                    />
+                                )}
                             </div>
 
                             </div>
@@ -832,6 +954,16 @@ export default function MindMapPage() {
                                             className="h-9 md:h-10 px-2 md:px-3"
                                         >
                                             <Redo2 className="w-4 h-4 md:w-5 md:h-5" />
+                                        </Button>
+                                        <div className="w-px h-7 bg-gray-300 mx-1" />
+                                        <Button
+                                            variant={viewMode === 'radial' ? "secondary" : "ghost"}
+                                            size="sm"
+                                            onClick={() => setViewMode(viewMode === 'tree' ? 'radial' : 'tree')}
+                                            title="Toggle View"
+                                            className="h-9 md:h-10 px-2 md:px-3"
+                                        >
+                                            <Network className={`w-4 h-4 md:w-5 md:h-5 ${viewMode === 'radial' ? 'text-purple-600' : ''}`} />
                                         </Button>
                                         <div className="w-px h-7 bg-gray-300 mx-1" />
                                         <DropdownMenu>
