@@ -291,6 +291,7 @@ export default function MindMapPage() {
     const [textInput, setTextInput] = useState({ visible: false, x: 0, y: 0, value: '' });
     const [viewMode, setViewMode] = useState('tree'); // 'tree' or 'radial'
     const [expandedNodes, setExpandedNodes] = useState({}); // Shared expanded state for both views
+    const [zoom, setZoom] = useState(1);
 
     // Helper to add annotation with history
     const addAnnotation = (newAnnotation) => {
@@ -354,6 +355,16 @@ export default function MindMapPage() {
                 case 'escape':
                     e.preventDefault();
                     setAnnotationMode(null);
+                    break;
+                case '+':
+                case '=':
+                    e.preventDefault();
+                    setZoom(prev => Math.min(prev + 0.1, 3));
+                    break;
+                case '-':
+                case '_':
+                    e.preventDefault();
+                    setZoom(prev => Math.max(prev - 0.1, 0.3));
                     break;
             }
         };
@@ -825,7 +836,7 @@ export default function MindMapPage() {
                             )}
                             <div 
                                 className="min-w-max px-8 transition-transform duration-75"
-                                style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)` }}
+                                style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})` }}
                                 ref={mindmapRef}
                             >
                                 {viewMode === 'tree' ? (
@@ -991,6 +1002,7 @@ export default function MindMapPage() {
                                             setPanOffset({ x: 0, y: 0 }); 
                                             setAnnotations([]);
                                             setExpandedNodes({});
+                                            setZoom(1);
                                             try { window.history.pushState({}, '', window.location.pathname); } catch (e) {} 
                                         }}
                                         title="Back"
