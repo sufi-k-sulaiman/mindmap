@@ -611,7 +611,7 @@ export default function MindMapPage() {
                     {/* Header inside the card */}
                     {!treeData && (
                         <div className="flex items-center justify-center mb-3 gap-2 py-1">
-                            <img src={LOGO_URL} alt="Logo" className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl" />
+                            <img src={LOGO_URL} alt="Logo" className="h-8 md:h-10 w-auto object-contain" />
                             <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">Mindmap</h1>
                         </div>
                     )}
