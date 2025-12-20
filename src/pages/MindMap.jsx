@@ -43,21 +43,19 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
     };
 
     const handleExplore = async () => {
-        if (isExpanding) return; // Prevent double-click
-        
+        if (isExpanding) return;
+
         if (isExpanded && hasChildren) {
-            // Collapse - toggle off
             setIsExpanded(false);
             return;
         }
-        
-        // If we already have children loaded, just expand
+
         if (children && children.length > 0) {
             setIsExpanded(true);
             scrollToCenter();
             return;
         }
-        
+
         setIsExpanding(true);
         try {
             const response = await base44.integrations.Core.InvokeLLM({
@@ -79,10 +77,13 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
                     }
                 }
             });
-            
-            setChildren(response.subtopics || []);
-            setIsExpanded(true);
-            scrollToCenter();
+
+            const newChildren = response?.subtopics || [];
+            if (newChildren.length > 0) {
+                setChildren(newChildren);
+                setIsExpanded(true);
+                scrollToCenter();
+            }
         } catch (error) {
             console.error('Failed to expand:', error);
         } finally {
@@ -105,11 +106,7 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
                 <p className="font-semibold text-sm md:text-base leading-tight mb-2.5 break-words">{node.name}</p>
                 <div className="flex gap-1.5 md:gap-2 justify-center flex-wrap">
                     <button
-                        onClick={(e) => { 
-                            e.stopPropagation(); 
-                            e.preventDefault();
-                            handleExplore(); 
-                        }}
+                        onClick={handleExplore}
                         disabled={isExpanding}
                         type="button"
                         className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded text-xs md:text-sm font-medium transition-colors disabled:opacity-50"
