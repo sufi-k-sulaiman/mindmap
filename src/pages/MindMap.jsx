@@ -427,7 +427,7 @@ export default function MindMapPage() {
             <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 10 }}>
                 {allAnnotations.map((ann, i) => {
                     const isSelected = selectedAnnotation === i;
-                    const strokeWidth = isSelected ? 5 : 3;
+                    const strokeWidth = isSelected ? 7 : 4.2;
                     const strokeColor = isSelected ? '#8b5cf6' : ann.color;
                     
                     if (ann.type === 'draw') {
@@ -435,7 +435,7 @@ export default function MindMapPage() {
                         return <path key={i} d={pathData} stroke={strokeColor} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" style={{ cursor: 'pointer', pointerEvents: 'stroke' }} onClick={(e) => handleAnnotationClick(i, e)} />;
                     }
                     if (ann.type === 'text') {
-                        return <text key={i} x={ann.x} y={ann.y} fill={strokeColor} fontSize="16" fontWeight={isSelected ? '700' : '500'} style={{ cursor: 'pointer' }} onClick={(e) => handleAnnotationClick(i, e)}>{ann.text}</text>;
+                        return <text key={i} x={ann.x} y={ann.y} fill={strokeColor} fontSize="22" fontWeight={isSelected ? '700' : '500'} style={{ cursor: 'pointer' }} onClick={(e) => handleAnnotationClick(i, e)}>{ann.text}</text>;
                     }
                     if (ann.type === 'rectangle') {
                         const x = ann.width < 0 ? ann.x + ann.width : ann.x;
@@ -741,10 +741,7 @@ export default function MindMapPage() {
                                     onLearn={handleLearn}
                                 />
                             </div>
-                            {/* Watermark logo */}
-                            <div className="absolute top-2 left-2 pointer-events-none">
-                                <img src={LOGO_URL} alt="" className="w-9 h-9 opacity-20 grayscale" />
-                            </div>
+
                             </div>
                             )}
                             {/* Annotation toolbar at bottom - fixed position */}
