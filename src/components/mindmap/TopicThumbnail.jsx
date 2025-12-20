@@ -68,19 +68,19 @@ export default function TopicThumbnail({ topic, onClick }) {
                 {/* Child nodes */}
                 <div 
                     className="absolute left-[5%] top-[10%] px-3 py-1.5 rounded-lg flex items-center justify-center text-white text-[10px] font-medium shadow-md group-hover:scale-105 transition-transform"
-                    style={{ backgroundColor: secondary }}
+                    style={{ backgroundColor: secondary, opacity: 0.85 }}
                 >
                     {subtopics[0]}
                 </div>
                 <div 
                     className="absolute right-[5%] top-[10%] px-3 py-1.5 rounded-lg flex items-center justify-center text-white text-[10px] font-medium shadow-md group-hover:scale-105 transition-transform"
-                    style={{ backgroundColor: tertiary }}
+                    style={{ backgroundColor: tertiary, opacity: 0.9 }}
                 >
                     {subtopics[1]}
                 </div>
                 <div 
                     className="absolute left-1/2 -translate-x-1/2 bottom-0 px-3 py-1.5 rounded-lg flex items-center justify-center text-white text-[10px] font-medium shadow-md group-hover:scale-105 transition-transform"
-                    style={{ backgroundColor: secondary }}
+                    style={{ backgroundColor: secondary, opacity: 0.8 }}
                 >
                     {subtopics[2]}
                 </div>
