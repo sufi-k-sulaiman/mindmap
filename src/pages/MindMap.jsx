@@ -107,7 +107,7 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
                         onClick={handleExplore}
                         disabled={isExpanding}
                         type="button"
-                        className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded text-xs md:text-sm font-medium transition-colors disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-full text-xs md:text-sm font-medium transition-colors disabled:opacity-50"
                     >
                         {isExpanding ? (
                             <Loader2 className="w-3 md:w-3.5 h-3 md:h-3.5 animate-spin" />
@@ -123,7 +123,7 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
                             onLearn(node); 
                         }}
                         type="button"
-                        className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded text-xs md:text-sm font-medium transition-colors"
+                        className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-full text-xs md:text-sm font-medium transition-colors"
                     >
                         <BookOpen className="w-3 md:w-3.5 h-3 md:h-3.5" />
                         Learn
