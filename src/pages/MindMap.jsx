@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2, X, Undo2, Redo2, Network, Triangle, Shapes } from 'lucide-react';
+import { Maximize2, Minimize2, Loader2, Search, Compass, BookOpen, Download, Hand, Pencil, Type, Square, Circle, Eraser, Trash2, X, Undo2, Redo2, Network, Triangle, Shapes, ZoomIn, ZoomOut } from 'lucide-react';
 import { LOGO_URL } from '@/components/NavigationConfig';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -966,6 +966,26 @@ export default function MindMapPage() {
                                             <Redo2 className="w-4 h-4 md:w-5 md:h-5" />
                                         </Button>
                                         <div className="w-px h-7 bg-gray-300 mx-1" />
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setZoom(prev => Math.max(prev - 0.1, 0.3))}
+                                            disabled={zoom <= 0.3}
+                                            title="Zoom Out (-)"
+                                            className="h-9 md:h-10 px-2 md:px-3"
+                                        >
+                                            <ZoomOut className="w-4 h-4 md:w-5 md:h-5" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setZoom(prev => Math.min(prev + 0.1, 3))}
+                                            disabled={zoom >= 3}
+                                            title="Zoom In (+)"
+                                            className="h-9 md:h-10 px-2 md:px-3"
+                                        >
+                                            <ZoomIn className="w-4 h-4 md:w-5 md:h-5" />
+                                        </Button>
                                         <Button
                                             variant={viewMode === 'radial' ? "secondary" : "ghost"}
                                             size="sm"
