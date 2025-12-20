@@ -410,6 +410,9 @@ export default function MindMapPage() {
             };
 
             const handleCanvasMouseDown = (e) => {
+                // Don't prevent default on buttons or interactive elements
+                if (e.target.closest('button')) return;
+                
                 // Prevent default to stop text selection
                 e.preventDefault();
 
