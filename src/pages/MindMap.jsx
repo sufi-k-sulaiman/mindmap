@@ -746,8 +746,8 @@ export default function MindMapPage() {
                             )}
                             {/* Annotation toolbar at bottom - fixed position */}
                             {treeData && !loading && !error && (
-                            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
-                                <div className="flex gap-1 md:gap-2 bg-white/95 backdrop-blur-sm rounded-xl p-1.5 md:p-2 shadow-lg border border-gray-200">
+                            <div className="fixed bottom-2 left-1/2 -translate-x-1/2 z-50">
+                                <div className="flex gap-1 md:gap-2 bg-white/95 backdrop-blur-sm rounded-full p-1.5 md:p-2 shadow-lg border border-gray-200">
                                     <Button
                                                                                   variant={annotationMode === null && !spacePressed ? "secondary" : "ghost"}
                                                                                   size="sm"
