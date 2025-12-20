@@ -25,58 +25,19 @@ const NODE_COLORS = [
     { bg: 'bg-teal-500' },
 ];
 
-function RadialMindMap({ node, onLearn }) {
-    const [expandedPaths, setExpandedPaths] = useState({});
-    const [loadingPaths, setLoadingPaths] = useState({});
-
+function RadialMindMap({ node, expandedNodes, onLearn }) {
     const colors = ['#9b59b6', '#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#1abc9c', '#e67e22', '#34495e'];
-
-    const expandNode = async (nodePath, nodeName) => {
-        const pathKey = nodePath.join('.');
-        if (loadingPaths[pathKey] || expandedPaths[pathKey]) return;
-
-        setLoadingPaths(prev => ({ ...prev, [pathKey]: true }));
-        try {
-            const response = await base44.integrations.Core.InvokeLLM({
-                prompt: `Generate 3-5 subtopics/related concepts for "${nodeName}". Each should have a name and brief description.`,
-                add_context_from_internet: true,
-                response_json_schema: {
-                    type: "object",
-                    properties: {
-                        subtopics: {
-                            type: "array",
-                            items: {
-                                type: "object",
-                                properties: {
-                                    name: { type: "string" },
-                                    description: { type: "string" }
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            const newChildren = response?.subtopics || [];
-            setExpandedPaths(prev => ({ ...prev, [pathKey]: newChildren }));
-        } catch (error) {
-            console.error('Failed to expand:', error);
-        } finally {
-            setLoadingPaths(prev => ({ ...prev, [pathKey]: false }));
-        }
-    };
 
     const renderBranch = (branchNode, angle, distance, depth, path, colorIndex) => {
         const rad = (angle * Math.PI) / 180;
         const x = Math.cos(rad) * distance;
         const y = Math.sin(rad) * distance;
         const color = colors[colorIndex % colors.length];
-        const pathKey = path.join('.');
-        const children = expandedPaths[pathKey] || branchNode.children || [];
-        const isLoading = loadingPaths[pathKey];
+        const nodeId = path.join('-');
+        const children = expandedNodes[nodeId] || branchNode.children || [];
 
         return (
-            <g key={path.join('-')} transform={`translate(${x}, ${y})`}>
+            <g key={nodeId} transform={`translate(${x}, ${y})`}>
                 <path
                     d={`M 0,0 Q ${-x/2},${-y/2} ${-x},${-y}`}
                     stroke={color}
@@ -89,13 +50,9 @@ function RadialMindMap({ node, onLearn }) {
                         <div 
                             className="px-4 py-2 rounded-full text-white text-xs md:text-sm font-medium shadow-lg cursor-pointer hover:scale-105 transition-transform"
                             style={{ backgroundColor: color, border: `2px solid ${color}` }}
-                            onClick={() => expandNode(path, branchNode.name)}
                         >
                             {branchNode.name}
                         </div>
-                        {isLoading && (
-                            <Loader2 className="w-3 h-3 animate-spin mt-1" style={{ color }} />
-                        )}
                     </div>
                 </foreignObject>
 
@@ -139,10 +96,11 @@ function RadialMindMap({ node, onLearn }) {
     );
 }
 
-function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef = null }) {
+function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef = null, path = [], expandedNodes, setExpandedNodes }) {
     const [isExpanding, setIsExpanding] = useState(false);
-    const [children, setChildren] = useState(node.children || []);
-    const [isExpanded, setIsExpanded] = useState(node.children && node.children.length > 0);
+    const nodeId = path.join('-');
+    const children = expandedNodes[nodeId] || node.children || [];
+    const [isExpanded, setIsExpanded] = useState((node.children && node.children.length > 0) || !!expandedNodes[nodeId]);
     const selfRef = useRef(null);
     
     const color = NODE_COLORS[colorIndex % NODE_COLORS.length];
@@ -193,7 +151,7 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
             });
 
             const newChildren = response?.subtopics || [];
-            setChildren(newChildren);
+            setExpandedNodes(prev => ({ ...prev, [nodeId]: newChildren }));
             setIsExpanded(true);
             scrollToCenter();
         } catch (error) {
@@ -260,6 +218,9 @@ function TreeNode({ node, colorIndex = 0, onExplore, onLearn, depth = 0, nodeRef
                                         onExplore={onExplore}
                                         onLearn={onLearn}
                                         depth={depth + 1}
+                                        path={[...path, i]}
+                                        expandedNodes={expandedNodes}
+                                        setExpandedNodes={setExpandedNodes}
                                     />
                                 </div>
                             ))}
@@ -318,6 +279,7 @@ export default function MindMapPage() {
     const canvasOverlayRef = useRef(null);
     const [textInput, setTextInput] = useState({ visible: false, x: 0, y: 0, value: '' });
     const [viewMode, setViewMode] = useState('tree'); // 'tree' or 'radial'
+    const [expandedNodes, setExpandedNodes] = useState({}); // Shared expanded state for both views
 
     // Helper to add annotation with history
     const addAnnotation = (newAnnotation) => {
@@ -853,10 +815,14 @@ export default function MindMapPage() {
                                         node={treeData}
                                         colorIndex={0}
                                         onLearn={handleLearn}
+                                        path={[]}
+                                        expandedNodes={expandedNodes}
+                                        setExpandedNodes={setExpandedNodes}
                                     />
                                 ) : (
                                     <RadialMindMap
                                         node={treeData}
+                                        expandedNodes={expandedNodes}
                                         onLearn={handleLearn}
                                     />
                                 )}
@@ -993,7 +959,8 @@ export default function MindMapPage() {
                                             }
                                             setTreeData(null); 
                                             setPanOffset({ x: 0, y: 0 }); 
-                                            setAnnotations([]); 
+                                            setAnnotations([]);
+                                            setExpandedNodes({});
                                             try { window.history.pushState({}, '', window.location.pathname); } catch (e) {} 
                                         }}
                                         title="Back"
