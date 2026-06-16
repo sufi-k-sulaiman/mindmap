@@ -16,9 +16,10 @@ export default function Footer() {
           href="https://sufikhan.com/" 
           target="_blank" 
           rel="noopener noreferrer"
+          title="Sufi Khan Sulaiman – 20+ years of building scalable Ecommerce solutions"
           className="text-gray-700 hover:text-purple-600 transition-colors font-medium"
         >
-          Sufi K Sulaiman
+          Sufi Khan Sulaiman
         </a>
         . All rights reserved.
       </p>
